@@ -16,7 +16,6 @@
 		.controller_contain {
 		    padding-top: 50px;
 		}
-
 		#demo_object_1 {
 		    width: 70px;
 		    height: 70px;
@@ -24,12 +23,10 @@
 		    opacity: 1;
 		    position:relative;
 		}
-
 		#demo_contain_2 {
 		    height: 300px;
 		    border:1px solid black;
 		}
-
 		#demo_object_2 {
 		    width: 70px;
 		    height: 70px;
@@ -37,7 +34,6 @@
 		    opacity: 1;
 		    position:relative;
 		}
-
 	</style>
 </head>
 <body>
@@ -73,13 +69,12 @@
 	</div>
 </body>
 
-<script src="./js/j2m.js"></script>
+<script src="../src/j2m.js"></script>
 <script type="text/javascript">
 	
 	function moveDemoObject1(motiontype, direction) {
 		var objectMaxPx = document.getElementById("demo_object_1_px");
 		var objectMaxSec = document.getElementById("demo_object_1_sec");
-
 		if(direction == "x") {
 			j2m("#demo_object_1").move({x:objectMaxPx.value, motiontype:motiontype}, Number(objectMaxSec.value));	
 		} else if(direction == "y") {
@@ -87,12 +82,10 @@
 		}
 		
 	}
-
 	function moveDemoObject2(motiontype, continuity) {
 		var objectXMaxPx = document.getElementById("demo_object_X2_px");
 		var objectYMaxPx = document.getElementById("demo_object_Y2_px");
 		var objectMaxSec = document.getElementById("demo_object_2_sec");
-
 		j2m("#demo_object_2").move({x:objectXMaxPx.value, y:objectYMaxPx.value, motiontype:motiontype, continuity:continuity}, Number(objectMaxSec.value));
 	}
 </script>

@@ -2,7 +2,7 @@
 	"use strict";
 
 	function j2mObject() {}
-
+	(function (){j2mObject = null;});
 	var
 		_commonConfig = {
 			defaultFps : 60 //기본 설정 프레임
@@ -15,7 +15,9 @@
 			uniformMotion : "U",       //모션 타입 등속운동
 			x : "X",                   //x축 움직임 (가로)
 			y : "Y",                   //y축 움직임 (세로)
-			xy : "XY",                 //x축, y축 움직임 (대각선)
+			opacity : "OPACITY",       //투명도
+			opacityModifyUP : "UP",
+			opacityModifyDOWN : "DOWN",
 			timeScale : 1
 		},
 		_j2m = {
@@ -111,68 +113,54 @@
         			   window.oRequestAnimationFrame ||
 					   null;
 			},
-			getBrowserTransformYn : function() {
-
-				if (_j2mUtil.getBrowserKind().b == "msie" && parseInt(_j2mUtil.getBrowserKind().v) < 10) {
-					return false;
-				} else {
-					return true;
-				}
-			},
 			createFunction : function(n, c) {
 				j2mObject.prototype[n] = c;
+			},
+			getMotionOrderYn : function(c) {
+				if(_constantValue.x == c || _constantValue.y == c || _constantValue.opacity == c) {
+					return true;
+				}
+
+				return false;
 			},
 			getTime : Date.now || function() {return new Date * 1;}
 		},
 		_j2mEngine = {
-			getNextMoveSpace : function(renderConfig, direction) {
+			tickerManager : function(renderConfig, direction) {
 
-				//대각선 움직임일 경우
-				if(_constantValue.xy == direction) {
-					if(renderConfig.motionType == _constantValue.uniformMotion) {
-						renderConfig.arrMoveOrderInfo[_constantValue.x].nextStraightMovePx = Number(renderConfig.arrMoveOrderInfo[_constantValue.x].nextStraightMovePx + renderConfig.arrMoveOrderInfo[_constantValue.x].movePx);
-						renderConfig.arrMoveOrderInfo[_constantValue.y].nextStraightMovePx = Number(renderConfig.arrMoveOrderInfo[_constantValue.y].nextStraightMovePx + renderConfig.arrMoveOrderInfo[_constantValue.y].movePx);
-					} else if(renderConfig.motionType == _constantValue.acceleratedMotion) {
-						//등속 계산식
-						var elapsed = _j2mUtil.getTime() - renderConfig.lastUpdate;
-						renderConfig.lastUpdate += elapsed;
-						renderConfig.time = (renderConfig.lastUpdate - renderConfig.startTime) / 1000;
-
-						//overlap은 나중에
-
-						var xp = (renderConfig.time * _constantValue.timeScale) / renderConfig.arrMoveOrderInfo[_constantValue.x].duration;
-						xp = 1 - xp;
-						xp *= xp;
-						renderConfig.arrMoveOrderInfo[_constantValue.x].ratio = 1 - xp;
-									
-						renderConfig.arrMoveOrderInfo[_constantValue.x].nextStraightMovePx = renderConfig.arrMoveOrderInfo[_constantValue.x].maxMovePx * renderConfig.arrMoveOrderInfo[_constantValue.x].ratio;
-
-						var yp = (renderConfig.time * _constantValue.timeScale) / renderConfig.arrMoveOrderInfo[_constantValue.y].duration;
-						yp = 1 - yp;
-						yp *= yp;
-						renderConfig.arrMoveOrderInfo[_constantValue.y].ratio = 1 - yp;
-									
-						renderConfig.arrMoveOrderInfo[_constantValue.y].nextStraightMovePx = renderConfig.arrMoveOrderInfo[_constantValue.y].maxMovePx * renderConfig.arrMoveOrderInfo[_constantValue.y].ratio;
-					}
-				} else {
-					if(renderConfig.motionType == _constantValue.uniformMotion) {
-						renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx = Number(renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx + renderConfig.arrMoveOrderInfo[direction].movePx);
-					} else if(renderConfig.motionType == _constantValue.acceleratedMotion) {
-						//등속 계산식
-						var elapsed = _j2mUtil.getTime() - renderConfig.lastUpdate;
-						renderConfig.lastUpdate += elapsed;
-						renderConfig.time = (renderConfig.lastUpdate - renderConfig.startTime) / 1000;
-
-						//overlap은 나중에
-
-						var p = (renderConfig.time * _constantValue.timeScale) / renderConfig.arrMoveOrderInfo[direction].duration;
-						p = 1 - p;
-						p *= p;
-						renderConfig.arrMoveOrderInfo[direction].ratio = 1 - p;
-									
-						renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx = renderConfig.arrMoveOrderInfo[direction].maxMovePx * renderConfig.arrMoveOrderInfo[direction].ratio;
-					}
+				if(_constantValue.x == direction || _constantValue.y == direction) {
+					_j2mEngine.straightLineTicker(renderConfig, direction);
+				} else if(_constantValue.opacity == direction) {
+					_j2mEngine.opacityTicker(renderConfig, direction);
 				}
+			},
+			straightLineTicker : function(renderConfig, direction) {
+
+				if(renderConfig.motionType == _constantValue.uniformMotion) {
+					renderConfig.arrMoveOrderInfo[direction].nextMoveRate = parseFloat(renderConfig.arrMoveOrderInfo[direction].nextMoveRate) + parseFloat(renderConfig.arrMoveOrderInfo[direction].uniformMotionMoveRate);
+				} else if(renderConfig.motionType == _constantValue.acceleratedMotion) {
+					//등속 계산식
+					var elapsed = _j2mUtil.getTime() - renderConfig.lastUpdate;
+					renderConfig.lastUpdate += elapsed;
+					renderConfig.time = (renderConfig.lastUpdate - renderConfig.startTime) / 1000;
+
+					//overlap은 나중에
+
+					var p = (renderConfig.time * _constantValue.timeScale) / renderConfig.arrMoveOrderInfo[direction].duration;
+					p = 1 - p;
+					p *= p;
+					renderConfig.arrMoveOrderInfo[direction].ratio = 1 - p;
+
+					renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].maxMoveRate * renderConfig.arrMoveOrderInfo[direction].ratio;
+				}				
+			},
+			opacityTicker : function(renderConfig, direction) {
+
+				if(renderConfig.arrMoveOrderInfo[direction].opacityModifyType == _constantValue.opacityModifyDOWN) {
+					renderConfig.arrMoveOrderInfo[direction].nextMoveRate = parseFloat(renderConfig.arrMoveOrderInfo[direction].nextMoveRate) - parseFloat(renderConfig.arrMoveOrderInfo[direction].opacityRate);
+				} else {
+					renderConfig.arrMoveOrderInfo[direction].nextMoveRate = parseFloat(renderConfig.arrMoveOrderInfo[direction].nextMoveRate) + parseFloat(renderConfig.arrMoveOrderInfo[direction].opacityRate);
+				}			
 			}
 		};
 
@@ -191,18 +179,18 @@
 			this.renderConfig.lastUpdate = _j2mUtil.getTime();
 
 			if(typeof(s) === "object" && typeof(t) === "number") {
-				this.randerFactofyManager(s, t);
+				this.randerFactoryManager(s, t);
 			} else if (typeof(s) === "number" && typeof(t) === "object") {
-				this.randerFactofyManager(t, s);
+				this.randerFactoryManager(t, s);
 			}
 
 			return this;
 		});
 
-		_j2mUtil.createFunction("randerFactofyManager", function(s, t) {
+		_j2mUtil.createFunction("randerFactoryManager", function(s, t) {
 
-			var arrMoveOrderInfo = [];                     //사용자가 움직임을 설정한 내용
-			var motionType = _constantValue.uniformMotion; //운동방식 - u : 등속운동, a : 가속운동, default : 등속은동
+			var arrMoveOrderInfo = [];                         //사용자가 움직임을 설정한 내용
+			var motionType = _constantValue.acceleratedMotion; //운동방식 - u : 등속운동, a : 가속운동, default : 가속운동
 
 			if(s[_constantValue.motionType] != undefined) {
 				if(s[_constantValue.motionType].toUpperCase() == _constantValue.uniformMotion || s[_constantValue.motionType].toUpperCase() == _constantValue.acceleratedMotion) {
@@ -210,233 +198,179 @@
 				}
 			}
 
-			for (var key in s) {
-				var moveOrderInfo = {};
-
-				//방향에 대한 명령만 걸러서 저장
-				if(_constantValue.x == key.toUpperCase() || _constantValue.y == key.toUpperCase()) {
-					moveOrderInfo.moveKey = key.toUpperCase();
-					moveOrderInfo.maxMovePx = s[key];
-					moveOrderInfo.duration = t;           //이동해야할 시간
-					moveOrderInfo.nextStraightMovePx = 0; //직선으로 이동할 거리
-					
-					if(motionType == _constantValue.uniformMotion) {
-						moveOrderInfo.movePx = Number(s[key] / (t * _commonConfig.defaultFps)); //1fps 당 움직여야할 거리 (등속운동에서만 사용함)
-					}
-
-					arrMoveOrderInfo.push(key.toUpperCase());
-					arrMoveOrderInfo[key.toUpperCase()] = moveOrderInfo;
-				}
-			};
-			this.renderConfig.arrMoveOrderInfo = arrMoveOrderInfo;
-			this.renderConfig.loopCnt = Number(t * _commonConfig.defaultFps);  //이동시 총 프레임 수
-			this.renderConfig.motionType = motionType;                         //움직임 타입
-
 			//이동명령을 한번에 할지 순차적으로 할지 결정
 			if(s[_constantValue.continuity] != undefined) {
 				this.renderConfig.continuity = s[_constantValue.continuity];
 			} else {
 				this.renderConfig.continuity = false;
 			}
-
-			if(!_j2mUtil.getRequestAnimationFrame()) {
-				this.renderConfig.loopTime = Number(1000 / _commonConfig.defaultFps); //다음 프레임으로 바뀔 시간 길이(requestAniFrame를 지원하지 않는 브라우저 일때 사용)
-			}
-
-			//위에 로직을 이용해서 어느 움직임을 이용해야 하는지 분기 처리 해야함
-			if(this.renderConfig.arrMoveOrderInfo.length == 2 && this.renderConfig.arrMoveOrderInfo[_constantValue.x] != undefined && this.renderConfig.arrMoveOrderInfo[_constantValue.y] != undefined && this.renderConfig.continuity == false && _j2mUtil.getBrowserTransformYn()) {
-				this.animationRendering(_constantValue.xy, 0); //런더링 방향, 반복 시작 카운트 (대각선 움직임)
-			} else {
-				if(this.renderConfig.continuity == false) {
-					for(var i = 0; i < this.renderConfig.arrMoveOrderInfo.length; i++) {
-						this.animationRendering(this.renderConfig.arrMoveOrderInfo[i], 0); //런더링 방향, 반복 시작 카운트
+			var orderCount = 0;
+			if(this.renderConfig.continuity == true) {
+				//모션 명령을 한번에 수행일때 총 모션 수를 구한다.
+				for (var key in s) {
+					if( _j2mUtil.getMotionOrderYn(key.toUpperCase()) == true ) {
+						orderCount++;
 					}
-				} else if (this.renderConfig.continuity == true) {
-					this.animationRendering(this.renderConfig.arrMoveOrderInfo[0], 0); //런더링 방향, 반복 시작 카운트
+				}
+				if(orderCount > 1) {
+					t = t / orderCount;	
 				}
 			}
 
+			for (var key in s) {
+				var moveOrderInfo = {}; //객체에 모션을 주기 위한 옵션들이 있는 객체
+
+				//모션에 대한 명령만 걸러서 저장
+				if(_constantValue.x == key.toUpperCase() || _constantValue.y == key.toUpperCase() || _constantValue.opacity == key.toUpperCase()) {
+					moveOrderInfo.moveKey = key.toUpperCase();
+					moveOrderInfo.maxMoveRate = s[key];
+					moveOrderInfo.duration = t; //이동해야할 시간
+
+					//opacity과 나머지 움직임을 분기 처리
+					if(_constantValue.opacity == key.toUpperCase()) {
+						var style = window.getComputedStyle(this.renderConfig.targetElement, null);
+						moveOrderInfo.nextMoveRate = style.opacity; //다음 이동할 거리
+						moveOrderInfo.opacityRate = Number( Math.abs(Number(s[key]-style.opacity)) / (t * _commonConfig.defaultFps)); //opacity시에 다음에 적용해야할 변화 비율
+						if(Number(s[key]-style.opacity) > 0) {
+							moveOrderInfo.opacityModifyType = _constantValue.opacityModifyUP;
+						} else {
+							moveOrderInfo.opacityModifyType = _constantValue.opacityModifyDOWN;
+						}
+					} else {
+						moveOrderInfo.nextMoveRate = 0; //다음 이동할 거리
+					}
+
+					if(motionType == _constantValue.uniformMotion) {
+						moveOrderInfo.uniformMotionMoveRate = Number(s[key] / (t * _commonConfig.defaultFps)); //1fps 당 움직여야할 거리 (등속운동에서만 사용함)
+					}
+
+					arrMoveOrderInfo.push(key.toUpperCase());
+					arrMoveOrderInfo[key.toUpperCase()] = moveOrderInfo;
+				}
+			}
+			this.renderConfig.arrMoveOrderInfo = arrMoveOrderInfo;
+			this.renderConfig.loopCnt = Number(t * _commonConfig.defaultFps); //이동시 총 프레임 수
+			this.renderConfig.motionType = motionType;                        //움직임 타입
+
+			//다음 프레임으로 바뀔 시간 길이(requestAniFrame를 지원하지 않는 브라우저 일때 사용)
+			if(!_j2mUtil.getRequestAnimationFrame()) {
+				this.renderConfig.loopTime = Number(1000 / _commonConfig.defaultFps);
+			}
+
+			if(this.renderConfig.continuity == false) { //모션 명령을 한번에 수행
+				for(var i = 0; i < this.renderConfig.arrMoveOrderInfo.length; i++) {
+					if(_constantValue.x == this.renderConfig.arrMoveOrderInfo[i] || _constantValue.y == this.renderConfig.arrMoveOrderInfo[i]) {
+						this.straightLineRendering(this.renderConfig.arrMoveOrderInfo[i], 0); //직선운동 런더링(방향, 반복 시작 카운트)
+					} else if(_constantValue.opacity == this.renderConfig.arrMoveOrderInfo[i]) {
+						this.opacityRendering(this.renderConfig.arrMoveOrderInfo[i], 0); //투명도 조절
+					}
+				}
+			} else if (this.renderConfig.continuity == true) { //모션 명령을 순차적으로 수행
+				if(_constantValue.x == this.renderConfig.arrMoveOrderInfo[0] || _constantValue.y == this.renderConfig.arrMoveOrderInfo[0]) {
+					this.straightLineRendering(this.renderConfig.arrMoveOrderInfo[0], 0); //직선운동 런더링( )방향, 반복 시작 카운트)
+				} else if(_constantValue.opacity == this.renderConfig.arrMoveOrderInfo[0]) {
+					this.opacityRendering(this.renderConfig.arrMoveOrderInfo[0], 0); //투명도 조절
+				}
+			}
 			return this;
 		});
 
-		function getAnimationRendering(){
-			var browserKind = _j2mUtil.getBrowserKind();
+		function getStraightLineRendering(){
 			var returnFunction = "";
 			var requestAniFrame = _j2mUtil.getRequestAnimationFrame();
 
 			if(requestAniFrame) {
 
-				//requestAniFrame 함수가 있고 브라으저가 IE10 미만이다
-				if (!_j2mUtil.getBrowserTransformYn()) {
+				returnFunction = function(direction, loopCntTemp){
 
-					returnFunction = function(direction, loopCntTemp){
+					_j2mEngine.tickerManager(this.renderConfig, direction);
+					var renderCloneObject = this;
 
-						_j2mEngine.getNextMoveSpace(this.renderConfig, direction);
-						var renderCloneObject = this;
-
-						if (loopCntTemp < this.renderConfig.loopCnt) {
-							requestAniFrame(function(time){
-								if(_constantValue.x == direction) {
-									renderCloneObject.renderConfig.targetElement.style.left = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx) +'px'; //IE10 미만
-								} else if(_constantValue.y == direction) {
-									renderCloneObject.renderConfig.targetElement.style.top = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx) +'px'; //IE10 미만
-								}
-								renderCloneObject.animationRendering(direction, Number(loopCntTemp + 1));
-							});
-						} else {
-							//마지막에 모자라는 px르 마추는 작업
-							if(_constantValue.x == direction) {
-								renderCloneObject.renderConfig.targetElement.style.left = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMovePx) +'px'; //IE10 미만
-							} else if(_constantValue.y == direction) {
-								renderCloneObject.renderConfig.targetElement.style.top = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMovePx) +'px'; //IE10 미만
+					if (loopCntTemp < this.renderConfig.loopCnt) {
+						requestAniFrame(function(time){
+							var moveX = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x] != undefined ? renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].nextMoveRate : "0";
+							if(moveX == undefined) {
+								moveX = "0";
+							}
+							var moveY = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.y] != undefined ? renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.y].nextMoveRate : "0";
+							if(moveY == undefined) {
+								moveY = "0";
 							}
 
-							if(renderCloneObject.renderConfig.continuity == true) {
-								var flgExist = 0;
-								for (var i = 0; i < renderCloneObject.renderConfig.arrMoveOrderInfo.length; i++) {
-								    if(renderCloneObject.renderConfig.arrMoveOrderInfo[i] == direction) {
-								        flgExist = i;
-								        break;
-								    }
-								}
-								if(flgExist < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
-									renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].maxMovePx; //최종 목적지로 세팅
-									renderCloneObject.renderConfig.startTime = _j2mUtil.getTime();
-									renderCloneObject.renderConfig.lastUpdate = _j2mUtil.getTime();
+							renderCloneObject.renderConfig.targetElement.style.transform  = 'translate3d('+moveX+'px, '+moveY+'px, 0px)';
 
-									renderCloneObject.animationRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[flgExist+1], 0);
-								}
-							}
+							renderCloneObject.straightLineRendering(direction, Number(loopCntTemp + 1));
+						});
+					} else {
+						//마지막에 모자라는 px르 마추는 작업
+						if(_constantValue.x == direction) {
+							var maxMoveX = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x] != undefined ? renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].maxMoveRate : "0";
+						} else if(_constantValue.y == direction) {
+							var maxMoveY = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.y] != undefined ? renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.y].maxMoveRate : "0";
 						}
-					}
-				//requestAniFrame 함수가 있고 브라으저가 IE10 이상이다
-				} else {
 
-					returnFunction = function(direction, loopCntTemp){
+						renderCloneObject.renderConfig.targetElement.style.transform  = 'translate3d('+maxMoveX+'px, '+maxMoveY+'px, 0px)';
 
-						_j2mEngine.getNextMoveSpace(this.renderConfig, direction);
-						var renderCloneObject = this;
+						if(renderCloneObject.renderConfig.continuity == true) {
+							if(renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction) < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
+								renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMoveRate; //최종 목적지로 세팅
+								renderCloneObject.renderConfig.startTime = _j2mUtil.getTime();
+								renderCloneObject.renderConfig.lastUpdate = _j2mUtil.getTime();
 
-						if (loopCntTemp < this.renderConfig.loopCnt) {
-							requestAniFrame(function(time){
-
-								if(_constantValue.x == direction && renderCloneObject.renderConfig.continuity == false) {
-									renderCloneObject.renderConfig.targetElement.style.transform  = 'translateX('+renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx+'px)'; //IE10이상
-								} else if(_constantValue.y == direction && renderCloneObject.renderConfig.continuity == false) {
-									renderCloneObject.renderConfig.targetElement.style.transform  = 'translateY('+renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx+'px)'; //IE10이상
-								} else if(_constantValue.xy == direction || renderCloneObject.renderConfig.continuity == true) { // 대각선 움직임
-									renderCloneObject.renderConfig.targetElement.style.transform  = 'translate3d('+renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].nextStraightMovePx+'px, '+renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.y].nextStraightMovePx+'px, 0px)'; //IE10이상
-								}
-
-								renderCloneObject.animationRendering(direction, Number(loopCntTemp + 1));
-							});
-						} else {
-							//마지막에 모자라는 px르 마추는 작업
-							if(_constantValue.x == direction && renderCloneObject.renderConfig.continuity == false) {
-								renderCloneObject.renderConfig.targetElement.style.transform  = 'translateX('+this.renderConfig.arrMoveOrderInfo[direction].maxMovePx+'px)'; //IE10이상
-							} else if(_constantValue.y == direction && renderCloneObject.renderConfig.continuity == false) {
-								renderCloneObject.renderConfig.targetElement.style.transform  = 'translateY('+this.renderConfig.arrMoveOrderInfo[direction].maxMovePx+'px)'; //IE10이상
-							} else if(_constantValue.xy == direction) { // 대각선 움직임
-								renderCloneObject.renderConfig.targetElement.style.transform  = 'translate3d('+renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].maxMovePx+'px, '+renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.y].maxMovePx+'px, 0px)'; //IE10이상
-							}
-
-							if(renderCloneObject.renderConfig.continuity == true) {
-								if(renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction) < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
-									renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].maxMovePx; //최종 목적지로 세팅
-									renderCloneObject.renderConfig.startTime = _j2mUtil.getTime();
-									renderCloneObject.renderConfig.lastUpdate = _j2mUtil.getTime();
-
-									renderCloneObject.animationRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1], 0);
-								}
+								var nextOrder = renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1];
+								if(_constantValue.x == nextOrder || _constantValue.y == nextOrder) {
+									renderCloneObject.straightLineRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1], 0);
+								} else if(_constantValue.opacity == nextOrder) {
+									renderCloneObject.opacityRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1], 0);
+								}	
 							}
 						}
 					}
 				}
-
 			} else {
 
-				//requestAniFrame 함수가 없고 브라으저가 IE10 미만이다
-				if (!_j2mUtil.getBrowserTransformYn()) {
+				returnFunction = function(direction, loopCntTemp){
 
-					returnFunction = function(direction, loopCntTemp){
+					_j2mEngine.tickerManager(this.renderConfig, direction);
+					var renderCloneObject = this;
 
-						_j2mEngine.getNextMoveSpace(this.renderConfig, direction);
-						var renderCloneObject = this;
-
-						if (loopCntTemp < this.renderConfig.loopCnt) {
-							setTimeout(function(){
-								if(_constantValue.x == direction) {
-									renderCloneObject.renderConfig.targetElement.style.left = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx) +'px'; //IE10 미만
-								} else if(_constantValue.y == direction) {
-									renderCloneObject.renderConfig.targetElement.style.top = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx) +'px'; //IE10 미만
-								}
-
-								renderCloneObject.animationRendering(direction, Number(loopCntTemp + 1));
-							}, Number(this.renderConfig.loopTime+1));
-						} else {
-							//마지막에 모자라는 px르 마추는 작업
+					if (loopCntTemp < this.renderConfig.loopCnt) {
+						setTimeout(function(){
 							if(_constantValue.x == direction) {
-								renderCloneObject.renderConfig.targetElement.style.left = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMovePx) +'px'; //IE10 미만
+								renderCloneObject.renderConfig.targetElement.style.left = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate) +'px'; //IE10 미만
 							} else if(_constantValue.y == direction) {
-								renderCloneObject.renderConfig.targetElement.style.top = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMovePx) +'px'; //IE10 미만
+								renderCloneObject.renderConfig.targetElement.style.top = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate) +'px'; //IE10 미만
 							}
 
-							if(renderCloneObject.renderConfig.continuity == true) {
-								var flgExist = 0;
-								for (var i = 0; i < renderCloneObject.renderConfig.arrMoveOrderInfo.length; i++) {
-								    if(renderCloneObject.renderConfig.arrMoveOrderInfo[i] == direction) {
-								        flgExist = i;
-								        break;
-								    }
-								}
-								if(flgExist < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
-									renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].maxMovePx; //최종 목적지로 세팅
-									renderCloneObject.renderConfig.startTime = _j2mUtil.getTime();
-									renderCloneObject.renderConfig.lastUpdate = _j2mUtil.getTime();
-
-									renderCloneObject.animationRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[flgExist+1], 0);
-								}
-							}
+							renderCloneObject.straightLineRendering(direction, Number(loopCntTemp + 1));
+						}, Number(this.renderConfig.loopTime+1));
+					} else {
+						//마지막에 모자라는 px르 마추는 작업
+						if(_constantValue.x == direction) {
+							renderCloneObject.renderConfig.targetElement.style.left = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMoveRate) +'px'; //IE10 미만
+						} else if(_constantValue.y == direction) {
+							renderCloneObject.renderConfig.targetElement.style.top = (renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMoveRate) +'px'; //IE10 미만
 						}
-					}
-				//requestAniFrame 함수가 없고 브라으저가 IE10 이상이다
-				} else {
 
-					returnFunction = function(direction, loopCntTemp){
-
-						_j2mEngine.getNextMoveSpace(this.renderConfig, direction);
-						var renderCloneObject = this;
-
-						if (loopCntTemp < this.renderConfig.loopCnt) {
-							setTimeout(function(){
-								if(_constantValue.x == direction && renderCloneObject.renderConfig.continuity == false) {
-									renderCloneObject.renderConfig.targetElement.style.transform  = 'translateX('+renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx+'px)'; //IE10이상
-								} else if(_constantValue.y == direction && renderCloneObject.renderConfig.continuity == false) {
-									renderCloneObject.renderConfig.targetElement.style.transform  = 'translateY('+renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx+'px)'; //IE10이상
-								} else if(_constantValue.xy == direction || renderCloneObject.renderConfig.continuity == true) { // 대각선 움직임
-									renderCloneObject.renderConfig.targetElement.style.transform  = 'translate3d('+renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].nextStraightMovePx+'px, '+renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.y].nextStraightMovePx+'px, 0px)'; //IE10이상
-								}
-
-								renderCloneObject.animationRendering(direction, Number(loopCntTemp + 1));
-							}, Number(this.renderConfig.loopTime+1));
-						} else {
-							//마지막에 모자라는 px르 마추는 작업
-							if(_constantValue.x == direction && renderCloneObject.renderConfig.continuity == false) {
-								renderCloneObject.renderConfig.targetElement.style.transform  = 'translateX('+this.renderConfig.arrMoveOrderInfo[direction].maxMovePx+'px)'; //IE10이상
-							} else if(_constantValue.y == direction && renderCloneObject.renderConfig.continuity == false) {
-								renderCloneObject.renderConfig.targetElement.style.transform  = 'translateY('+this.renderConfig.arrMoveOrderInfo[direction].maxMovePx+'px)'; //IE10이상
-							} else if(_constantValue.xy == direction) { // 대각선 움직임
-								renderCloneObject.renderConfig.targetElement.style.transform  = 'translate3d('+renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].maxMovePx+'px, '+renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.y].maxMovePx+'px, 0px)'; //IE10이상
+						if(renderCloneObject.renderConfig.continuity == true) {
+							var flgExist = 0;
+							for (var i = 0; i < renderCloneObject.renderConfig.arrMoveOrderInfo.length; i++) {
+							    if(renderCloneObject.renderConfig.arrMoveOrderInfo[i] == direction) {
+							        flgExist = i;
+							        break;
+							    }
 							}
+							if(flgExist < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
+								renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMoveRate; //최종 목적지로 세팅
+								renderCloneObject.renderConfig.startTime = _j2mUtil.getTime();
+								renderCloneObject.renderConfig.lastUpdate = _j2mUtil.getTime();
 
-							if(renderCloneObject.renderConfig.continuity == true) {
-								if(renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction) < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
-									renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextStraightMovePx = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].maxMovePx; //최종 목적지로 세팅
-									renderCloneObject.renderConfig.startTime = _j2mUtil.getTime();
-									renderCloneObject.renderConfig.lastUpdate = _j2mUtil.getTime();
-
-									renderCloneObject.animationRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1], 0);
-								}
+								var nextOrder = renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1];
+								if(_constantValue.x == nextOrder || _constantValue.y == nextOrder) {
+									renderCloneObject.straightLineRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[flgExist+1], 0);
+								} else if(_constantValue.opacity == nextOrder) {
+									renderCloneObject.opacityRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[flgExist+1], 0);
+								}	
 							}
 						}
 					}
@@ -446,7 +380,81 @@
 			return returnFunction;
 		
 		}
-		_j2mUtil.createFunction("animationRendering", getAnimationRendering());
+		_j2mUtil.createFunction("straightLineRendering", getStraightLineRendering());
+
+		function getOpacityRendering(){
+			var returnFunction = "";
+			var requestAniFrame = _j2mUtil.getRequestAnimationFrame();
+
+			if(requestAniFrame) {
+
+				returnFunction = function(direction, loopCntTemp){
+
+					_j2mEngine.tickerManager(this.renderConfig, direction);
+					var renderCloneObject = this;
+
+					if (loopCntTemp < this.renderConfig.loopCnt) {
+						requestAniFrame(function(time){
+							renderCloneObject.renderConfig.targetElement.style[direction.toLowerCase()] = renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate;
+
+							renderCloneObject.opacityRendering(direction, Number(loopCntTemp + 1));
+						});
+					} else {
+						//마지막에 모자라는 px르 마추는 작업
+						renderCloneObject.renderConfig.targetElement.style[direction.toLowerCase()] = renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMoveRate;
+
+						if(renderCloneObject.renderConfig.continuity == true) {
+							if(renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction) < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
+								renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].maxMoveRate; //최종 목적지로 세팅
+								renderCloneObject.renderConfig.startTime = _j2mUtil.getTime();
+								renderCloneObject.renderConfig.lastUpdate = _j2mUtil.getTime();
+
+								renderCloneObject.opacityRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1], 0);
+							}
+						}
+					}
+				}
+			} else {
+
+				returnFunction = function(direction, loopCntTemp){
+
+					_j2mEngine.tickerManager(this.renderConfig, direction);
+					var renderCloneObject = this;
+
+					if (loopCntTemp < this.renderConfig.loopCnt) {
+						setTimeout(function(){
+							renderCloneObject.renderConfig.targetElement.style[direction.toLowerCase()] = renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate;
+
+							renderCloneObject.opacityRendering(direction, Number(loopCntTemp + 1));
+						}, Number(this.renderConfig.loopTime+1));
+					} else {
+						//마지막에 모자라는 px르 마추는 작업
+						renderCloneObject.renderConfig.targetElement.style[direction.toLowerCase()] = renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMoveRate;
+
+						if(renderCloneObject.renderConfig.continuity == true) {
+							var flgExist = 0;
+							for (var i = 0; i < renderCloneObject.renderConfig.arrMoveOrderInfo.length; i++) {
+							    if(renderCloneObject.renderConfig.arrMoveOrderInfo[i] == direction) {
+							        flgExist = i;
+							        break;
+							    }
+							}
+							if(flgExist < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
+								renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderCloneObject.renderConfig.arrMoveOrderInfo[_constantValue.x].maxMoveRate; //최종 목적지로 세팅
+								renderCloneObject.renderConfig.startTime = _j2mUtil.getTime();
+								renderCloneObject.renderConfig.lastUpdate = _j2mUtil.getTime();
+
+								renderCloneObject.opacityRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[flgExist+1], 0);
+							}
+						}
+					}
+				}
+			}
+
+			return returnFunction;
+		
+		}
+		_j2mUtil.createFunction("opacityRendering", getOpacityRendering());
 
 		window.j2m = _j2m.selector;
 })(window);
