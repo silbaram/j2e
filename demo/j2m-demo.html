@@ -2,91 +2,353 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	
-	<title>HTML5 Template</title>
+
+	<title>j2m Demo</title>
 	<!--[if lt IE 9]>
 	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
-	
+
 	<style>
-		#demo_contain_1 {
-		    height: 300px;
-		    border:1px solid black;
+		body {
+			background-color: #EAEAEA;
+			overflow-y: scroll;
 		}
-		.controller_contain {
-		    padding-top: 50px;
-		}
-		#demo_object_1 {
-		    width: 70px;
-		    height: 70px;
-		    background-color: #000;
-		    opacity: 1;
+		.demo_contain {
+			width:800px;
+		    border:0px;
 		    position:relative;
+		    margin:0 auto;
 		}
-		#demo_contain_2 {
-		    height: 300px;
-		    border:1px solid black;
-		}
-		#demo_object_2 {
-		    width: 70px;
-		    height: 70px;
-		    background-color: #000;
-		    opacity: 1;
+
+		.demo_object_contain {
+		    height:100px;
+		    width:800px;
+		    background-color:#FFFFFF;
+		    border:0.5px solid black;
+				margin:10px;
 		    position:relative;
+		    padding:10px;
+		    box-shadow: 2px 2px 1px grey;
+				cursor:pointer;
+				overflow:hidden;
+		}
+
+		.demo_title_contain {
+			height:100%;
+			width:100%;
+			border:0px;
+			padding:0px;
+			margin:0px;
+		}
+
+		.demo_ball {
+			position:absolute;
+			top:120px;
+			left:10px;
+		}
+
+		.demo_object_img {
+			height:70px;
+			width:70;
+		}
+
+		#demo_object_2_1 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:10px;
+			background-color:#D941C5;
+		}
+		#demo_object_2_2 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:120px;
+			background-color:#D941C5;
+		}
+		#demo_object_2_3 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:230px;
+			background-color:#D941C5;
+		}
+		#demo_object_2_4 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:340px;
+			background-color:#D941C5;
+		}
+		#demo_object_3 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:10px;
+			background-color:#D941C5;
+		}
+		#demo_object_4 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:10px;
+			background-color:#D941C5;
+		}
+		#demo_object_5_1 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:10px;
+			background-color:#D941C5;
+		}
+		#demo_object_5_2 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:120px;
+			background-color:#D941C5;
+		}
+		#demo_object_5_3 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:230px;
+			background-color:#D941C5;
+		}
+		#demo_object_5_4 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:340px;
+			background-color:#D941C5;
+		}
+		#demo_object_6 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:340px;
+			background-color:#D941C5;
 		}
 	</style>
 </head>
 <body>
-	<div id="demo_contain_1">
+	<div class="demo_contain">
+		<div id="demo_contain_1" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_1" class="demo_title_contain" onmouseover="demoObjectOn('1');" >left, top, right, bottom 이동</h2>
+			<div id="demo_object_1" class="demo_ball">
+				<img src="./img/ball.jpg" class="demo_object_img">
+			</div>
 
-		<div id="demo_object_1">
-
-		</div>
-		<div class="controller_contain">
-			이동거리 : <input type="text" id="demo_object_1_px" value="500" style="width:80px;"> px<br/>
-			이동시간 : <input type="text" id="demo_object_1_sec" value="1" style="width:80px;"> 초<br/>
-			X축으로 부드럽게 이동 : <input type="button" value="이동" onClick="moveDemoObject1('a', 'x')"><br/>
-			X축으로 일정하게 이동 : <input type="button" value="이동" onClick="moveDemoObject1('u', 'x')"><br/>
-			Y축으로 부드럽게 이동 : <input type="button" value="이동" onClick="moveDemoObject1('a', 'y')"><br/>
-			Y축으로 일정하게 이동 : <input type="button" value="이동" onClick="moveDemoObject1('u', 'y')"><br/>
-		</div>
-	</div>
-
-	<div id="demo_contain_2">
-
-		<div id="demo_object_2">
+			<input type="button" value="수평" onclick="demoObjectLeft()" style="position:absolute;top:270px;">
+			<input type="button" value="수직" onclick="demoObjectTop()" style="position:absolute;top:270px;left:60px;">
 
 		</div>
-		<div class="controller_contain">
-			X 이동거리 : <input type="text" id="demo_object_X2_px" value="500" style="width:80px;"> px<br/>
-			Y 이동거리 : <input type="text" id="demo_object_Y2_px" value="300" style="width:80px;"> px<br/>
-			이동시간 : <input type="text" id="demo_object_2_sec" value="1" style="width:80px;"> 초 <br/>
-			순차적으로 부드럽게 이동 : <input type="button" value="이동" onClick="moveDemoObject2('a', true)"><br/>
-			한번에 부드럽게 이동 : <input type="button" value="이동" onClick="moveDemoObject2('a', false)"><br/>
-			순차적으로 일정하게 이동 : <input type="button" value="이동" onClick="moveDemoObject2('u', true)"><br/>
-			한번에 일정하게 이동 : <input type="button" value="이동" onClick="moveDemoObject2('u', false)">
+		<div id="demo_contain_2" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_2" class="demo_title_contain" onmouseover="demoObjectOn('2');" >margin 조절</h2>
+			<div id="demo_object_2_1"></div>
+			<div id="demo_object_2_2"></div>
+			<div id="demo_object_2_3"></div>
+			<div id="demo_object_2_4"></div>
+
+			<input type="button" value="margin 변경" onclick="demoObjectMargin()" style="position:absolute;top:270px;">
 		</div>
-	</div>
+		<div id="demo_contain_3" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_3" class="demo_title_contain" onmouseover="demoObjectOn('3');" >width, height 조절</h2>
+			<div id="demo_object_3"></div>
+
+			<input type="button" value="width" onclick="demoObjectWidth()" style="position:absolute;top:270px;">
+			<input type="button" value="heiught" onclick="demoObjectHeight()" style="position:absolute;top:270px;left:60px;">
+		</div>
+		<div id="demo_contain_4" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_4" class="demo_title_contain" onmouseover="demoObjectOn('4');" >opacity 조절</h2>
+			<div id="demo_object_4"></div>
+
+			<input type="button" value="opacity" onclick="demoObjectOpacity()" style="position:absolute;top:270px;">
+		</div>
+		<div id="demo_contain_5" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_5" class="demo_title_contain" onmouseover="demoObjectOn('5');" >backgroundColor 변경</h2>
+			<div id="demo_object_5_1"></div>
+			<div id="demo_object_5_2"></div>
+			<div id="demo_object_5_3"></div>
+			<div id="demo_object_5_4"></div>
+
+			<input type="button" value="backgroundColor" onclick="demoObjectBackgroundColor()" style="position:absolute;top:270px;">
+		</div>
+		<div id="demo_contain_6" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_6" class="demo_title_contain" onmouseover="demoObjectOn('6');" >scale 조절</h2>
+			<div id="demo_object_6"></div>
+
+			<input type="button" value="scale" onclick="demoObjectScale()" style="position:absolute;top:270px;">
+		</div>
+		<!-- <div id="demo_contain_7" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_7" class="demo_title_contain" onmouseover="demoObjectOn('7');" >순차 이동</h2>
+
+		</div> -->
 </body>
 
 <script src="../src/j2m.js"></script>
 <script type="text/javascript">
-	
-	function moveDemoObject1(motiontype, direction) {
-		var objectMaxPx = document.getElementById("demo_object_1_px");
-		var objectMaxSec = document.getElementById("demo_object_1_sec");
-		if(direction == "x") {
-			j2m("#demo_object_1").move({x:objectMaxPx.value, motiontype:motiontype}, Number(objectMaxSec.value));	
-		} else if(direction == "y") {
-			j2m("#demo_object_1").move({y:objectMaxPx.value, motiontype:motiontype}, Number(objectMaxSec.value));	
-		}
-		
+
+	function demoObjectOn(e) {
+		j2m("#demo_contain_" + e).move({margin:"30, 10, 40, 10"}, 0.4);
+		j2m("#demo_contain_" + e).move({scale:"1.1, 1.2"}, 0.4);
 	}
-	function moveDemoObject2(motiontype, continuity) {
-		var objectXMaxPx = document.getElementById("demo_object_X2_px");
-		var objectYMaxPx = document.getElementById("demo_object_Y2_px");
-		var objectMaxSec = document.getElementById("demo_object_2_sec");
-		j2m("#demo_object_2").move({x:objectXMaxPx.value, y:objectYMaxPx.value, motiontype:motiontype, continuity:continuity}, Number(objectMaxSec.value));
+
+	function demoObjectOff(e) {
+
+		addEvent(e, 'mouseleave', function() {
+			j2m(e).move({margin:"10", scale:"1, 1"}, 0.4);
+			j2m(e).move({height:100}, 0.5);
+		});
+	}
+
+	function demoObjectClick(e) {
+		j2m(e).move({height:300}, 0.5);
+	}
+
+	var leftCheck = "1";
+	var topCheck = "1";
+	function demoObjectLeft() {
+		if(leftCheck == "1") {
+			leftCheck = "2";
+			j2m("#demo_object_1").move({left:720}, 1);
+		} else {
+			leftCheck = "1";
+			j2m("#demo_object_1").move({left:10}, 1);
+		}
+	}
+	function demoObjectTop() {
+		if(topCheck == "1") {
+			topCheck = "2";
+			j2m("#demo_object_1").move({top:200}, 1);
+		} else {
+			topCheck = "1";
+			j2m("#demo_object_1").move({top:70}, 1);
+		}
+	}
+
+
+	var marginCheck = "1";
+	function demoObjectMargin() {
+		if(marginCheck == "1") {
+			marginCheck = "2";
+			j2m("#demo_object_2_1").move({margin:"0, 0, 0, 100"}, 1);
+			j2m("#demo_object_2_2").move({margin:"0, 0, 0, 160"}, 1);
+			j2m("#demo_object_2_3").move({margin:"0, 0, 0, 220"}, 1);
+			j2m("#demo_object_2_4").move({margin:"0, 0, 0, 280"}, 1);
+		} else {
+			marginCheck = "1";
+			j2m("#demo_object_2_1").move({margin:"0"}, 1);
+			j2m("#demo_object_2_2").move({margin:"0"}, 1);
+			j2m("#demo_object_2_3").move({margin:"0"}, 1);
+			j2m("#demo_object_2_4").move({margin:"0"}, 1);
+		}
+	}
+
+
+	var widthCheck = "1";
+	function demoObjectWidth() {
+		if(widthCheck == "1") {
+			widthCheck = "2";
+			j2m("#demo_object_3").move({width:800}, 1);
+		} else {
+			widthCheck = "1";
+			j2m("#demo_object_3").move({width:100}, 1);
+		}
+	}
+	var heightCheck = "1";
+	function demoObjectHeight() {
+		if(heightCheck == "1") {
+			heightCheck = "2";
+			j2m("#demo_object_3").move({height:140}, 1);
+		} else {
+			heightCheck = "1";
+			j2m("#demo_object_3").move({height:100}, 1);
+		}
+	}
+
+
+	var opacityCheck = "1";
+	function demoObjectOpacity() {
+		if(opacityCheck == "1") {
+			opacityCheck = "2";
+			j2m("#demo_object_4").move({opacity:0}, 1);
+		} else {
+			opacityCheck = "1";
+			j2m("#demo_object_4").move({opacity:1}, 1);
+		}
+	}
+
+
+	var demoObjectBackgroundColorCheck = "1";
+	function demoObjectBackgroundColor() {
+		if(demoObjectBackgroundColorCheck == "1") {
+			demoObjectBackgroundColorCheck = "2";
+			j2m("#demo_object_5_1").move({backgroundColor:"#FFE400"}, 1);
+			j2m("#demo_object_5_2").move({backgroundColor:"#1DDB16"}, 1);
+			j2m("#demo_object_5_3").move({backgroundColor:"#0100FF"}, 1);
+			j2m("#demo_object_5_4").move({backgroundColor:"#FF5E00"}, 1);
+		} else {
+			demoObjectBackgroundColorCheck = "1";
+			j2m("#demo_object_5_1").move({backgroundColor:"#D941C5"}, 1);
+			j2m("#demo_object_5_2").move({backgroundColor:"#D941C5"}, 1);
+			j2m("#demo_object_5_3").move({backgroundColor:"#D941C5"}, 1);
+			j2m("#demo_object_5_4").move({backgroundColor:"#D941C5"}, 1);
+		}
+	}
+
+
+	var scaleCheck = "1";
+	function demoObjectScale() {
+		if(scaleCheck == "1") {
+			scaleCheck = "2";
+			j2m("#demo_object_6").move({scale:"6.5, 1.8"}, 1);
+		} else {
+			scaleCheck = "1";
+			j2m("#demo_object_6").move({scale:"1, 1"}, 1);
+		}
+	}
+
+
+
+
+	function addEvent(element, type, callback) {
+	    var eventListener = function(element, event) {
+	        element.addEventListener(event, function(e) {
+	            var obj = e.relatedTarget;
+	            while (obj != element) {
+	                if (!obj) return callback.apply(this);
+	                obj = obj.parentNode;
+	            }
+	            return false;
+	        }, false);
+	    };
+
+	    if (element.addEventListener) {
+	        switch(type) {
+	            case 'mouseleave': eventListener(element, 'mouseout');
+	                break;
+	            case 'mouseenter': eventListener(element, 'mouseover');
+	                break;
+	            default : element.addEventListener(type, callback, false);
+	                break;
+	        }
+	    } else if (element.attachEvent) {
+	        element.attachEvent('on' + type, function() {
+	            callback.apply(element);
+	        });
+	    }
 	}
 </script>
 </html>
