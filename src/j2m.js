@@ -6,8 +6,7 @@
 
 	var
 		_commonConfig = {
-			defaultFps : 60, //기본 설정 프레임
-			opacity : 45     //opacity 설정 프레임
+			defaultFps : 60 //기본 설정 프레임
 		},
 		_constantValue = {
 			motionType : "motiontype", //모션 타입
@@ -28,12 +27,7 @@
 			height : "height",         //높이
 			opacity : "opacity",       //투명도
 			backgroundColor : "backgroundColor", //배경색
-
 			scale : "scale",
-
-			modifyUP : "UP",
-			modifyMIDDLE : "MIDDLE",
-			modifyDOWN : "DOWN",
 			timeScale : 1
 		},
 		_j2m = {
@@ -197,6 +191,164 @@
 			getTime : Date.now || function() {return new Date * 1;}
 
 		},
+		_j2mCssUtil = {
+			getStartPosition : function(finishPoint, key, t, that, checkTravelRange) {
+
+				var moveOrderInfo = {}; //객체에 모션을 주기 위한 옵션들이 있는 객체
+
+				moveOrderInfo.moveKey = key;
+				moveOrderInfo.duration = t; //이동해야할 시간
+
+				//모션 별로 초기값 세팅
+				if(_j2mType.getLineOrderYn(key)) {
+
+					var lineStyle = _j2mUtil.getStyle(that.renderConfig.targetElement);
+					moveOrderInfo.s = lineStyle[key] == "auto" ? 0 : parseInt(lineStyle[key].replace("px", ""));
+					moveOrderInfo.e = parseInt(finishPoint);
+					moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
+					moveOrderInfo.nextMoveRate = 0; //처음 위치
+
+					//이동할 거리 없음
+					if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
+						return false;
+					}
+
+				} else if(_j2mType.getMarginOrderYn(key)) { //마진 관련 초기값 세팅
+
+					var marginStyle = _j2mUtil.getStyle(that.renderConfig.targetElement);
+					moveOrderInfo.s = {t : parseInt(marginStyle["margin-top"].replace("px", "")),
+														 r : parseInt(marginStyle["margin-right"].replace("px", "")),
+														 b : parseInt(marginStyle["margin-bottom"].replace("px", "")),
+														 l : parseInt(marginStyle["margin-left"].replace("px", ""))}
+
+					var finishMarginPointTemp = finishPoint.split(",");
+
+					if(finishMarginPointTemp.length == 1) {
+						moveOrderInfo.e = {t : parseInt(finishMarginPointTemp[0].replace("px", "")), r : parseInt(finishMarginPointTemp[0].replace("px", "")), b : parseInt(finishMarginPointTemp[0].replace("px", "")), l : parseInt(finishMarginPointTemp[0].replace("px", ""))}
+						moveOrderInfo.travelRange = {t : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-top"].replace("px", "")),
+																				 r : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-right"].replace("px", "")),
+																				 b : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-bottom"].replace("px", "")),
+																				 l : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-left"].replace("px", ""))}
+					} else if(finishMarginPointTemp.length == 2) {
+						moveOrderInfo.e = {t : parseInt(finishMarginPointTemp[0].replace("px", "")), r : parseInt(finishMarginPointTemp[1].replace("px", "")), b : parseInt(finishMarginPointTemp[0].replace("px", "")), l : parseInt(finishMarginPointTemp[1].replace("px", ""))}
+						moveOrderInfo.travelRange = {t : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-top"].replace("px", "")),
+																				 r : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-right"].replace("px", "")),
+																				 b : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-bottom"].replace("px", "")),
+																				 l : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-left"].replace("px", ""))}
+					} else if(finishMarginPointTemp.length == 3) {
+						moveOrderInfo.e = {t : parseInt(finishMarginPointTemp[0].replace("px", "")), r : parseInt(finishMarginPointTemp[1].replace("px", "")), b : parseInt(finishMarginPointTemp[2].replace("px", "")), l : parseInt(finishMarginPointTemp[1].replace("px", ""))}
+						moveOrderInfo.travelRange = {t : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-top"].replace("px", "")),
+																				 r : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-right"].replace("px", "")),
+																				 b : parseInt(finishMarginPointTemp[2].replace("px", ""))-parseInt(marginStyle["margin-bottom"].replace("px", "")),
+																				 l : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-left"].replace("px", ""))}
+					} else if(finishMarginPointTemp.length == 4) {
+						moveOrderInfo.e = {t : parseInt(finishMarginPointTemp[0].replace("px", "")), r : parseInt(finishMarginPointTemp[1].replace("px", "")), b : parseInt(finishMarginPointTemp[2].replace("px", "")), l : parseInt(finishMarginPointTemp[3].replace("px", ""))}
+						moveOrderInfo.travelRange = {t : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-top"].replace("px", "")),
+																				 r : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-right"].replace("px", "")),
+																				 b : parseInt(finishMarginPointTemp[2].replace("px", ""))-parseInt(marginStyle["margin-bottom"].replace("px", "")),
+																				 l : parseInt(finishMarginPointTemp[3].replace("px", ""))-parseInt(marginStyle["margin-left"].replace("px", ""))}
+					}
+
+					//개별로 진행 상태
+					moveOrderInfo.subTickerStatus = {t : moveOrderInfo.travelRange.t == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 r : moveOrderInfo.travelRange.r == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 b : moveOrderInfo.travelRange.b == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 l : moveOrderInfo.travelRange.l == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+					//다음 이동 위치
+						moveOrderInfo.nextMoveRate = {t : 0, r : 0, b : 0, l : 0}
+
+					if(moveOrderInfo.subTickerStatus.t == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.r == _constantValue.tickerStatusE &&
+					   moveOrderInfo.subTickerStatus.b == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.l == _constantValue.tickerStatusE &&
+						 checkTravelRange == true) {
+							 return false;
+				  }
+
+				} else if(_j2mType.getAreaOrderYn(key)) { //넓이 관련 초기값 세팅
+
+					var areaStyle = _j2mUtil.getStyle(that.renderConfig.targetElement);
+					moveOrderInfo.s = parseInt(areaStyle[key].replace("px", ""));
+					moveOrderInfo.e = parseInt(finishPoint);
+					moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
+					moveOrderInfo.nextMoveRate = 0; //처음 위치
+
+					//이동할 거리 없음
+					if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
+						return false;
+					}
+
+				} else if(_constantValue.opacity == key) { //투명도 초기값 세팅
+
+					var opacityStyle = _j2mUtil.getStyle(that.renderConfig.targetElement);
+					moveOrderInfo.s = parseFloat(opacityStyle.opacity); //처음 위치
+					moveOrderInfo.e = parseFloat(finishPoint);
+					moveOrderInfo.travelRange = parseFloat(moveOrderInfo.e) - parseFloat(moveOrderInfo.s);
+					moveOrderInfo.nextMoveRate = 0; //처음 위치
+
+				} else if(_j2mType.getRgbYn(key)) { //배경색 관련 초기값 세팅
+
+					var startRgbCode = _j2mUtil.getStyle(that.renderConfig.targetElement)[moveOrderInfo.moveKey];
+					if(startRgbCode.indexOf("#") == 0) {
+						var rgbCodeArr = _j2mUtil.hexToRgb(startRgbCode);
+						moveOrderInfo.s = {r : rgbCodeArr.r, g : rgbCodeArr.g, b : rgbCodeArr.b}
+					} else {
+						var rgbCodeArr = startRgbCode.substring(4).replace(")", "").split(",");
+						moveOrderInfo.s = {r : parseInt(rgbCodeArr[0]), g : parseInt(rgbCodeArr[1]), b : parseInt(rgbCodeArr[2])}
+					}
+
+					moveOrderInfo.e = _j2mUtil.hexToRgb(finishPoint); //마지막 위치
+
+					moveOrderInfo.travelRange = {r : parseInt(moveOrderInfo.e.r)-parseInt(moveOrderInfo.s.r),
+													 						 g : parseInt(moveOrderInfo.e.g)-parseInt(moveOrderInfo.s.g),
+													 					 	 b : parseInt(moveOrderInfo.e.b)-parseInt(moveOrderInfo.s.b)}
+
+				 //개별로 진행 상태
+					moveOrderInfo.subTickerStatus = {r : moveOrderInfo.travelRange.r == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 g : moveOrderInfo.travelRange.g == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 b : moveOrderInfo.travelRange.b == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+
+				 //다음 이동 위치
+					moveOrderInfo.nextMoveRate = {r : 0, g : 0, b : 0}
+
+					if(moveOrderInfo.subTickerStatus.r == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.g == _constantValue.tickerStatusE &&
+					   moveOrderInfo.subTickerStatus.b == _constantValue.tickerStatusE && checkTravelRange == true) {
+							 return false;
+				  }
+				} else if(_constantValue.scale == key) { //크기변화 초기값 세팅
+
+					var startScaleCode = _j2mUtil.getStyle(that.renderConfig.targetElement)["transform"];
+
+					if(startScaleCode == "none") {
+						moveOrderInfo.s = {x : 1, y : 1}
+					} else {
+						var startScaleCodeArr = startScaleCode.substring(7).replace(")", "").split(",");
+						moveOrderInfo.s = {x : parseFloat(startScaleCodeArr[0]), y :parseFloat(startScaleCodeArr[3])}
+					}
+
+					moveOrderInfo.e = {x : parseFloat(finishPoint.split(",")[0]), y : parseFloat(finishPoint.split(",")[1])}
+
+					moveOrderInfo.travelRange = {x : parseFloat(moveOrderInfo.e.x)-parseFloat(moveOrderInfo.s.x),
+																			 y : parseFloat(moveOrderInfo.e.y)-parseFloat(moveOrderInfo.s.y)}
+
+				 	//개별로 진행 상태
+						moveOrderInfo.subTickerStatus = {x : moveOrderInfo.travelRange.x == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																						 y : moveOrderInfo.travelRange.y == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+
+				  //다음 이동 위치
+				  moveOrderInfo.nextMoveRate = {x : 0, y : 0}
+
+					if(moveOrderInfo.subTickerStatus.x == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.y == _constantValue.tickerStatusE &&
+						 checkTravelRange == true) {
+						return false;
+				  }
+				} else {
+					moveOrderInfo.nextMoveRate = 0; //다음 이동할 거리
+				}
+
+				moveOrderInfo.style = that.renderConfig.targetElement.style;
+
+				return moveOrderInfo;
+			}
+		},
 		_j2mType = {
 			getMotionOrderYn : function(c) {
 				if(_constantValue.left == c || _constantValue.right == c || _constantValue.top == c || _constantValue.bottom == c ||
@@ -244,293 +396,217 @@
 			}
 		},
 		_j2mEngine = {
-			tickerManager : function(renderConfig, direction) {
+			tickerManager : function(renderConfig, e, direction) {
 
 				if(_j2mType.getLineOrderYn(direction)) {
-					if(renderConfig.motionType == _constantValue.uniformMotion) {
-						_j2mEngine.lineUniformMotionTicker(renderConfig, direction);
-					} else {
-						_j2mEngine.lineAcceleratedMotionTicker(renderConfig, direction);
-					}
+					_j2mEngine.lineMotionTicker(renderConfig, e, direction);
 				} else if(_j2mType.getMarginOrderYn(direction)) {
-					_j2mEngine.marginTicker(renderConfig, direction);
+					_j2mEngine.marginTicker(renderConfig, e, direction);
 				} else if(_j2mType.getAreaOrderYn(direction)) {
-					if(renderConfig.motionType == _constantValue.uniformMotion) {
-						_j2mEngine.areaUniformMotionTicker(renderConfig, direction);
-					} else {
-						_j2mEngine.areaAcceleratedMotionTicker(renderConfig, direction);
-					}
+					_j2mEngine.areaMotionTicker(renderConfig, e, direction);
 				} else if(_constantValue.opacity == direction) {
-					_j2mEngine.opacityTicker(renderConfig, direction);
+					_j2mEngine.opacityTicker(renderConfig, e, direction);
 				} else if(_j2mType.getRgbYn(direction)) {
-					_j2mEngine.rgbTicker(renderConfig, direction);
+					_j2mEngine.rgbTicker(renderConfig, e, direction);
 				} else if(_j2mType.getScaleYn(direction)) {
-					if(renderConfig.motionType == _constantValue.uniformMotion) {
-						_j2mEngine.scaleUniformMotionTicker(renderConfig, direction);
-					} else {
-						_j2mEngine.scaleAcceleratedMotionTicker(renderConfig, direction);
-					}
-
+					_j2mEngine.scaleMotionTicker(renderConfig, e, direction);
 				}
 			},
-			getSpace : function(renderConfig, direction) {
-
-				var elapsed = _j2mUtil.getTime() - renderConfig.arrMoveOrderInfo[direction].lastUpdate;
-
+			getSpace : function(renderConfig, e, direction) {
+				var spaceE = e;
+				var elapsed = _j2mUtil.getTime() - spaceE.lastUpdate;
 				if (elapsed > 500) {
-					renderConfig.arrMoveOrderInfo[direction].startTime += elapsed - 33;
+					spaceE.startTime += elapsed - 33;
 				}
-
-				renderConfig.arrMoveOrderInfo[direction].lastUpdate += elapsed;
-				renderConfig.arrMoveOrderInfo[direction].time = (renderConfig.arrMoveOrderInfo[direction].lastUpdate - renderConfig.arrMoveOrderInfo[direction].startTime) / 1000;
-
-				var p = (renderConfig.arrMoveOrderInfo[direction].time * _constantValue.timeScale) / renderConfig.arrMoveOrderInfo[direction].duration;
-
+				spaceE.lastUpdate += elapsed;
+				spaceE.time = (spaceE.lastUpdate - spaceE.startTime) / 1000;
+				var p = (spaceE.time * _constantValue.timeScale) / spaceE.duration;
 				if(p >= 1) {
 					return 1;
 				}
-
+				if(renderConfig.motionType == _constantValue.uniformMotion) {
+					return p;
+				}
 				p = 1 - p;
 				p *= p;
-
 				return 1 - p;
 			},
-			lineUniformMotionTicker : function(renderConfig, direction) {
-				//TEST 여기 작동 유무 확인 필요
-				// if(renderConfig.arrMoveOrderInfo[direction].lineModifyType == _constantValue.modifyDOWN) {
-				// 	if(renderConfig.arrMoveOrderInfo[direction].maxMoveRate >= renderConfig.arrMoveOrderInfo[direction].nextMoveRate) {
-				// 		renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].maxMoveRate;
-				// 		renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
-				// 		return;
-				// 	}
-				//
-				// 	renderConfig.arrMoveOrderInfo[direction].nextMoveRate = parseFloat(renderConfig.arrMoveOrderInfo[direction].nextMoveRate) - parseFloat(renderConfig.arrMoveOrderInfo[direction].uniformMotionMoveRate);
-				// } else {
-				// 	if(renderConfig.arrMoveOrderInfo[direction].maxMoveRate <= renderConfig.arrMoveOrderInfo[direction].nextMoveRate) {
-				// 		renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].maxMoveRate;
-				// 		renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
-				// 		return;
-				// 	}
-				//
-				// 	renderConfig.arrMoveOrderInfo[direction].nextMoveRate = parseFloat(renderConfig.arrMoveOrderInfo[direction].nextMoveRate) + parseFloat(renderConfig.arrMoveOrderInfo[direction].uniformMotionMoveRate);
-				// }
-			},
-			lineAcceleratedMotionTicker : function(renderConfig, direction) {
-
-				if(renderConfig.arrMoveOrderInfo[direction].tickerStatus != _constantValue.tickerStatusE) {
-					var lineSpaceTemp = _j2mEngine.getSpace(renderConfig, direction);
+			lineMotionTicker : function(renderConfig, e, direction) {
+				var likeE = e;
+				if(likeE.tickerStatus != _constantValue.tickerStatusE) {
+					var lineSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
 
 					if(lineSpaceTemp == 1) {
-					 	renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].e;
+					 	likeE.tickerStatus = _constantValue.tickerStatusE;
+						likeE.nextMoveRate = likeE.e;
 					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].s + Math.round(parseFloat(renderConfig.arrMoveOrderInfo[direction].travelRange) * parseFloat(lineSpaceTemp));
+						likeE.nextMoveRate = likeE.s + Math.round(parseFloat(likeE.travelRange) * parseFloat(lineSpaceTemp));
 					}
 				}
 			},
-			marginTicker : function(renderConfig, direction) {
-				var spaceTemp = 0;
-				if(renderConfig.arrMoveOrderInfo[direction].subTickerStatus.t != _constantValue.tickerStatusE) {
-					spaceTemp = _j2mEngine.getSpace(renderConfig, direction);
-					if(spaceTemp == 1) {
-						renderConfig.arrMoveOrderInfo[direction].subTickerStatus.t = _constantValue.tickerStatusE;
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.t = renderConfig.arrMoveOrderInfo[direction].e.t;
+			marginTicker : function(renderConfig, e, direction) {
+				var marginE = e;
+				var marginSpaceTemp = 0;
+				if(marginE.subTickerStatus.t != _constantValue.tickerStatusE) {
+					marginSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(marginSpaceTemp == 1) {
+						marginE.subTickerStatus.t = _constantValue.tickerStatusE;
+						marginE.nextMoveRate.t = marginE.e.t;
 					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.t = renderConfig.arrMoveOrderInfo[direction].s.t + Math.round(parseFloat(renderConfig.arrMoveOrderInfo[direction].travelRange.t) * parseFloat(spaceTemp));
+						marginE.nextMoveRate.t = marginE.s.t + Math.round(parseFloat(marginE.travelRange.t) * parseFloat(marginSpaceTemp));
 					}
 				} else {
-					renderConfig.arrMoveOrderInfo[direction].nextMoveRate.t = renderConfig.arrMoveOrderInfo[direction].e.t;
+					marginE.nextMoveRate.t = marginE.e.t;
 				}
 
 				//right 이동
-				if(renderConfig.arrMoveOrderInfo[direction].subTickerStatus.r != _constantValue.tickerStatusE) {
-					spaceTemp = _j2mEngine.getSpace(renderConfig, direction);
-					if(spaceTemp == 1) {
-						renderConfig.arrMoveOrderInfo[direction].subTickerStatus.r = _constantValue.tickerStatusE;
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r = renderConfig.arrMoveOrderInfo[direction].e.r;
+				if(marginE.subTickerStatus.r != _constantValue.tickerStatusE) {
+					marginSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(marginSpaceTemp == 1) {
+						marginE.subTickerStatus.r = _constantValue.tickerStatusE;
+						marginE.nextMoveRate.r = marginE.e.r;
 					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r = renderConfig.arrMoveOrderInfo[direction].s.r + Math.round(parseFloat(renderConfig.arrMoveOrderInfo[direction].travelRange.r) * parseFloat(spaceTemp));
+						marginE.nextMoveRate.r = marginE.s.r + Math.round(parseFloat(marginE.travelRange.r) * parseFloat(marginSpaceTemp));
 					}
 				} else {
-					renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r = renderConfig.arrMoveOrderInfo[direction].e.r;
+					marginE.nextMoveRate.r = marginE.e.r;
 				}
 
 				//bottom 이동
-				if(renderConfig.arrMoveOrderInfo[direction].subTickerStatus.b != _constantValue.tickerStatusE) {
-					spaceTemp = _j2mEngine.getSpace(renderConfig, direction);
-					if(spaceTemp == 1) {
-						renderConfig.arrMoveOrderInfo[direction].subTickerStatus.b = _constantValue.tickerStatusE;
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b = renderConfig.arrMoveOrderInfo[direction].e.b;
+				if(marginE.subTickerStatus.b != _constantValue.tickerStatusE) {
+					marginSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(marginSpaceTemp == 1) {
+						marginE.subTickerStatus.b = _constantValue.tickerStatusE;
+						marginE.nextMoveRate.b = marginE.e.b;
 					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b = renderConfig.arrMoveOrderInfo[direction].s.b + Math.round(parseFloat(renderConfig.arrMoveOrderInfo[direction].travelRange.b) * parseFloat(spaceTemp));
+						marginE.nextMoveRate.b = marginE.s.b + Math.round(parseFloat(marginE.travelRange.b) * parseFloat(marginSpaceTemp));
 					}
 				} else {
-					renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b = renderConfig.arrMoveOrderInfo[direction].e.b;
+					marginE.nextMoveRate.b = marginE.e.b;
 				}
 
 				//left 이동
-				if(renderConfig.arrMoveOrderInfo[direction].subTickerStatus.l != _constantValue.tickerStatusE) {
-					spaceTemp = _j2mEngine.getSpace(renderConfig, direction);
-					if(spaceTemp == 1) {
-						renderConfig.arrMoveOrderInfo[direction].subTickerStatus.l = _constantValue.tickerStatusE;
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.l = renderConfig.arrMoveOrderInfo[direction].e.l;
+				if(marginE.subTickerStatus.l != _constantValue.tickerStatusE) {
+					marginSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(marginSpaceTemp == 1) {
+						marginE.subTickerStatus.l = _constantValue.tickerStatusE;
+						marginE.nextMoveRate.l = marginE.e.l;
 					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.l = renderConfig.arrMoveOrderInfo[direction].s.l + Math.round(parseFloat(renderConfig.arrMoveOrderInfo[direction].travelRange.l) * parseFloat(spaceTemp));
+						marginE.nextMoveRate.l = marginE.s.l + Math.round(parseFloat(marginE.travelRange.l) * parseFloat(marginSpaceTemp));
 					}
 				} else {
-					renderConfig.arrMoveOrderInfo[direction].nextMoveRate.l = renderConfig.arrMoveOrderInfo[direction].e.l;
+					marginE.nextMoveRate.l = marginE.e.l;
 				}
 
-				if(renderConfig.arrMoveOrderInfo[direction].subTickerStatus.t == _constantValue.tickerStatusE &&
-				   renderConfig.arrMoveOrderInfo[direction].subTickerStatus.r == _constantValue.tickerStatusE &&
-				 	 renderConfig.arrMoveOrderInfo[direction].subTickerStatus.b == _constantValue.tickerStatusE &&
-				   renderConfig.arrMoveOrderInfo[direction].subTickerStatus.l == _constantValue.tickerStatusE) {
-					renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
+				if(marginE.subTickerStatus.t == _constantValue.tickerStatusE &&
+				   marginE.subTickerStatus.r == _constantValue.tickerStatusE &&
+				 	 marginE.subTickerStatus.b == _constantValue.tickerStatusE &&
+				   marginE.subTickerStatus.l == _constantValue.tickerStatusE) {
+					marginE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			},
-			areaUniformMotionTicker : function(renderConfig, direction) {
-				//TEST 여기 작동 유무 확인 필요
-				// if(renderConfig.arrMoveOrderInfo[direction].areaModifyType == _constantValue.modifyDOWN) {
-				// 	if(renderConfig.arrMoveOrderInfo[direction].maxMoveRate >= renderConfig.arrMoveOrderInfo[direction].nextMoveRate) {
-				// 		renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].maxMoveRate;
-				// 		renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
-				// 		return;
-				// 	}
-				//
-				// 	renderConfig.arrMoveOrderInfo[direction].nextMoveRate = parseFloat(renderConfig.arrMoveOrderInfo[direction].nextMoveRate) - parseFloat(renderConfig.arrMoveOrderInfo[direction].uniformMotionMoveRate);
-				// } else {
-				// 	if(renderConfig.arrMoveOrderInfo[direction].maxMoveRate <= renderConfig.arrMoveOrderInfo[direction].nextMoveRate) {
-				// 		renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].maxMoveRate;
-				// 		renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
-				// 		return;
-				// 	}
-				//
-				// 	renderConfig.arrMoveOrderInfo[direction].nextMoveRate = parseFloat(renderConfig.arrMoveOrderInfo[direction].nextMoveRate) + parseFloat(renderConfig.arrMoveOrderInfo[direction].uniformMotionMoveRate);
-				// }
-			},
-			areaAcceleratedMotionTicker : function(renderConfig, direction) {
-				if(renderConfig.arrMoveOrderInfo[direction].tickerStatus != _constantValue.tickerStatusE) {
-					var lineSpaceTemp = _j2mEngine.getSpace(renderConfig, direction);
+			areaMotionTicker : function(renderConfig, e, direction) {
+				var areaE = e;
+				if(areaE.tickerStatus != _constantValue.tickerStatusE) {
+					var areaSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
 
-					if(lineSpaceTemp == 1) {
-					 	renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].e;
+					if(areaSpaceTemp == 1) {
+					 	areaE.tickerStatus = _constantValue.tickerStatusE;
+						areaE.nextMoveRate = areaE.e;
 					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].s + Math.round(parseFloat(renderConfig.arrMoveOrderInfo[direction].travelRange) * parseFloat(lineSpaceTemp));
+						areaE.nextMoveRate = areaE.s + Math.round(parseFloat(areaE.travelRange) * parseFloat(areaSpaceTemp));
 					}
 				}
 			},
-			opacityTicker : function(renderConfig, direction) {
-				if(renderConfig.arrMoveOrderInfo[direction].opacityModifyType == _constantValue.modifyDOWN) {
-					if(renderConfig.arrMoveOrderInfo[direction].maxMoveRate >= renderConfig.arrMoveOrderInfo[direction].nextMoveRate) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].maxMoveRate;
-						renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
-						return;
-					}
+			opacityTicker : function(renderConfig, e, direction) {
+				var opacityE = e;
+				if(opacityE.tickerStatus != _constantValue.tickerStatusE) {
+					var opacitySpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
 
-					renderConfig.arrMoveOrderInfo[direction].nextMoveRate = parseFloat(renderConfig.arrMoveOrderInfo[direction].nextMoveRate) - parseFloat(renderConfig.arrMoveOrderInfo[direction].opacityRate);
-				} else {
-					if(renderConfig.arrMoveOrderInfo[direction].maxMoveRate <= renderConfig.arrMoveOrderInfo[direction].nextMoveRate) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderConfig.arrMoveOrderInfo[direction].maxMoveRate;
-						renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
-						return;
+					if(opacitySpaceTemp == 1) {
+					 	opacityE.tickerStatus = _constantValue.tickerStatusE;
+						opacityE.nextMoveRate = opacityE.e;
+					} else {
+						opacityE.nextMoveRate = opacityE.s + (parseFloat(opacityE.travelRange) * parseFloat(opacitySpaceTemp));
 					}
-
-					renderConfig.arrMoveOrderInfo[direction].nextMoveRate = parseFloat(renderConfig.arrMoveOrderInfo[direction].nextMoveRate) + parseFloat(renderConfig.arrMoveOrderInfo[direction].opacityRate);
 				}
 			},
-			rgbTicker : function(renderConfig, direction) {
-
-				var tickerFinishCount = 0;
-				if(renderConfig.arrMoveOrderInfo[direction].rgbModifyType.r == _constantValue.modifyDOWN) {
-					if(renderConfig.arrMoveOrderInfo[direction].maxRRBRate.r >= renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r || renderConfig.arrMoveOrderInfo[direction].rgbRate.r == 0) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r = renderConfig.arrMoveOrderInfo[direction].maxRRBRate.r;
-						tickerFinishCount++;
+			rgbTicker : function(renderConfig, e, direction) {
+				var rgbE = e;
+				var rgbSpaceTemp = 0;
+				if(rgbE.subTickerStatus.r != _constantValue.tickerStatusE) {
+					rgbSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(rgbSpaceTemp == 1) {
+						rgbE.subTickerStatus.r = _constantValue.tickerStatusE;
+						rgbE.nextMoveRate.r = rgbE.e.r;
 					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r = renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r - renderConfig.arrMoveOrderInfo[direction].rgbRate.r;
+						rgbE.nextMoveRate.r = rgbE.s.r + Math.round(parseFloat(rgbE.travelRange.r) * parseFloat(rgbSpaceTemp));
 					}
 				} else {
-					if(renderConfig.arrMoveOrderInfo[direction].maxRRBRate.r <= renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r || renderConfig.arrMoveOrderInfo[direction].rgbRate.r == 0) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r = renderConfig.arrMoveOrderInfo[direction].maxRRBRate.r;
-						tickerFinishCount++;
-					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r = renderConfig.arrMoveOrderInfo[direction].nextMoveRate.r + renderConfig.arrMoveOrderInfo[direction].rgbRate.r;
-					}
-				}
-				if(renderConfig.arrMoveOrderInfo[direction].rgbModifyType.g == _constantValue.modifyDOWN) {
-					if(renderConfig.arrMoveOrderInfo[direction].maxRRBRate.g >= renderConfig.arrMoveOrderInfo[direction].nextMoveRate.g || renderConfig.arrMoveOrderInfo[direction].rgbRate.g ==0) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.g = renderConfig.arrMoveOrderInfo[direction].maxRRBRate.g;
-						tickerFinishCount++;
-					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.g = renderConfig.arrMoveOrderInfo[direction].nextMoveRate.g - renderConfig.arrMoveOrderInfo[direction].rgbRate.g;
-					}
-				} else {
-					if(renderConfig.arrMoveOrderInfo[direction].maxRRBRate.g <= renderConfig.arrMoveOrderInfo[direction].nextMoveRate.g || renderConfig.arrMoveOrderInfo[direction].rgbRate.g == 0) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.g = renderConfig.arrMoveOrderInfo[direction].maxRRBRate.g;
-						tickerFinishCount++;
-					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.g = renderConfig.arrMoveOrderInfo[direction].nextMoveRate.g + renderConfig.arrMoveOrderInfo[direction].rgbRate.g;
-					}
-				}
-				if(renderConfig.arrMoveOrderInfo[direction].rgbModifyType.b == _constantValue.modifyDOWN) {
-					if(renderConfig.arrMoveOrderInfo[direction].maxRRBRate.b >= renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b || renderConfig.arrMoveOrderInfo[direction].rgbRate.b == 0) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b = renderConfig.arrMoveOrderInfo[direction].maxRRBRate.b;
-						tickerFinishCount++;
-					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b = renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b - renderConfig.arrMoveOrderInfo[direction].rgbRate.b;
-					}
-				} else {
-					if(renderConfig.arrMoveOrderInfo[direction].maxRRBRate.b <= renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b || renderConfig.arrMoveOrderInfo[direction].rgbRate.b == 0) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b = renderConfig.arrMoveOrderInfo[direction].maxRRBRate.b;
-						tickerFinishCount++;
-					} else {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b = renderConfig.arrMoveOrderInfo[direction].nextMoveRate.b + renderConfig.arrMoveOrderInfo[direction].rgbRate.b;
-					}
+					rgbE.nextMoveRate.r = rgbE.e.r;
 				}
 
-				//if(renderConfig.continuity == true && tickerFinishCount == 3) {
-				if(tickerFinishCount == 3) {
-					renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
+				if(rgbE.subTickerStatus.g != _constantValue.tickerStatusE) {
+					rgbSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(rgbSpaceTemp == 1) {
+						rgbE.subTickerStatus.g = _constantValue.tickerStatusE;
+						rgbE.nextMoveRate.g = rgbE.e.g;
+					} else {
+						rgbE.nextMoveRate.g = rgbE.s.g + Math.round(parseFloat(rgbE.travelRange.g) * parseFloat(rgbSpaceTemp));
+					}
+				} else {
+					rgbE.nextMoveRate.g = rgbE.e.g;
+				}
+
+				if(rgbE.subTickerStatus.b != _constantValue.tickerStatusE) {
+					rgbSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+
+					if(rgbSpaceTemp == 1) {
+						rgbE.subTickerStatus.b = _constantValue.tickerStatusE;
+						rgbE.nextMoveRate.b = rgbE.e.b;
+					} else {
+						rgbE.nextMoveRate.b = rgbE.s.b + Math.round(parseFloat(rgbE.travelRange.b) * parseFloat(rgbSpaceTemp));
+					}
+				} else {
+					rgbE.nextMoveRate.b = rgbE.e.b;
+				}
+
+				if(rgbE.subTickerStatus.r == _constantValue.tickerStatusE &&
+					 rgbE.subTickerStatus.g == _constantValue.tickerStatusE &&
+					 rgbE.subTickerStatus.b == _constantValue.tickerStatusE) {
+					rgbE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			},
-			scaleAcceleratedMotionTicker : function(renderConfig, direction) {
-
-				var scaleIickerFinishCount = 0;
-				//X축 이동
-				if(renderConfig.arrMoveOrderInfo[direction].scaleModifyType.x == _constantValue.modifyMIDDLE) {
-					scaleIickerFinishCount++;
-				} else {
-					renderConfig.arrMoveOrderInfo[direction].ratio.x = _j2mEngine.getSpace(renderConfig, direction); //다음이동 비율
-
-					if(renderConfig.arrMoveOrderInfo[direction].nextMoveRate.x == renderConfig.arrMoveOrderInfo[direction].maxScaleRate.x) {
-						scaleIickerFinishCount++;
-					} else if(renderConfig.arrMoveOrderInfo[direction].ratio.bx > renderConfig.arrMoveOrderInfo[direction].ratio.x) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.x = parseFloat(renderConfig.arrMoveOrderInfo[direction].maxScaleRate.x);
+			scaleMotionTicker : function(renderConfig, e, direction) {
+				var scaleE = e;
+				var scaleSpaceTemp = 0;
+				if(scaleE.subTickerStatus.x != _constantValue.tickerStatusE) {
+					scaleSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(scaleSpaceTemp == 1) {
+						scaleE.subTickerStatus.x = _constantValue.tickerStatusE;
+						scaleE.nextMoveRate.x = scaleE.e.x;
 					} else {
-						renderConfig.arrMoveOrderInfo[direction].ratio.bx = renderConfig.arrMoveOrderInfo[direction].ratio.x;
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.x = parseFloat(renderConfig.arrMoveOrderInfo[direction].maxScaleRate.x-renderConfig.arrMoveOrderInfo[direction].startScaleRate.x) * parseFloat(renderConfig.arrMoveOrderInfo[direction].ratio.x);
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.x += parseFloat(renderConfig.arrMoveOrderInfo[direction].startScaleRate.x);
+						scaleE.nextMoveRate.x = scaleE.s.x + (parseFloat(scaleE.travelRange.x) * parseFloat(scaleSpaceTemp));
 					}
+				} else {
+					scaleE.nextMoveRate.x = scaleE.e.x;
 				}
 
-				//Y축 이동
-				if(renderConfig.arrMoveOrderInfo[direction].scaleModifyType.y == _constantValue.modifyMIDDLE) {
-					scaleIickerFinishCount++;
-				} else {
-					renderConfig.arrMoveOrderInfo[direction].ratio.y = _j2mEngine.getSpace(renderConfig, direction); //다음이동 비율
-					if(renderConfig.arrMoveOrderInfo[direction].nextMoveRate.y == renderConfig.arrMoveOrderInfo[direction].maxScaleRate.y) {
-						scaleIickerFinishCount++;
-					} else if(renderConfig.arrMoveOrderInfo[direction].ratio.by > renderConfig.arrMoveOrderInfo[direction].ratio.y) {
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.y = parseFloat(renderConfig.arrMoveOrderInfo[direction].maxScaleRate.y);
+				if(scaleE.subTickerStatus.y != _constantValue.tickerStatusE) {
+					scaleSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(scaleSpaceTemp == 1) {
+						scaleE.subTickerStatus.y = _constantValue.tickerStatusE;
+						scaleE.nextMoveRate.y = scaleE.e.y;
 					} else {
-						renderConfig.arrMoveOrderInfo[direction].ratio.by = renderConfig.arrMoveOrderInfo[direction].ratio.y;
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.y = parseFloat(renderConfig.arrMoveOrderInfo[direction].maxScaleRate.y-renderConfig.arrMoveOrderInfo[direction].startScaleRate.y) * parseFloat(renderConfig.arrMoveOrderInfo[direction].ratio.y);
-						renderConfig.arrMoveOrderInfo[direction].nextMoveRate.y += parseFloat(renderConfig.arrMoveOrderInfo[direction].startScaleRate.y);
+						scaleE.nextMoveRate.y = scaleE.s.y + (parseFloat(scaleE.travelRange.y) * parseFloat(scaleSpaceTemp));
 					}
+				} else {
+					scaleE.nextMoveRate.y = scaleE.e.y;
 				}
 
-				if(scaleIickerFinishCount == 2) {
-					renderConfig.arrMoveOrderInfo[direction].tickerStatus = _constantValue.tickerStatusE;
+				if(scaleE.subTickerStatus.x == _constantValue.tickerStatusE &&
+					 scaleE.subTickerStatus.y == _constantValue.tickerStatusE) {
+					scaleE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			}
 		}
@@ -544,27 +620,69 @@
 움직임을 위한 펑션들의 모음
 ################################################################################################################################################*/
 
-		//사용자가 dom을 움직일때 사용자로부터 명령을 받는 함수
-		_j2mUtil.createFunction("move", function(s, t) {
+		//사용자가 object를 움직이기 전에 object를 원하는 위치로 셋팅
+		_j2mUtil.createFunction("ready", function(s, f) {
+			s = typeof(s) === "object" ? s : typeof(f) === "object" ? f : null;
+			f = typeof(s) === "function" ? s : typeof(f) === "function" ? f : null;
 
-			if(typeof(s) === "object" && typeof(t) === "number") {
-				this.randerFactoryManager(s, t);
-			} else if (typeof(s) === "number" && typeof(t) === "object") {
-				this.randerFactoryManager(t, s);
+			var initPosition = "";
+			for (var key in s) {
+				//모션에 대한 명령만 걸러서 저장
+				if(_j2mType.getMotionOrderYn(key)) {
+					if(_j2mType.getLineOrderYn(key)) {
+						initPosition = _j2mUtil.getUnit(parseInt(s[key]), key);
+					} else if(_j2mType.getMarginOrderYn(key)) { //마진 초기위치 지정
+						var finishMarginPointTemp = s[key].split(",");
+
+						if(finishMarginPointTemp.length == 1) {
+							finishMarginPointTemp = {t : parseInt(finishMarginPointTemp[0].replace("px", "")),
+																			 r : parseInt(finishMarginPointTemp[0].replace("px", "")),
+																			 b : parseInt(finishMarginPointTemp[0].replace("px", "")),
+																			 l : parseInt(finishMarginPointTemp[0].replace("px", ""))}
+						} else if(finishMarginPointTemp.length == 2) {
+							finishMarginPointTemp = {t : parseInt(finishMarginPointTemp[0].replace("px", "")),
+																			 r : parseInt(finishMarginPointTemp[1].replace("px", "")),
+																			 b : parseInt(finishMarginPointTemp[0].replace("px", "")),
+																			 l : parseInt(finishMarginPointTemp[1].replace("px", ""))}
+						} else if(finishMarginPointTemp.length == 3) {
+							finishMarginPointTemp = {t : parseInt(finishMarginPointTemp[0].replace("px", "")),
+																			 r : parseInt(finishMarginPointTemp[1].replace("px", "")),
+																			 b : parseInt(finishMarginPointTemp[2].replace("px", "")),
+																			 l : parseInt(finishMarginPointTemp[1].replace("px", ""))}
+						} else if(finishMarginPointTemp.length == 4) {
+							finishMarginPointTemp = {t : parseInt(finishMarginPointTemp[0].replace("px", "")),
+																			 r : parseInt(finishMarginPointTemp[1].replace("px", "")),
+																			 b : parseInt(finishMarginPointTemp[2].replace("px", "")),
+																			 l : parseInt(finishMarginPointTemp[3].replace("px", ""))}
+						}
+
+						initPosition = _j2mUtil.getUnit(finishMarginPointTemp, key);
+					} else if(_j2mType.getAreaOrderYn(key)) { //넓이 초기위치 지정
+						initPosition = _j2mUtil.getUnit(parseInt(s[key]), key);
+					} else if(_constantValue.opacity == key) { //투명도 초기위치 지정
+						initPosition = _j2mUtil.getUnit(parseFloat(s[key]), key);
+					} else if(_j2mType.getRgbYn(key)) { //배경색 초기위치 지정
+						initPosition = _j2mUtil.getUnit(_j2mUtil.hexToRgb(s[key]), key);
+					} else if(_constantValue.scale == key) { //크기변화 초기위치 세팅
+						initPosition = _j2mUtil.getUnit({x : parseFloat(s[key].split(",")[0]), y : parseFloat(s[key].split(",")[1])}, key);
+					}
+
+					if(_j2mType.getTransformYn(key)) {
+						this.renderConfig.targetElement.style.transform = initPosition; //현제 움직임에 해당하는 단위;
+					} else {
+						this.renderConfig.targetElement.style[key] = initPosition; //현제 움직임에 해당하는 단위;
+					}
+				}
 			}
 
 			return this;
 		});
 
-		_j2mUtil.createFunction("randerFactoryManager", function(s, t) {
-			var arrMoveOrderInfo = [];                         //사용자가 움직임을 설정한 내용
-			var motionType = _constantValue.acceleratedMotion; //운동방식 - u : 등속운동, a : 가속운동, default : 가속운동
-
-			if(s[_constantValue.motionType] != undefined) {
-				if(s[_constantValue.motionType].toUpperCase() == _constantValue.uniformMotion || s[_constantValue.motionType].toUpperCase() == _constantValue.acceleratedMotion) {
-					motionType = s[_constantValue.motionType].toUpperCase();
-				}
-			}
+		//사용자가 object를 움직일때 사용자로부터 명령을 받는 함수
+		_j2mUtil.createFunction("move", function(s, t, f) {
+			s = typeof(s) === "object" ? s : typeof(t) === "object" ? t : typeof(f) === "object" ? f : null;
+			t = typeof(s) === "number" ? s : typeof(t) === "number" ? t : typeof(f) === "number" ? f : null;
+			f = typeof(s) === "function" ? s : typeof(t) === "function" ? t : typeof(f) === "function" ? f : null;
 
 			//이동명령을 한번에 할지 순차적으로 할지 결정 기본(한번이 이동)
 			if(s[_constantValue.continuity] != undefined) {
@@ -572,183 +690,25 @@
 			} else {
 				this.renderConfig.continuity = false;
 			}
-			var orderCount = 0;
-			if(this.renderConfig.continuity == true) {
-				//모션 명령을 한번에 하나씩 수행일때 총 모션 수를 구한다.
-				for (var key in s) {
-					if( _j2mType.getMotionOrderYn(key)) {
-						orderCount++;
-					}
-				}
-				if(orderCount > 1) {
-					t = t / orderCount;
-				}
+
+			if(this.renderConfig.continuity == false) { //모션 명령을 한번에 수행
+				this.batchCssRenderingManager(s, t, f);
+			} else {
+				this.stepBystepCssRenderingManager(s, t, f);
 			}
 
-			for (var key in s) {
-				var moveOrderInfo = {}; //객체에 모션을 주기 위한 옵션들이 있는 객체
+			return this;
+		});
 
+		_j2mUtil.createFunction("batchCssRenderingManager", function(s, t, f) {
+
+			for (var key in s) {
 				//모션에 대한 명령만 걸러서 저장
 				if(_j2mType.getMotionOrderYn(key)) {
-					//TEST 여기 주석한 부분을 삭제할것인가? 다른 오류가 없다면 삭제하는걸로
-					if(_constantValue.opacity != key && s[key] == 0) {
-						//continue;
-					}
-					moveOrderInfo.moveKey = key;
-					moveOrderInfo.duration = t; //이동해야할 시간
+					var moveOrderInfo = _j2mCssUtil.getStartPosition(s[key], key, t, this, true);
 
-					//모션 별로 초기값 세팅
-					if(_j2mType.getLineOrderYn(key)) {
-
-						var lineStyle = _j2mUtil.getStyle(this.renderConfig.targetElement);
-						moveOrderInfo.s = lineStyle[key] == "auto" ? 0 : parseInt(lineStyle[key].replace("px", ""));
-						moveOrderInfo.e = parseInt(s[key]);
-						moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
-						moveOrderInfo.nextMoveRate = 0; //처음 위치
-						//moveOrderInfo.lineModifyType = moveOrderInfo.s < s[key] ? _constantValue.modifyUP : _constantValue.modifyDOWN;
-
-						//이동할 거리 없음
-						if(moveOrderInfo.travelRange == 0) {
-							continue;
-						}
-
-					} else if(_j2mType.getMarginOrderYn(key)) { //마진 관련 초기값 세팅
-
-						var marginStyle = _j2mUtil.getStyle(this.renderConfig.targetElement);
-						moveOrderInfo.s = {t : parseInt(marginStyle["margin-top"].replace("px", "")),
-															 r : parseInt(marginStyle["margin-right"].replace("px", "")),
-															 b : parseInt(marginStyle["margin-bottom"].replace("px", "")),
-															 l : parseInt(marginStyle["margin-left"].replace("px", ""))}
-
-						var finishMarginPointTemp = s[key].split(",");
-
-						if(finishMarginPointTemp.length == 1) {
-							moveOrderInfo.e = {t : parseInt(finishMarginPointTemp[0].replace("px", "")), r : parseInt(finishMarginPointTemp[0].replace("px", "")), b : parseInt(finishMarginPointTemp[0].replace("px", "")), l : parseInt(finishMarginPointTemp[0].replace("px", ""))}
-							moveOrderInfo.travelRange = {t : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-top"].replace("px", "")),
-																					 r : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-right"].replace("px", "")),
-																					 b : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-bottom"].replace("px", "")),
-																					 l : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-left"].replace("px", ""))}
-						} else if(finishMarginPointTemp.length == 2) {
-							moveOrderInfo.e = {t : parseInt(finishMarginPointTemp[0].replace("px", "")), r : parseInt(finishMarginPointTemp[1].replace("px", "")), b : parseInt(finishMarginPointTemp[0].replace("px", "")), l : parseInt(finishMarginPointTemp[1].replace("px", ""))}
-							moveOrderInfo.travelRange = {t : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-top"].replace("px", "")),
-																					 r : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-right"].replace("px", "")),
-																					 b : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-bottom"].replace("px", "")),
-																					 l : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-left"].replace("px", ""))}
-						} else if(finishMarginPointTemp.length == 3) {
-							moveOrderInfo.e = {t : parseInt(finishMarginPointTemp[0].replace("px", "")), r : parseInt(finishMarginPointTemp[1].replace("px", "")), b : parseInt(finishMarginPointTemp[2].replace("px", "")), l : parseInt(finishMarginPointTemp[1].replace("px", ""))}
-							moveOrderInfo.travelRange = {t : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-top"].replace("px", "")),
-																					 r : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-right"].replace("px", "")),
-																					 b : parseInt(finishMarginPointTemp[2].replace("px", ""))-parseInt(marginStyle["margin-bottom"].replace("px", "")),
-																					 l : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-left"].replace("px", ""))}
-						} else if(finishMarginPointTemp.length == 4) {
-							moveOrderInfo.e = {t : parseInt(finishMarginPointTemp[0].replace("px", "")), r : parseInt(finishMarginPointTemp[1].replace("px", "")), b : parseInt(finishMarginPointTemp[2].replace("px", "")), l : parseInt(finishMarginPointTemp[3].replace("px", ""))}
-							moveOrderInfo.travelRange = {t : parseInt(finishMarginPointTemp[0].replace("px", ""))-parseInt(marginStyle["margin-top"].replace("px", "")),
-																					 r : parseInt(finishMarginPointTemp[1].replace("px", ""))-parseInt(marginStyle["margin-right"].replace("px", "")),
-																					 b : parseInt(finishMarginPointTemp[2].replace("px", ""))-parseInt(marginStyle["margin-bottom"].replace("px", "")),
-																					 l : parseInt(finishMarginPointTemp[3].replace("px", ""))-parseInt(marginStyle["margin-left"].replace("px", ""))}
-						}
-
-						//개별로 진행 상태
-						moveOrderInfo.subTickerStatus = {t : moveOrderInfo.travelRange.t == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
-																						 r : moveOrderInfo.travelRange.r == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
-																						 b : moveOrderInfo.travelRange.b == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
-																						 l : moveOrderInfo.travelRange.l == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
-						//다음 이동 위치
- 						moveOrderInfo.nextMoveRate = {t : 0, r : 0, b : 0, l : 0}
-
-						if(moveOrderInfo.subTickerStatus.t == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.r == _constantValue.tickerStatusE &&
-						   moveOrderInfo.subTickerStatus.b == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.l == _constantValue.tickerStatusE) {
-								 continue;
-					  }
-
-					} else if(_j2mType.getAreaOrderYn(key)) { //넓이 관련 초기값 세팅
-
-						var areaStyle = _j2mUtil.getStyle(this.renderConfig.targetElement);
-						moveOrderInfo.s = parseInt(areaStyle[key].replace("px", ""));
-						moveOrderInfo.e = parseInt(s[key]);
-						moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
-						moveOrderInfo.nextMoveRate = 0; //처음 위치
-						// moveOrderInfo.areaModifyType = moveOrderInfo.startAreaRate < s[key] ? _constantValue.modifyUP : _constantValue.modifyDOWN;
-
-						//이동할 거리 없음
-						if(moveOrderInfo.travelRange == 0) {
-							continue;
-						}
-
-					} else if(_constantValue.opacity == key) { //투명도 초기값 세팅
-						var opacityStyle = _j2mUtil.getStyle(this.renderConfig.targetElement);
-						moveOrderInfo.nextMoveRate = opacityStyle.opacity; //처음 위치
-						moveOrderInfo.maxMoveRate = s[key]; //마지막 위치
-						moveOrderInfo.opacityRate = Number( Math.abs(Number(s[key]-opacityStyle.opacity)) / (t * _commonConfig.opacity)); //opacity시에 다음에 적용해야할 변화 비율
-						moveOrderInfo.opacityModifyType = Number(s[key]-opacityStyle.opacity) > 0 ? _constantValue.modifyUP : _constantValue.modifyDOWN;
-
-					} else if(_j2mType.getRgbYn(key)) { //배경색 관련 초기값 세팅
-						var startRgbCode = _j2mUtil.getStyle(this.renderConfig.targetElement)[moveOrderInfo.moveKey];
-						if(startRgbCode.indexOf("#") == 0) {
-							var rgbCodeArr = _j2mUtil.hexToRgb(startRgbCode);
-							moveOrderInfo.nextMoveRate = {r : rgbCodeArr.r, g : rgbCodeArr.g, b : rgbCodeArr.b}
-						} else {
-							var rgbCodeArr = startRgbCode.substring(4).replace(")", "").split(",");
-							moveOrderInfo.nextMoveRate = {r : parseInt(rgbCodeArr[0]), g : parseInt(rgbCodeArr[1]), b : parseInt(rgbCodeArr[2])}
-						}
-
-						moveOrderInfo.maxRRBRate = _j2mUtil.hexToRgb(s[key]); //마지막 위치
-
-						//x, y양쪽다 미들이면 변화가 없으므로 무시
-						if(moveOrderInfo.maxRRBRate.r == moveOrderInfo.nextMoveRate.r &&
-							 moveOrderInfo.maxRRBRate.g == moveOrderInfo.nextMoveRate.g &&
-							 moveOrderInfo.maxRRBRate.b == moveOrderInfo.nextMoveRate.b) {
-							continue;
-						}
-
-						moveOrderInfo.rgbModifyType = {
-							r : moveOrderInfo.nextMoveRate.r > moveOrderInfo.maxRRBRate.r ? _constantValue.modifyDOWN : _constantValue.modifyUP,
-							g : moveOrderInfo.nextMoveRate.g > moveOrderInfo.maxRRBRate.g ? _constantValue.modifyDOWN : _constantValue.modifyUP,
-							b : moveOrderInfo.nextMoveRate.b > moveOrderInfo.maxRRBRate.b ? _constantValue.modifyDOWN : _constantValue.modifyUP}
-
-						moveOrderInfo.rgbRate = {
-							r : Math.round(Math.abs(Number(moveOrderInfo.nextMoveRate.r-moveOrderInfo.maxRRBRate.r)) / (t * _commonConfig.opacity)),
-							g : Math.round(Math.abs(Number(moveOrderInfo.nextMoveRate.g-moveOrderInfo.maxRRBRate.g)) / (t * _commonConfig.opacity)),
-							b : Math.round(Math.abs(Number(moveOrderInfo.nextMoveRate.b-moveOrderInfo.maxRRBRate.b)) / (t * _commonConfig.opacity))}
-					} else if(_constantValue.scale == key) { //크기변화 초기값 세팅
-						var startScaleCode = _j2mUtil.getStyle(this.renderConfig.targetElement)["transform"];
-
-						//처음 시작 위치 지정
-						if(startScaleCode == "none") {
-							moveOrderInfo.startScaleRate = {x : 1, y : 1}
-							moveOrderInfo.nextMoveRate = {x : 1, y : 1}
-						} else {
-							var startScaleCodeArr = startScaleCode.substring(7).replace(")", "").split(",");
-							moveOrderInfo.startScaleRate = {x : parseFloat(startScaleCodeArr[0]), y :parseFloat( startScaleCodeArr[3])}
-							moveOrderInfo.nextMoveRate = {x : parseFloat(startScaleCodeArr[0]), y :parseFloat( startScaleCodeArr[3])}
-						}
-						//최종 목적지 지정
-						moveOrderInfo.maxScaleRate = {
-						 	x : parseFloat(s[key].split(",")[0]),
-						 	y : parseFloat(s[key].split(",")[1])
-						}
-
-						moveOrderInfo.scaleModifyType = {
-							x : moveOrderInfo.maxScaleRate.x == moveOrderInfo.nextMoveRate.x ? _constantValue.modifyMIDDLE : moveOrderInfo.nextMoveRate.x > moveOrderInfo.maxScaleRate.x ? _constantValue.modifyDOWN : _constantValue.modifyUP,
-							y : moveOrderInfo.maxScaleRate.y == moveOrderInfo.nextMoveRate.y ? _constantValue.modifyMIDDLE : moveOrderInfo.nextMoveRate.y > moveOrderInfo.maxScaleRate.y ? _constantValue.modifyDOWN : _constantValue.modifyUP}
-
-						//x, y양쪽다 미들이면 변화가 없으므로 무시
-						if(moveOrderInfo.scaleModifyType.x == _constantValue.modifyMIDDLE && moveOrderInfo.scaleModifyType.y == _constantValue.modifyMIDDLE) {
-							continue;
-						}
-
-						moveOrderInfo.ratio = {
-						 	x : 0,
-						 	y : 0,
-							bx : 0,
-							by : 0}
-
-					} else {
-						moveOrderInfo.nextMoveRate = 0; //다음 이동할 거리
-					}
-
-					if(motionType == _constantValue.uniformMotion) {
-						moveOrderInfo.uniformMotionMoveRate = Number(s[key] / (t * _commonConfig.defaultFps)); //1fps 당 움직여야할 거리 (등속운동에서만 사용함)
+					if(moveOrderInfo === false) {
+						continue;
 					}
 
 					var tempOrderInfoArray = this.renderConfig.arrMoveOrderInfo;
@@ -768,11 +728,19 @@
 					this.renderConfig.arrMoveOrderInfo = tempOrderInfoArray;
 				}
 			}
-			//TEST 삭제해도 될거 같음
+
 			if( tempOrderInfoArray == undefined) {
-			 	return false;
+				return false;
 			}
-			//this.renderConfig.arrMoveOrderInfo = tempOrderInfoArray;
+			this.renderConfig.callBack = f; //콜백 함수
+
+			var motionType = _constantValue.acceleratedMotion; //운동방식 - u : 등속운동, a : 가속운동, default : 가속운동
+
+			if(s[_constantValue.motionType] != undefined) {
+				if(s[_constantValue.motionType].toUpperCase() == _constantValue.uniformMotion || s[_constantValue.motionType].toUpperCase() == _constantValue.acceleratedMotion) {
+					motionType = s[_constantValue.motionType].toUpperCase();
+				}
+			}
 			this.renderConfig.motionType = motionType; //움직임 타입
 
 			//다음 프레임으로 바뀔 시간 길이(requestAniFrame를 지원하지 않는 브라우저 일때 사용)
@@ -780,18 +748,76 @@
 				this.renderConfig.loopTime = Number(1000 / _commonConfig.defaultFps);
 			}
 
-			if(this.renderConfig.continuity == false) { //모션 명령을 한번에 수행
-				for(var i = 0; i < this.renderConfig.arrMoveOrderInfo.length; i++) {
-					if(this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].tickerStatus == _constantValue.tickerStatusS) {
-						this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].tickerStatus = _constantValue.tickerStatusI;
-						this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].startTime = _j2mUtil.getTime();
-						this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].lastUpdate = _j2mUtil.getTime();
-						this.cssRendering(this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].moveKey, 0); //2D 런더링(방향, 반복 시작 카운트)
-					}
+			for(var i = 0; i < this.renderConfig.arrMoveOrderInfo.length; i++) {
+				if(this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].tickerStatus == _constantValue.tickerStatusS) {
+					this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].tickerStatus = _constantValue.tickerStatusI;
+					this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].startTime = _j2mUtil.getTime();
+					this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].lastUpdate = _j2mUtil.getTime();
+					this.cssRendering(this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[i]].moveKey, 0); //2D 런더링(방향, 반복 시작 카운트)
 				}
-			} else if (this.renderConfig.continuity == true) { //모션 명령을 순차적으로 수행
-				this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[0]].tickerStatus = _constantValue.tickerStatusI;
-				this.cssRendering(this.renderConfig.arrMoveOrderInfo[this.renderConfig.arrMoveOrderInfo[0]].moveKey, 0); //2D 런더링(방향, 반복 시작 카운트)
+			}
+
+			return this;
+		});
+
+		_j2mUtil.createFunction("stepBystepCssRenderingManager", function(s, t, f) {
+
+			var orderCount = 0;
+			//모션 명령을 한번에 하나씩 수행일때 총 모션 수를 구한다.
+			for (var key in s) {
+				if( _j2mType.getMotionOrderYn(key)) {
+					orderCount++;
+				}
+			}
+			if(orderCount > 1) {
+				t = t / orderCount;
+			}
+
+			for (var key in s) {
+				//모션에 대한 명령만 걸러서 저장 처음에 한번 진입
+				if(_j2mType.getMotionOrderYn(key)) {
+					var moveOrderInfo = _j2mCssUtil.getStartPosition(s[key], key, t, this, false);
+					var tempSbsOrderInfoArray = this.renderConfig.arrSbsMoveOrderInfo;
+
+					if(tempSbsOrderInfoArray != undefined) { //다시 움직임 명령
+						moveOrderInfo.tickerStatus = _constantValue.tickerStatusS;
+						moveOrderInfo.continuity = true;
+						tempSbsOrderInfoArray.push(moveOrderInfo);
+					} else { //처음 움직임 명령
+						tempSbsOrderInfoArray = [];
+						moveOrderInfo.tickerStatus = _constantValue.tickerStatusS;
+						moveOrderInfo.continuity = true;
+						tempSbsOrderInfoArray.push(moveOrderInfo);
+					}
+					this.renderConfig.arrSbsMoveOrderInfo = tempSbsOrderInfoArray;
+				}
+			}
+
+			if( tempSbsOrderInfoArray == undefined) {
+				return false;
+			}
+			this.renderConfig.callBack = f; //콜백 함수
+
+			var motionType = _constantValue.acceleratedMotion; //운동방식 - u : 등속운동, a : 가속운동, default : 가속운동
+
+			if(s[_constantValue.motionType] != undefined) {
+				if(s[_constantValue.motionType].toUpperCase() == _constantValue.uniformMotion || s[_constantValue.motionType].toUpperCase() == _constantValue.acceleratedMotion) {
+					motionType = s[_constantValue.motionType].toUpperCase();
+				}
+			}
+			this.renderConfig.motionType = motionType; //움직임 타입
+
+			//다음 프레임으로 바뀔 시간 길이(requestAniFrame를 지원하지 않는 브라우저 일때 사용)
+			if(!_j2mUtil.getRequestAnimationFrame()) {
+				this.renderConfig.loopTime = Number(1000 / _commonConfig.defaultFps);
+			}
+
+			if(this.renderConfig.totalTickerStatus == undefined || this.renderConfig.totalTickerStatus == _constantValue.tickerStatusE) {
+				this.renderConfig.totalTickerStatus = _constantValue.tickerStatusI; //전체 진행중
+				this.renderConfig.arrSbsMoveOrderInfo[0].tickerStatus = _constantValue.tickerStatusI;
+				this.renderConfig.arrSbsMoveOrderInfo[0].startTime = _j2mUtil.getTime();
+				this.renderConfig.arrSbsMoveOrderInfo[0].lastUpdate = _j2mUtil.getTime();
+				this.stepBystepCssRendering(0); //2D 런더링(명령 순서)
 			}
 
 			return this;
@@ -803,36 +829,30 @@
 
 			if(requestAniFrame) {
 
-				returnFunction = function(direction, loopCntTemp){
+				returnFunction = function(direction, loopCntTemp) {
 
-					_j2mEngine.tickerManager(this.renderConfig, direction);
-					var renderCloneObject = this;
+					var e = this.renderConfig.arrMoveOrderInfo[direction];
+					var that = this;
+					_j2mEngine.tickerManager(this.renderConfig, e, direction);
 
-					if(renderCloneObject.renderConfig.arrMoveOrderInfo[direction].tickerStatus == _constantValue.tickerStatusI) {
+					if(e.tickerStatus == _constantValue.tickerStatusI) {
 						requestAniFrame(function(time){
 
 							if(_j2mType.getTransformYn(direction)) {
-								renderCloneObject.renderConfig.targetElement.style.transform = _j2mUtil.getUnit(renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate, direction); //현제 움직임에 해당하는 단위;
+								e.style.transform = _j2mUtil.getUnit(e.nextMoveRate, direction); //현제 움직임에 해당하는 단위;
 							} else {
-								renderCloneObject.renderConfig.targetElement.style[direction] = _j2mUtil.getUnit(renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate, direction); //현제 움직임에 해당하는 단위;
+								e.style[direction] = _j2mUtil.getUnit(e.nextMoveRate, direction); //현제 움직임에 해당하는 단위;
 							}
 
-							renderCloneObject.cssRendering(direction, Number(loopCntTemp + 1));
+							that.cssRendering(direction, Number(loopCntTemp + 1));
 						});
-					} else if(renderCloneObject.renderConfig.arrMoveOrderInfo[direction].tickerStatus == _constantValue.tickerStatusE) {
+					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
+
 						//마지막에 모자라는 px르 마추는 작업
-						renderCloneObject.renderConfig.targetElement.style[direction] = _j2mUtil.getUnit(renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate, direction);
-
-						//TEST 여기 작동 유무 확인 필요
-						if(renderCloneObject.renderConfig.continuity == true) {
-							if(renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction) < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
-								renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMoveRate; //최종 목적지로 세팅
-								renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1].startTime = _j2mUtil.getTime();
-								renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1].lastUpdate = _j2mUtil.getTime();
-								//renderCloneObject.renderConfig.tickerFinish = false;
-
-								renderCloneObject.cssRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[renderCloneObject.renderConfig.arrMoveOrderInfo.indexOf(direction)+1], 0);
-							}
+						if(_j2mType.getTransformYn(direction)) {
+							e.style.transform = _j2mUtil.getUnit(e.nextMoveRate, direction);
+						} else {
+							e.style[direction] = _j2mUtil.getUnit(e.nextMoveRate, direction);
 						}
 					}
 				}
@@ -840,35 +860,27 @@
 				//TEST 여기 작동 유무 확인 필요
 				returnFunction = function(direction, loopCntTemp){
 
-					_j2mEngine.tickerManager(this.renderConfig, direction);
-					var renderCloneObject = this;
+					var e = this.renderConfig.arrMoveOrderInfo[direction];
+					var that = this;
+					_j2mEngine.tickerManager(this.renderConfig, e, direction);
 
-					if(renderCloneObject.renderConfig.arrMoveOrderInfo[direction].tickerStatus == _constantValue.tickerStatusI) {
+					if(e.tickerStatus == _constantValue.tickerStatusI) {
 						setTimeout(function(){
-							renderCloneObject.renderConfig.targetElement.style[direction] = _j2mUtil.getUnit(renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate, direction); //현제 움직임에 해당하는 단위;
 
-							renderCloneObject.cssRendering(direction, Number(loopCntTemp + 1));
+							if(_j2mType.getTransformYn(direction)) {
+								e.style.transform = _j2mUtil.getUnit(e.nextMoveRate, direction); //현제 움직임에 해당하는 단위;
+							} else {
+								e.style[direction] = _j2mUtil.getUnit(e.nextMoveRate, direction); //현제 움직임에 해당하는 단위;
+							}
+
+							that.cssRendering(direction, Number(loopCntTemp + 1));
 						}, Number(this.renderConfig.loopTime+1));
-					} else if(renderCloneObject.renderConfig.arrMoveOrderInfo[direction].tickerStatus == _constantValue.tickerStatusE) {
+					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
 						//마지막에 모자라는 px르 마추는 작업
-						renderCloneObject.renderConfig.targetElement.style[direction] = _j2mUtil.getUnit(renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate, direction);
-
-						if(renderCloneObject.renderConfig.continuity == true) {
-							var flgExist = 0;
-							for (var i = 0; i < renderCloneObject.renderConfig.arrMoveOrderInfo.length; i++) {
-							    if(renderCloneObject.renderConfig.arrMoveOrderInfo[i] == direction) {
-							        flgExist = i;
-							        break;
-							    }
-							}
-							if(flgExist < renderCloneObject.renderConfig.arrMoveOrderInfo.length-1) {
-								renderCloneObject.renderConfig.arrMoveOrderInfo[direction].nextMoveRate = renderCloneObject.renderConfig.arrMoveOrderInfo[direction].maxMoveRate; //최종 목적지로 세팅
-								renderCloneObject.renderConfig.arrMoveOrderInfo[flgExist+1].startTime = _j2mUtil.getTime();
-								renderCloneObject.renderConfig.arrMoveOrderInfo[flgExist+1].lastUpdate = _j2mUtil.getTime();
-								//renderCloneObject.renderConfig.tickerFinish = false;
-
-								renderCloneObject.cssRendering(renderCloneObject.renderConfig.arrMoveOrderInfo[flgExist+1], 0);
-							}
+						if(_j2mType.getTransformYn(direction)) {
+							e.style.transform = _j2mUtil.getUnit(e.nextMoveRate, direction); //현제 움직임에 해당하는 단위;
+						} else {
+							e.style[direction] = _j2mUtil.getUnit(e.nextMoveRate, direction); //현제 움직임에 해당하는 단위;
 						}
 					}
 				}
@@ -878,6 +890,125 @@
 
 		}
 		_j2mUtil.createFunction("cssRendering", getCssRendering());
+
+
+		function getStepBystepCssRendering(){
+			var returnFunction = "";
+			var requestAniFrame = _j2mUtil.getRequestAnimationFrame();
+
+			if(requestAniFrame) {
+
+				returnFunction = function(loopCntTemp) {
+
+					var e = this.renderConfig.arrSbsMoveOrderInfo[0];
+					var that = this;
+					_j2mEngine.tickerManager(this.renderConfig, e, e.moveKey);
+					if(e.tickerStatus == _constantValue.tickerStatusI) {
+						requestAniFrame(function(time){
+
+							if(_j2mType.getTransformYn(e.moveKey)) {
+								e.style.transform = _j2mUtil.getUnit(e.nextMoveRate, e.moveKey); //현제 움직임에 해당하는 단위;
+							} else {
+								e.style[e.moveKey] = _j2mUtil.getUnit(e.nextMoveRate, e.moveKey); //현제 움직임에 해당하는 단위;
+							}
+
+							that.stepBystepCssRendering(Number(loopCntTemp + 1));
+						});
+
+					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
+
+						//마지막에 모자라는 px르 마추는 작업
+						if(_j2mType.getTransformYn(e.moveKey)) {
+							e.style.transform = _j2mUtil.getUnit(e.nextMoveRate, e.moveKey);
+						} else {
+							e.style[e.moveKey] = _j2mUtil.getUnit(e.nextMoveRate, e.moveKey);
+						}
+
+						if(this.renderConfig.arrSbsMoveOrderInfo != undefined && this.renderConfig.arrSbsMoveOrderInfo.length > 1) {
+								this.renderConfig.arrSbsMoveOrderInfo.shift();
+								var moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.arrSbsMoveOrderInfo[0].e, this.renderConfig.arrSbsMoveOrderInfo[0].moveKey, this.renderConfig.arrSbsMoveOrderInfo[0].duration, this, true);
+								if(moveOrderInfo === false) {
+									while(this.renderConfig.arrSbsMoveOrderInfo.length > 1) {
+										this.renderConfig.arrSbsMoveOrderInfo.shift();
+										moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.arrSbsMoveOrderInfo[0].e, this.renderConfig.arrSbsMoveOrderInfo[0].moveKey, this.renderConfig.arrSbsMoveOrderInfo[0].duration, this, true);
+										if(moveOrderInfo !== false) {
+											break;
+										}
+									}
+								}
+
+								if(moveOrderInfo !== false) {
+									this.renderConfig.arrSbsMoveOrderInfo[0] = moveOrderInfo;
+									this.renderConfig.arrSbsMoveOrderInfo[0].tickerStatus = _constantValue.tickerStatusI;
+									this.renderConfig.arrSbsMoveOrderInfo[0].startTime = _j2mUtil.getTime();
+									this.renderConfig.arrSbsMoveOrderInfo[0].lastUpdate = _j2mUtil.getTime();
+									this.stepBystepCssRendering(0);
+								}
+						} else {
+							this.renderConfig.arrSbsMoveOrderInfo = undefined;
+							this.renderConfig.totalTickerStatus = _constantValue.tickerStatusE;
+						}
+					}
+				}
+			} else {
+				//TEST 여기 작동 유무 확인 필요
+				returnFunction = function(loopCntTemp){
+
+					var e = this.renderConfig.arrMoveOrderInfo[0];
+					var that = this;
+					_j2mEngine.tickerManager(this.renderConfig, e, e.moveKey);
+
+					if(e.tickerStatus == _constantValue.tickerStatusI) {
+						setTimeout(function(){
+
+							if(_j2mType.getTransformYn(direction)) {
+								e.style.transform = _j2mUtil.getUnit(e.nextMoveRate, e.moveKey); //현제 움직임에 해당하는 단위;
+							} else {
+								e.style[direction] = _j2mUtil.getUnit(e.nextMoveRate, e.moveKey); //현제 움직임에 해당하는 단위;
+							}
+
+							that.stepBystepCssRendering(Number(loopCntTemp + 1));
+						}, Number(this.renderConfig.loopTime+1));
+					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
+						//마지막에 모자라는 px르 마추는 작업
+						if(_j2mType.getTransformYn(e.moveKey)) {
+							e.style.transform = _j2mUtil.getUnit(e.nextMoveRate, e.moveKey);
+						} else {
+							e.style[e.moveKey] = _j2mUtil.getUnit(e.nextMoveRate, e.moveKey);
+						}
+
+						if(this.renderConfig.arrSbsMoveOrderInfo != undefined && this.renderConfig.arrSbsMoveOrderInfo.length > 1) {
+								this.renderConfig.arrSbsMoveOrderInfo.shift();
+								var moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.arrSbsMoveOrderInfo[0].e, this.renderConfig.arrSbsMoveOrderInfo[0].moveKey, this.renderConfig.arrSbsMoveOrderInfo[0].duration, this, true);
+								if(moveOrderInfo === false) {
+									while(this.renderConfig.arrSbsMoveOrderInfo.length > 1) {
+										this.renderConfig.arrSbsMoveOrderInfo.shift();
+										moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.arrSbsMoveOrderInfo[0].e, this.renderConfig.arrSbsMoveOrderInfo[0].moveKey, this.renderConfig.arrSbsMoveOrderInfo[0].duration, this, true);
+										if(moveOrderInfo !== false) {
+											break;
+										}
+									}
+								}
+
+								if(moveOrderInfo !== false) {
+									this.renderConfig.arrSbsMoveOrderInfo[0] = moveOrderInfo;
+									this.renderConfig.arrSbsMoveOrderInfo[0].tickerStatus = _constantValue.tickerStatusI;
+									this.renderConfig.arrSbsMoveOrderInfo[0].startTime = _j2mUtil.getTime();
+									this.renderConfig.arrSbsMoveOrderInfo[0].lastUpdate = _j2mUtil.getTime();
+									this.stepBystepCssRendering(0);
+								}
+						} else {
+							this.renderConfig.arrSbsMoveOrderInfo = undefined;
+							this.renderConfig.totalTickerStatus = _constantValue.tickerStatusE;
+						}
+					}
+				}
+			}
+
+			return returnFunction;
+
+		}
+		_j2mUtil.createFunction("stepBystepCssRendering", getStepBystepCssRendering());
 		_j2m.init();
 
 		window.j2m = _j2m.selector;
