@@ -140,6 +140,14 @@
 			left:340px;
 			background-color:#D941C5;
 		}
+		#demo_object_7 {
+			width:100px;
+			height:100px;
+			position:absolute;
+			top:120px;
+			left:10px;
+			background-color:#D941C5;
+		}
 	</style>
 </head>
 <body>
@@ -150,8 +158,8 @@
 				<img src="./img/ball.jpg" class="demo_object_img">
 			</div>
 
-			<input type="button" value="수평" onclick="demoObjectLeft()" style="position:absolute;top:270px;">
-			<input type="button" value="수직" onclick="demoObjectTop()" style="position:absolute;top:270px;left:60px;">
+			<input type="button" value="수평" id="leftButton" style="position:absolute;top:270px;">
+			<input type="button" value="수직" id="topButton" style="position:absolute;top:270px;left:60px;">
 
 		</div>
 		<div id="demo_contain_2" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
@@ -191,10 +199,12 @@
 
 			<input type="button" value="scale" onclick="demoObjectScale()" style="position:absolute;top:270px;">
 		</div>
-		<!-- <div id="demo_contain_7" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+		<div id="demo_contain_7" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
 			<h2 id="demo_contain_text_7" class="demo_title_contain" onmouseover="demoObjectOn('7');" >순차 이동</h2>
+			<div id="demo_object_7"></div>
 
-		</div> -->
+			<input type="button" value="scale" onclick="demoObjectStepByStep()" style="position:absolute;top:270px;">
+		</div>
 </body>
 
 <script src="../src/j2m.js"></script>
@@ -217,26 +227,34 @@
 		j2m(e).move({height:300}, 0.5);
 	}
 
-	var leftCheck = "1";
-	var topCheck = "1";
-	function demoObjectLeft() {
-		if(leftCheck == "1") {
-			leftCheck = "2";
-			j2m("#demo_object_1").move({left:720}, 1);
-		} else {
-			leftCheck = "1";
-			j2m("#demo_object_1").move({left:10}, 1);
+	window.onload =function(){
+		//left 이동
+		var leftCheck = "1";
+		var topCheck = "1";
+		document.getElementById("leftButton").onclick = function(event){
+			if(leftCheck == "1") {
+				leftCheck = "2";
+				j2m("#demo_object_1").move({left:720}, 1);
+			} else {
+				leftCheck = "1";
+				j2m("#demo_object_1").move({left:10}, 1);
+			}
+			event.stopPropagation();
+		}
+
+		//top 이동
+		document.getElementById("topButton").onclick = function(event) {
+			if(topCheck == "1") {
+				topCheck = "2";
+				j2m("#demo_object_1").move({top:200}, 1);
+			} else {
+				topCheck = "1";
+				j2m("#demo_object_1").move({top:70}, 1);
+			}
+			event.stopPropagation();
 		}
 	}
-	function demoObjectTop() {
-		if(topCheck == "1") {
-			topCheck = "2";
-			j2m("#demo_object_1").move({top:200}, 1);
-		} else {
-			topCheck = "1";
-			j2m("#demo_object_1").move({top:70}, 1);
-		}
-	}
+
 
 
 	var marginCheck = "1";
@@ -318,6 +336,14 @@
 			scaleCheck = "1";
 			j2m("#demo_object_6").move({scale:"1, 1"}, 1);
 		}
+	}
+
+	function demoObjectStepByStep() {
+		j2m("#demo_object_7").move({top:50, continuity:true}, 1);
+		j2m("#demo_object_7").move({left:700, continuity:true}, 1);
+		j2m("#demo_object_7").move({top:160, continuity:true}, 1);
+		j2m("#demo_object_7").move({left:10, continuity:true}, 1);
+		j2m("#demo_object_7").move({top:120, continuity:true}, 1);
 	}
 
 
