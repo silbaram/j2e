@@ -13,141 +13,27 @@
 			background-color: #EAEAEA;
 			overflow-y: scroll;
 		}
-		.demo_contain {
-			width:800px;
-		    border:0px;
-		    position:relative;
-		    margin:0 auto;
-		}
+		.demo_contain {width:800px; border:0px; position:relative; margin:0 auto;}
+		.demo_object_contain { height:100px; width:800px; background-color:#FFFFFF; border:0.5px solid black; margin:10px; position:relative; padding:10px; box-shadow: 2px 2px 1px grey; cursor:pointer; overflow:hidden;}
+		.demo_title_contain {height:100%;width:100%;border:0px;padding:0px;margin:0px;}
+		.demo_ball {position:absolute;top:120px;left:10px;}
+		.demo_object_img {height:70px;width:70;}
 
-		.demo_object_contain {
-		    height:100px;
-		    width:800px;
-		    background-color:#FFFFFF;
-		    border:0.5px solid black;
-				margin:10px;
-		    position:relative;
-		    padding:10px;
-		    box-shadow: 2px 2px 1px grey;
-				cursor:pointer;
-				overflow:hidden;
-		}
-
-		.demo_title_contain {
-			height:100%;
-			width:100%;
-			border:0px;
-			padding:0px;
-			margin:0px;
-		}
-
-		.demo_ball {
-			position:absolute;
-			top:120px;
-			left:10px;
-		}
-
-		.demo_object_img {
-			height:70px;
-			width:70;
-		}
-
-		#demo_object_2_1 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:10px;
-			background-color:#D941C5;
-		}
-		#demo_object_2_2 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:120px;
-			background-color:#D941C5;
-		}
-		#demo_object_2_3 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:230px;
-			background-color:#D941C5;
-		}
-		#demo_object_2_4 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:340px;
-			background-color:#D941C5;
-		}
-		#demo_object_3 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:10px;
-			background-color:#D941C5;
-		}
-		#demo_object_4 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:10px;
-			background-color:#D941C5;
-		}
-		#demo_object_5_1 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:10px;
-			background-color:#D941C5;
-		}
-		#demo_object_5_2 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:120px;
-			background-color:#D941C5;
-		}
-		#demo_object_5_3 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:230px;
-			background-color:#D941C5;
-		}
-		#demo_object_5_4 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:340px;
-			background-color:#D941C5;
-		}
-		#demo_object_6 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:340px;
-			background-color:#D941C5;
-		}
-		#demo_object_7 {
-			width:100px;
-			height:100px;
-			position:absolute;
-			top:120px;
-			left:10px;
-			background-color:#D941C5;
-		}
+		#demo_object_2_1 {width:100px; height:100px; position:absolute; top:120px; left:10px; background-color:#D941C5;}
+		#demo_object_2_2 {width:100px; height:100px; position:absolute; top:120px; left:120px; background-color:#D941C5;}
+		#demo_object_2_3 {width:100px; height:100px; position:absolute; top:120px; left:230px; background-color:#D941C5;}
+		#demo_object_2_4 {width:100px; height:100px; position:absolute; top:120px; left:340px; background-color:#D941C5;}
+		#demo_object_3 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;}
+		#demo_object_4 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;}
+		#demo_object_5_1 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;}
+		#demo_object_5_2 {width:100px;height:100px;position:absolute;top:120px;left:120px;background-color:#D941C5;}
+		#demo_object_5_3 {width:100px;height:100px;position:absolute;top:120px;left:230px;background-color:#D941C5;}
+		#demo_object_5_4 {width:100px;height:100px;position:absolute;top:120px;left:340px;background-color:#D941C5;}
+		#demo_object_6 {width:100px;height:100px;position:absolute;top:120px;left:340px;background-color:#D941C5;}
+		#demo_object_7_1 {width:120px;height:120px;position:absolute;top:120px;left:100px;background-color:#D941C5;}
+		#demo_object_7_2 {width:120px;height:120px;position:absolute;top:120px;left:240px;background-color:#D941C5;}
+		#demo_object_7_3 {width:120px;height:120px;position:absolute;top:120px;left:380px;background-color:#D941C5;}
+		#demo_object_7_4 {width:120px;height:120px;position:absolute;top:120px;left:520px;background-color:#D941C5;}
 	</style>
 </head>
 <body>
@@ -199,12 +85,32 @@
 
 			<input type="button" value="scale" onclick="demoObjectScale()" style="position:absolute;top:270px;">
 		</div>
+
+
 		<div id="demo_contain_7" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_7" class="demo_title_contain" onmouseover="demoObjectOn('7');" >rotate 이동</h2>
+			<div id="demo_object_7_1">rotate 1</div>
+			<div id="demo_object_7_2">rotate 2</div>
+			<div id="demo_object_7_3">rotate 3</div>
+			<div id="demo_object_7_4">rotate 4</div>
+
+			<input type="button" value="rotate 0" id="rotateButton" style="position:absolute;top:270px;;">
+			<input type="button" value="rotate 90" id="rotateButton1" style="position:absolute;top:270px;left:100px;">
+			<input type="button" value="rotate 180" id="rotateButton2" style="position:absolute;top:270px;left:200px;">
+			<input type="button" value="rotate 270" id="rotateButton3" style="position:absolute;top:270px;left:300px;">
+			<input type="button" value="rotate 360" id="rotateButton4" style="position:absolute;top:270px;left:400px;">
+
+			<div style="position:absolute;top:295px;left:10px;"><input type="radio" value="rotateX" id="radioRotateX" name="radioRotate" checked>rotateX</div>
+			<div style="position:absolute;top:295px;left:100px;"><input type="radio" value="rotateY" id="radioRotateY" name="radioRotate">rotateY</div>
+			<div style="position:absolute;top:295px;left:190px;"><input type="radio" value="rotateZ" id="radioRotateZ" name="radioRotate">rotateZ</div>
+		</div>
+
+		<!-- <div id="demo_contain_7" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
 			<h2 id="demo_contain_text_7" class="demo_title_contain" onmouseover="demoObjectOn('7');" >순차 이동</h2>
 			<div id="demo_object_7"></div>
 
 			<input type="button" value="scale" onclick="demoObjectStepByStep()" style="position:absolute;top:270px;">
-		</div>
+		</div> -->
 </body>
 
 <script src="../src/j2m.js"></script>
@@ -216,7 +122,6 @@
 	}
 
 	function demoObjectOff(e) {
-
 		addEvent(e, 'mouseleave', function() {
 			j2m(e).move({margin:"10", scale:"1, 1"}, 0.4);
 			j2m(e).move({height:100}, 0.5);
@@ -251,6 +156,154 @@
 				topCheck = "1";
 				j2m("#demo_object_1").move({top:70}, 1);
 			}
+
+			event.stopPropagation();
+		}
+
+		//rotate 이동
+		document.getElementById("rotateButton").onclick = function(event) {
+			var num_temp = document.all.radioRotate.length;
+			var rotateType = "";
+			for (i = 0; i < num_temp;i++) {
+				if (document.all.radioRotate[i].checked == true) {
+					rotateType = document.all.radioRotate[i].value;
+		   		break;
+				}
+			}
+
+			if(rotateType == "rotateX") {
+				j2m("#demo_object_7_1").move({rotateX:0}, 1);
+				j2m("#demo_object_7_2").move({rotateX:0}, 1);
+				j2m("#demo_object_7_3").move({rotateX:0}, 1);
+				j2m("#demo_object_7_4").move({rotateX:0}, 1);
+			} else if(rotateType == "rotateY") {
+				j2m("#demo_object_7_1").move({rotateY:0}, 1);
+				j2m("#demo_object_7_2").move({rotateY:0}, 1);
+				j2m("#demo_object_7_3").move({rotateY:0}, 1);
+				j2m("#demo_object_7_4").move({rotateY:0}, 1);
+			} else if(rotateType == "rotateZ") {
+				j2m("#demo_object_7_1").move({rotateZ:0}, 1);
+				j2m("#demo_object_7_2").move({rotateZ:0}, 1);
+				j2m("#demo_object_7_3").move({rotateZ:0}, 1);
+				j2m("#demo_object_7_4").move({rotateZ:0}, 1);
+			}
+
+			event.stopPropagation();
+		}
+		document.getElementById("rotateButton1").onclick = function(event) {
+			var num_temp = document.all.radioRotate.length;
+			var rotateType = "";
+			for (i = 0; i < num_temp;i++) {
+				if (document.all.radioRotate[i].checked == true) {
+					rotateType = document.all.radioRotate[i].value;
+		   		break;
+				}
+			}
+
+			if(rotateType == "rotateX") {
+				j2m("#demo_object_7_1").move({rotateX:90}, 1);
+				j2m("#demo_object_7_2").move({rotateX:90}, 1);
+				j2m("#demo_object_7_3").move({rotateX:90}, 1);
+				j2m("#demo_object_7_4").move({rotateX:90}, 1);
+			} else if(rotateType == "rotateY") {
+				j2m("#demo_object_7_1").move({rotateY:90}, 1);
+				j2m("#demo_object_7_2").move({rotateY:90}, 1);
+				j2m("#demo_object_7_3").move({rotateY:90}, 1);
+				j2m("#demo_object_7_4").move({rotateY:90}, 1);
+			} else if(rotateType == "rotateZ") {
+				j2m("#demo_object_7_1").move({rotateZ:90}, 1);
+				j2m("#demo_object_7_2").move({rotateZ:90}, 1);
+				j2m("#demo_object_7_3").move({rotateZ:90}, 1);
+				j2m("#demo_object_7_4").move({rotateZ:90}, 1);
+			}
+
+			event.stopPropagation();
+		}
+		document.getElementById("rotateButton2").onclick = function(event) {
+			var num_temp = document.all.radioRotate.length;
+			var rotateType = "";
+			for (i = 0; i < num_temp;i++) {
+				if (document.all.radioRotate[i].checked == true) {
+					rotateType = document.all.radioRotate[i].value;
+		   		break;
+				}
+			}
+
+			if(rotateType == "rotateX") {
+				j2m("#demo_object_7_1").move({rotateX:180}, 1);
+				j2m("#demo_object_7_2").move({rotateX:180}, 1);
+				j2m("#demo_object_7_3").move({rotateX:180}, 1);
+				j2m("#demo_object_7_4").move({rotateX:180}, 1);
+			} else if(rotateType == "rotateY") {
+				j2m("#demo_object_7_1").move({rotateY:180}, 1);
+				j2m("#demo_object_7_2").move({rotateY:180}, 1);
+				j2m("#demo_object_7_3").move({rotateY:180}, 1);
+				j2m("#demo_object_7_4").move({rotateY:180}, 1);
+			} else if(rotateType == "rotateZ") {
+				j2m("#demo_object_7_1").move({rotateZ:180}, 1);
+				j2m("#demo_object_7_2").move({rotateZ:180}, 1);
+				j2m("#demo_object_7_3").move({rotateZ:180}, 1);
+				j2m("#demo_object_7_4").move({rotateZ:180}, 1);
+			}
+
+			event.stopPropagation();
+		}
+		document.getElementById("rotateButton3").onclick = function(event) {
+			var num_temp = document.all.radioRotate.length;
+			var rotateType = "";
+			for (i = 0; i < num_temp;i++) {
+				if (document.all.radioRotate[i].checked == true) {
+					rotateType = document.all.radioRotate[i].value;
+		   		break;
+				}
+			}
+
+			if(rotateType == "rotateX") {
+				j2m("#demo_object_7_1").move({rotateX:270}, 1);
+				j2m("#demo_object_7_2").move({rotateX:270}, 1);
+				j2m("#demo_object_7_3").move({rotateX:270}, 1);
+				j2m("#demo_object_7_4").move({rotateX:270}, 1);
+			} else if(rotateType == "rotateY") {
+				j2m("#demo_object_7_1").move({rotateY:270}, 1);
+				j2m("#demo_object_7_2").move({rotateY:270}, 1);
+				j2m("#demo_object_7_3").move({rotateY:270}, 1);
+				j2m("#demo_object_7_4").move({rotateY:270}, 1);
+			} else if(rotateType == "rotateZ") {
+				j2m("#demo_object_7_1").move({rotateZ:270}, 1);
+				j2m("#demo_object_7_2").move({rotateZ:270}, 1);
+				j2m("#demo_object_7_3").move({rotateZ:270}, 1);
+				j2m("#demo_object_7_4").move({rotateZ:270}, 1);
+			}
+
+			event.stopPropagation();
+		}
+		document.getElementById("rotateButton4").onclick = function(event) {
+			var num_temp = document.all.radioRotate.length;
+			var rotateType = "";
+			for (i = 0; i < num_temp;i++) {
+				if (document.all.radioRotate[i].checked == true) {
+					rotateType = document.all.radioRotate[i].value;
+		   		break;
+				}
+			}
+
+			if(rotateType == "rotateX") {
+				j2m("#demo_object_7_1").move({rotateX:360}, 1);
+				j2m("#demo_object_7_2").move({rotateX:360}, 1);
+				j2m("#demo_object_7_3").move({rotateX:360}, 1);
+				j2m("#demo_object_7_4").move({rotateX:360}, 1);
+			} else if(rotateType == "rotateY") {
+				j2m("#demo_object_7_1").move({rotateY:360}, 1);
+				j2m("#demo_object_7_2").move({rotateY:360}, 1);
+				j2m("#demo_object_7_3").move({rotateY:360}, 1);
+				j2m("#demo_object_7_4").move({rotateY:360}, 1);
+			} else if(rotateType == "rotateZ") {
+				j2m("#demo_object_7_1").move({rotateZ:360}, 1);
+				j2m("#demo_object_7_2").move({rotateZ:360}, 1);
+				j2m("#demo_object_7_3").move({rotateZ:360}, 1);
+				j2m("#demo_object_7_4").move({rotateZ:360}, 1);
+			}
+
 			event.stopPropagation();
 		}
 	}
