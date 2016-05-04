@@ -28,6 +28,8 @@
 			opacity : "opacity",       //투명도
 			backgroundColor : "backgroundColor", //배경색
 			scale : "scale",
+			scaleX : "scaleX",
+			scaleY : "scaleY",
 			rotate : "rotate",
 			rotateX : "rotateX",
 			rotateY : "rotateY",
@@ -263,7 +265,7 @@
 						moveOrderInfo.s = {r : parseInt(rgbCodeArr[0]), g : parseInt(rgbCodeArr[1]), b : parseInt(rgbCodeArr[2])}
 					}
 
-					moveOrderInfo.e = _j2mCssUtil.hexToRgb(finishPoint); //마지막 위치
+					moveOrderInfo.e = typeof(finishPoint) == "object" ? finishPoint : _j2mCssUtil.hexToRgb(finishPoint); //마지막 위치
 					moveOrderInfo.travelRange = {r : parseInt(moveOrderInfo.e.r)-parseInt(moveOrderInfo.s.r),
 													 						 g : parseInt(moveOrderInfo.e.g)-parseInt(moveOrderInfo.s.g),
 													 					 	 b : parseInt(moveOrderInfo.e.b)-parseInt(moveOrderInfo.s.b)}
@@ -278,24 +280,56 @@
 					   moveOrderInfo.subTickerStatus.b == _constantValue.tickerStatusE && checkTravelRange == true) {
 							 return false;
 				  }
-				} else if(_constantValue.scale == key) { //크기변화 초기값 세팅
+				} else if(_j2mType.getScaleYn(key)) { //크기변화 초기값 세팅
 
 					var startScaleCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
 					if(startScaleCode == "none") {
 						moveOrderInfo.s = {x : 1, y : 1}
 					} else {
-						var startScaleCodeCheck = that.renderConfig.targetElement.style.transform;
-						if(startScaleCodeCheck != "") {
-							if(startScaleCodeCheck.indexOf("scale") == -1) {
-								moveOrderInfo.s = {x : 1, y : 1}
+
+						if(checkTravelRange == true) {
+							var values = startScaleCode.split('(')[1].split(')')[0].split(',');
+							if(values.length == 16) {
+								var scaleX = values[0];
+								var scaleY = values[5];
 							} else {
-								var tempScaleS = startScaleCodeCheck.substring(startScaleCodeCheck.indexOf("scale")).split(")");
-								var startScaleCodeArr = tempScaleS[0].substring(6).split(",");
-								moveOrderInfo.s = {x : parseFloat(startScaleCodeArr[0]), y :parseFloat(startScaleCodeArr[1])}
+								var a = values[0];
+								var b = values[1];
+								var c = values[2];
+								var d = values[3];
+								var scaleX = Math.sqrt(a*a + b*b);
+								var scaleY = Math.sqrt(c*c + d*d);
+							}
+							moveOrderInfo.s = {x : parseFloat(scaleX), y :parseFloat(scaleY)}
+						} else if(checkTravelRange == false) {
+							if(that.renderConfig.moveOrderInfoListMemory == undefined || that.renderConfig.moveOrderInfoListMemory[key] == undefined) {
+								var values = startScaleCode.split('(')[1].split(')')[0].split(',');
+								if(values.length == 16) {
+									var scaleX = values[0];
+									var scaleY = values[5];
+								} else {
+									var a = values[0];
+									var b = values[1];
+									var c = values[2];
+									var d = values[3];
+									var scaleX = Math.sqrt(a*a + b*b);
+									var scaleY = Math.sqrt(c*c + d*d);
+								}
+								moveOrderInfo.s = {x : parseFloat(scaleX), y :parseFloat(scaleY)}
+							} else if(that.renderConfig.moveOrderInfoListMemory[key] != undefined) {
+								moveOrderInfo.s = {x : that.renderConfig.moveOrderInfoListMemory[key].e.x, y : that.renderConfig.moveOrderInfoListMemory[key].e.y}
 							}
 						}
 					}
-					moveOrderInfo.e = {x : parseFloat(finishPoint.split(",")[0]), y : parseFloat(finishPoint.split(",")[1])}
+
+					if(_constantValue.scale == key) {
+						moveOrderInfo.e = typeof(finishPoint) == "object" ? {x : finishPoint.x, y : finishPoint.y} : {x : parseFloat(finishPoint.split(",")[0]), y : parseFloat(finishPoint.split(",")[1])}
+					} else if(_constantValue.scaleX == key) {
+						moveOrderInfo.e = {x : parseFloat(typeof(finishPoint) == "object" ? finishPoint.x : finishPoint), y : parseFloat(scaleY)}
+					} else if(_constantValue.scaleY == key) {
+						moveOrderInfo.e = {x : parseFloat(scaleX), y : parseFloat(parseFloat(typeof(finishPoint) == "object" ? finishPoint.y : finishPoint))}
+					}
+
 					moveOrderInfo.travelRange = {x : parseFloat(moveOrderInfo.e.x)-parseFloat(moveOrderInfo.s.x),
 																			 y : parseFloat(moveOrderInfo.e.y)-parseFloat(moveOrderInfo.s.y)}
 				 	//개별로 진행 상태
@@ -309,35 +343,58 @@
 						return false;
 				  }
 				} else if(_j2mType.getRotate(key)) { //기울기변경 초기값 세팅
+					key = key == _constantValue.rotate ? _constantValue.rotateZ : key;
 					var startrotateCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
 					if(startrotateCode == "none") {
 						moveOrderInfo.s = 0;
 					} else {
 						var startRotateCodeCheck = that.renderConfig.targetElement.style.transform;
 
-						if(startRotateCodeCheck != "") {
-
-							if(startRotateCodeCheck.indexOf(key) == -1) {
-								moveOrderInfo.s = 0;
-							} else {
+						if(checkTravelRange == true) {
+							if(startRotateCodeCheck.indexOf(key) != -1) {
 								var tempS = startRotateCodeCheck.substring(startRotateCodeCheck.indexOf(key)).split(")");
 								var regex = /[^0-9]/g;
 								moveOrderInfo.s = tempS[0].replace(regex, '');
+							} else {
+								var values = startrotateCode.split('(')[1].split(')')[0].split(',');
+								var a = values[0];
+								var b = values[1];
+								var c = values[2];
+								var d = values[3];
+								var scale = Math.sqrt(a*a + b*b);
+								var sin = b/scale;
+								var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
+								var radians = Math.atan2(b, a);
+								if ( radians < 0 ) {
+								  radians += (2 * Math.PI);
+								}
+								moveOrderInfo.s = Math.round( radians * (180/Math.PI));
 							}
-						} else {
-							var values = startrotateCode.split('(')[1].split(')')[0].split(',');
-							var a = values[0];
-							var b = values[1];
-							var c = values[2];
-							var d = values[3];
-							var scale = Math.sqrt(a*a + b*b);
-							var sin = b/scale;
-							var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
-							var radians = Math.atan2(b, a);
-							if ( radians < 0 ) {
-							  radians += (2 * Math.PI);
+						} else if(checkTravelRange == false) {
+							if(that.renderConfig.moveOrderInfoListMemory == undefined || that.renderConfig.moveOrderInfoListMemory[key] == undefined) {
+								//TEST 여기가 정상작동 할까??
+								if(startRotateCodeCheck.indexOf(key) != -1) {
+									var tempS = startRotateCodeCheck.substring(startRotateCodeCheck.indexOf(key)).split(")");
+									var regex = /[^0-9]/g;
+									moveOrderInfo.s = tempS[0].replace(regex, '');
+								} else {
+									var values = startrotateCode.split('(')[1].split(')')[0].split(',');
+									var a = values[0];
+									var b = values[1];
+									var c = values[2];
+									var d = values[3];
+									var scale = Math.sqrt(a*a + b*b);
+									var sin = b/scale;
+									var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
+									var radians = Math.atan2(b, a);
+									if ( radians < 0 ) {
+									  radians += (2 * Math.PI);
+									}
+									moveOrderInfo.s = Math.round( radians * (180/Math.PI));
+								}
+							} else if(that.renderConfig.moveOrderInfoListMemory[key] != undefined) {
+								moveOrderInfo.s = that.renderConfig.moveOrderInfoListMemory[key].e;
 							}
-							moveOrderInfo.s = Math.round( radians * (180/Math.PI));
 						}
 					}
 
@@ -388,8 +445,12 @@
 				var transformUnit = "";
 				var orderInfo = o;
 
-				if(orderInfo.scale != undefined) {
+				if(_constantValue.scale == c) {
 					transformUnit += " scale(" +orderInfo.scale.nextMoveRate.x+", "+orderInfo.scale.nextMoveRate.y+")";
+				} else if(_constantValue.scaleX == c) {
+					transformUnit += " scale(" +orderInfo.scaleX.nextMoveRate.x+", "+orderInfo.scaleX.nextMoveRate.y+")";
+				} else if(_constantValue.scaleY == c) {
+					transformUnit += " scale(" +orderInfo.scaleY.nextMoveRate.x+", "+orderInfo.scaleY.nextMoveRate.y+")";
 				}
 
 				if(orderInfo.rotateX != undefined) {
@@ -406,14 +467,57 @@
 				}
 
 				return transformUnit;
+			},
+			getStepByStepTransform2DUnit : function(that, o, c) {
+				var transformUnit = "";
+				var orderInfo = o;
+
+				if(that.renderConfig.moveOrderInfoListMemory != undefined) {
+					for(var i = 0; i < that.renderConfig.moveOrderInfoListMemory.length; i++) {
+						var moveOrderInfoListMemoryMoveKey = that.renderConfig.moveOrderInfoListMemory[that.renderConfig.moveOrderInfoListMemory[i]].moveKey;
+						var moveOrderInfoListMemoryNextMoveRate = that.renderConfig.moveOrderInfoListMemory[that.renderConfig.moveOrderInfoListMemory[i]].nextMoveRate;
+
+						if(_j2mType.getScaleYn(moveOrderInfoListMemoryMoveKey) && !_j2mType.getScaleYn(c)) {
+							transformUnit += " scale(" +moveOrderInfoListMemoryNextMoveRate.x+", "+moveOrderInfoListMemoryNextMoveRate.y+")";
+						}
+
+						if(!_j2mType.getRotate(c)) {
+							if(_constantValue.rotateX == moveOrderInfoListMemoryMoveKey) {
+								transformUnit += " rotateX("+moveOrderInfoListMemoryNextMoveRate+"deg)";
+							}
+							if(_constantValue.rotateY == moveOrderInfoListMemoryMoveKey) {
+								transformUnit += " rotateY("+moveOrderInfoListMemoryNextMoveRate+"deg)";
+							}
+							if(_constantValue.rotateZ == moveOrderInfoListMemoryMoveKey || _constantValue.rotate == moveOrderInfoListMemoryMoveKey) {
+								transformUnit += " rotateZ("+moveOrderInfoListMemoryNextMoveRate+"deg)";
+							}
+						}
+					}
+				}
+
+				if(_j2mType.getScaleYn(c)) {
+					transformUnit += " scale(" +orderInfo.nextMoveRate.x+", "+orderInfo.nextMoveRate.y+")";
+				}
+
+				if(_constantValue.rotateX == c) {
+					transformUnit += " rotateX(" +orderInfo.nextMoveRate+"deg)";
+				}
+				if(_constantValue.rotateY == c) {
+					transformUnit += " rotateY(" +orderInfo.nextMoveRate+"deg)";
+				}
+				if(_constantValue.rotateZ == c || _constantValue.rotate == c) {
+					transformUnit += " rotateZ(" +orderInfo.nextMoveRate+"deg)";
+				}
+
+				return transformUnit;
 			}
 		},
 		_j2mType = {
 			getMotionOrderYn : function(c) {
 				if(_constantValue.left == c || _constantValue.right == c || _constantValue.top == c || _constantValue.bottom == c ||
 				   _constantValue.width == c || _constantValue.height == c || _constantValue.opacity == c || _constantValue.backgroundColor == c ||
-				   _constantValue.scale == c || _constantValue.margin == c || _constantValue.rotateX == c || _constantValue.rotateY == c ||
-				   _constantValue.rotateZ == c || _constantValue.rotate == c) {
+				   _constantValue.scale == c || _constantValue.scaleX == c || _constantValue.scaleY == c || _constantValue.margin == c ||
+					 _constantValue.rotateX == c || _constantValue.rotateY == c || _constantValue.rotateZ == c || _constantValue.rotate == c) {
 					return true;
 				}
 				return false;
@@ -443,7 +547,7 @@
 				return false;
 			},
 			getScaleYn : function(c) {
-				if(_constantValue.scale == c) {
+				if(_constantValue.scale == c || _constantValue.scaleX == c || _constantValue.scaleY == c) {
 					return true;
 				}
 				return false;
@@ -455,7 +559,8 @@
 				return false;
 			},
 			getTransformYn : function(c) {
-				if(_constantValue.scale == c || _constantValue.rotate == c || _constantValue.rotateX == c || _constantValue.rotateY == c ||
+				if(_constantValue.scale == c  || _constantValue.scaleX == c || _constantValue.scaleY == c ||
+					 _constantValue.rotate == c || _constantValue.rotateX == c || _constantValue.rotateY == c ||
 					 _constantValue.rotateZ == c) {
 					return true;
 				}
@@ -679,15 +784,15 @@
 				}
 			},
 			rotateMotionTicker : function(renderConfig, e, direction) {
-
-				if(e.tickerStatus != _constantValue.tickerStatusE) {
+				var rotateE = e;
+				if(rotateE.tickerStatus != _constantValue.tickerStatusE) {
 					var lineSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
 
 					if(lineSpaceTemp == 1) {
-					 	e.tickerStatus = _constantValue.tickerStatusE;
-						e.nextMoveRate = e.e;
+					 	rotateE.tickerStatus = _constantValue.tickerStatusE;
+						rotateE.nextMoveRate = rotateE.e;
 					} else {
-						e.nextMoveRate =+ e.s + Math.round(parseFloat(e.travelRange) * parseFloat(lineSpaceTemp));
+						rotateE.nextMoveRate =+ rotateE.s + Math.round(parseFloat(rotateE.travelRange) * parseFloat(lineSpaceTemp));
 					}
 				}
 			}
@@ -776,7 +881,7 @@
 			if(this.renderConfig.continuity == false) { //모션 명령을 한번에 수행
 				this.batchCssRenderingManager(s, t, f);
 			} else {
-				this.stepBystepCssRenderingManager(s, t, f);
+				this.stepByStepCssRenderingManager(s, t, f);
 			}
 
 			return this;
@@ -842,7 +947,7 @@
 			return this;
 		});
 
-		_j2mUtil.createFunction("stepBystepCssRenderingManager", function(s, t, f) {
+		_j2mUtil.createFunction("stepByStepCssRenderingManager", function(s, t, f) {
 
 			var orderCount = 0;
 			//모션 명령을 한번에 하나씩 수행일때 총 모션 수를 구한다.
@@ -859,7 +964,7 @@
 				//모션에 대한 명령만 걸러서 저장 처음에 한번 진입
 				if(_j2mType.getMotionOrderYn(key)) {
 					var moveOrderInfo = _j2mCssUtil.getStartPosition(s[key], key, t, this, false);
-					var tempSbsOrderInfoArray = this.renderConfig.arrSbsMoveOrderInfo;
+					var tempSbsOrderInfoArray = this.renderConfig.stepByStepMoveOrderInfoList;
 
 					if(tempSbsOrderInfoArray != undefined) { //다시 움직임 명령
 						moveOrderInfo.tickerStatus = _constantValue.tickerStatusS;
@@ -871,7 +976,7 @@
 						moveOrderInfo.continuity = true;
 						tempSbsOrderInfoArray.push(moveOrderInfo);
 					}
-					this.renderConfig.arrSbsMoveOrderInfo = tempSbsOrderInfoArray;
+					this.renderConfig.stepByStepMoveOrderInfoList = tempSbsOrderInfoArray;
 				}
 			}
 
@@ -896,10 +1001,10 @@
 
 			if(this.renderConfig.totalTickerStatus == undefined || this.renderConfig.totalTickerStatus == _constantValue.tickerStatusE) {
 				this.renderConfig.totalTickerStatus = _constantValue.tickerStatusI; //전체 진행중
-				this.renderConfig.arrSbsMoveOrderInfo[0].tickerStatus = _constantValue.tickerStatusI;
-				this.renderConfig.arrSbsMoveOrderInfo[0].startTime = _j2mUtil.getTime();
-				this.renderConfig.arrSbsMoveOrderInfo[0].lastUpdate = _j2mUtil.getTime();
-				this.stepBystepCssRendering(0); //2D 런더링(명령 순서)
+				this.renderConfig.stepByStepMoveOrderInfoList[0].tickerStatus = _constantValue.tickerStatusI;
+				this.renderConfig.stepByStepMoveOrderInfoList[0].startTime = _j2mUtil.getTime();
+				this.renderConfig.stepByStepMoveOrderInfoList[0].lastUpdate = _j2mUtil.getTime();
+				this.stepByStepCssRendering(0); //2D 런더링(명령 순서)
 			}
 
 			return this;
@@ -973,7 +1078,7 @@
 		_j2mUtil.createFunction("cssRendering", getCssRendering());
 
 
-		function getStepBystepCssRendering(){
+		function getStepByStepCssRendering(){
 			var returnFunction = "";
 			var requestAniFrame = _j2mUtil.getRequestAnimationFrame();
 
@@ -981,7 +1086,7 @@
 
 				returnFunction = function(loopCntTemp) {
 
-					var e = this.renderConfig.arrSbsMoveOrderInfo[0];
+					var e = this.renderConfig.stepByStepMoveOrderInfoList[0];
 					var that = this;
 					_j2mEngine.tickerManager(this.renderConfig, e, e.moveKey);
 
@@ -989,30 +1094,31 @@
 						requestAniFrame(function(time){
 
 							if(_j2mType.getTransformYn(e.moveKey)) {
-								e.style.transform = _j2mCssUtil.getTransform2DUnit(that.renderConfig.arrMoveOrderInfo, e.moveKey); //현제 움직임에 해당하는 단위;
+								e.style.transform = _j2mCssUtil.getStepByStepTransform2DUnit(that, e, e.moveKey); //현제 움직임에 해당하는 단위;
 							} else {
 								e.style[e.moveKey] = _j2mCssUtil.getUnit(e.nextMoveRate, e.moveKey); //현제 움직임에 해당하는 단위;
 							}
 
-							that.stepBystepCssRendering(Number(loopCntTemp + 1));
+							that.stepByStepCssRendering(Number(loopCntTemp + 1));
 						});
 
 					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
 
 						//마지막에 모자라는 px르 마추는 작업
 						if(_j2mType.getTransformYn(e.moveKey)) {
-							e.style.transform = _j2mCssUtil.getTransform2DUnit(this.renderConfig.arrMoveOrderInfo, e.moveKey);
+							e.style.transform = _j2mCssUtil.getStepByStepTransform2DUnit(that, e, e.moveKey);
 						} else {
 							e.style[e.moveKey] = _j2mCssUtil.getUnit(e.nextMoveRate, e.moveKey);
 						}
 
-						if(this.renderConfig.arrSbsMoveOrderInfo != undefined && this.renderConfig.arrSbsMoveOrderInfo.length > 1) {
-								this.renderConfig.arrSbsMoveOrderInfo.shift();
-								var moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.arrSbsMoveOrderInfo[0].e, this.renderConfig.arrSbsMoveOrderInfo[0].moveKey, this.renderConfig.arrSbsMoveOrderInfo[0].duration, this, true);
+						if(this.renderConfig.stepByStepMoveOrderInfoList != undefined && this.renderConfig.stepByStepMoveOrderInfoList.length > 1) {
+								var stepByStepMoveOrderInfoListTemp = this.renderConfig.stepByStepMoveOrderInfoList.shift();
+
+								var moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.stepByStepMoveOrderInfoList[0].e, this.renderConfig.stepByStepMoveOrderInfoList[0].moveKey, this.renderConfig.stepByStepMoveOrderInfoList[0].duration, this, false);
 								if(moveOrderInfo === false) {
-									while(this.renderConfig.arrSbsMoveOrderInfo.length > 1) {
-										this.renderConfig.arrSbsMoveOrderInfo.shift();
-										moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.arrSbsMoveOrderInfo[0].e, this.renderConfig.arrSbsMoveOrderInfo[0].moveKey, this.renderConfig.arrSbsMoveOrderInfo[0].duration, this, true);
+									while(this.renderConfig.stepByStepMoveOrderInfoList.length > 1) {
+										this.renderConfig.stepByStepMoveOrderInfoList.shift();
+										moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.stepByStepMoveOrderInfoList[0].e, this.renderConfig.stepByStepMoveOrderInfoList[0].moveKey, this.renderConfig.stepByStepMoveOrderInfoList[0].duration, this, false);
 										if(moveOrderInfo !== false) {
 											break;
 										}
@@ -1020,16 +1126,40 @@
 								}
 
 								if(moveOrderInfo !== false) {
-									this.renderConfig.arrSbsMoveOrderInfo[0] = moveOrderInfo;
-									this.renderConfig.arrSbsMoveOrderInfo[0].tickerStatus = _constantValue.tickerStatusI;
-									this.renderConfig.arrSbsMoveOrderInfo[0].startTime = _j2mUtil.getTime();
-									this.renderConfig.arrSbsMoveOrderInfo[0].lastUpdate = _j2mUtil.getTime();
-									this.stepBystepCssRendering(0);
+									this.renderConfig.stepByStepMoveOrderInfoList[0] = moveOrderInfo;
+									this.renderConfig.stepByStepMoveOrderInfoList[0].tickerStatus = _constantValue.tickerStatusI;
+									this.renderConfig.stepByStepMoveOrderInfoList[0].startTime = _j2mUtil.getTime();
+									this.renderConfig.stepByStepMoveOrderInfoList[0].lastUpdate = _j2mUtil.getTime();
+									this.stepByStepCssRendering(0);
 								}
 						} else {
-							this.renderConfig.arrSbsMoveOrderInfo = undefined;
+							var stepByStepMoveOrderInfoListTemp = this.renderConfig.stepByStepMoveOrderInfoList[0];
+							this.renderConfig.stepByStepMoveOrderInfoList = undefined;
 							this.renderConfig.totalTickerStatus = _constantValue.tickerStatusE;
 						}
+
+						var moveKeyTemp = stepByStepMoveOrderInfoListTemp.moveKey;
+						// scale이면 X, Y도 하나로 통합
+						if(_j2mType.getScaleYn(moveKeyTemp)) {
+							moveKeyTemp = _constantValue.scale;
+							stepByStepMoveOrderInfoListTemp.moveKey = _constantValue.scale;
+						}
+						if(_constantValue.rotateZ == moveKeyTemp || _constantValue.rotate == moveKeyTemp) {
+							moveKeyTemp = _constantValue.rotateZ;
+							stepByStepMoveOrderInfoListTemp.moveKey = _constantValue.rotateZ;
+						}
+						var tempOrderInfoArray = this.renderConfig.moveOrderInfoListMemory;
+						if(tempOrderInfoArray != undefined) { //다시 움직임 명령
+							if(tempOrderInfoArray[moveKeyTemp] == undefined) { //신규 명령
+								tempOrderInfoArray.push(moveKeyTemp);
+							}
+							tempOrderInfoArray[moveKeyTemp] = stepByStepMoveOrderInfoListTemp;
+						} else { //처음 움직임 명령
+							tempOrderInfoArray = [];
+							tempOrderInfoArray.push(moveKeyTemp);
+							tempOrderInfoArray[moveKeyTemp] = stepByStepMoveOrderInfoListTemp;
+						}
+						this.renderConfig.moveOrderInfoListMemory = tempOrderInfoArray;
 					}
 				}
 			} else {
@@ -1044,28 +1174,29 @@
 						setTimeout(function(){
 
 							if(_j2mType.getTransformYn(direction)) {
-								e.style.transform = _j2mCssUtil.getTransform2DUnit(that.renderConfig.arrMoveOrderInfo, e.moveKey); //현제 움직임에 해당하는 단위;
+								e.style.transform = _j2mCssUtil.getStepByStepTransform2DUnit(that, e, e.moveKey); //현제 움직임에 해당하는 단위;
 							} else {
 								e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.moveKey); //현제 움직임에 해당하는 단위;
 							}
 
-							that.stepBystepCssRendering(Number(loopCntTemp + 1));
+							that.stepByStepCssRendering(Number(loopCntTemp + 1));
 						}, Number(this.renderConfig.loopTime+1));
 					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
 						//마지막에 모자라는 px르 마추는 작업
 						if(_j2mType.getTransformYn(e.moveKey)) {
-							e.style.transform = _j2mCssUtil.getTransform2DUnit(this.renderConfig.arrMoveOrderInfo, e.moveKey);
+							e.style.transform = _j2mCssUtil.getStepByStepTransform2DUnit(that, e, e.moveKey);
 						} else {
 							e.style[e.moveKey] = _j2mCssUtil.getUnit(e.nextMoveRate, e.moveKey);
 						}
 
-						if(this.renderConfig.arrSbsMoveOrderInfo != undefined && this.renderConfig.arrSbsMoveOrderInfo.length > 1) {
-								this.renderConfig.arrSbsMoveOrderInfo.shift();
-								var moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.arrSbsMoveOrderInfo[0].e, this.renderConfig.arrSbsMoveOrderInfo[0].moveKey, this.renderConfig.arrSbsMoveOrderInfo[0].duration, this, true);
+						if(this.renderConfig.stepByStepMoveOrderInfoList != undefined && this.renderConfig.stepByStepMoveOrderInfoList.length > 1) {
+								var stepByStepMoveOrderInfoListTemp = this.renderConfig.stepByStepMoveOrderInfoList.shift();
+
+								var moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.stepByStepMoveOrderInfoList[0].e, this.renderConfig.stepByStepMoveOrderInfoList[0].moveKey, this.renderConfig.stepByStepMoveOrderInfoList[0].duration, this, false);
 								if(moveOrderInfo === false) {
-									while(this.renderConfig.arrSbsMoveOrderInfo.length > 1) {
-										this.renderConfig.arrSbsMoveOrderInfo.shift();
-										moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.arrSbsMoveOrderInfo[0].e, this.renderConfig.arrSbsMoveOrderInfo[0].moveKey, this.renderConfig.arrSbsMoveOrderInfo[0].duration, this, true);
+									while(this.renderConfig.stepByStepMoveOrderInfoList.length > 1) {
+										this.renderConfig.stepByStepMoveOrderInfoList.shift();
+										moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.stepByStepMoveOrderInfoList[0].e, this.renderConfig.stepByStepMoveOrderInfoList[0].moveKey, this.renderConfig.stepByStepMoveOrderInfoList[0].duration, this, false);
 										if(moveOrderInfo !== false) {
 											break;
 										}
@@ -1073,23 +1204,47 @@
 								}
 
 								if(moveOrderInfo !== false) {
-									this.renderConfig.arrSbsMoveOrderInfo[0] = moveOrderInfo;
-									this.renderConfig.arrSbsMoveOrderInfo[0].tickerStatus = _constantValue.tickerStatusI;
-									this.renderConfig.arrSbsMoveOrderInfo[0].startTime = _j2mUtil.getTime();
-									this.renderConfig.arrSbsMoveOrderInfo[0].lastUpdate = _j2mUtil.getTime();
-									this.stepBystepCssRendering(0);
+									this.renderConfig.stepByStepMoveOrderInfoList[0] = moveOrderInfo;
+									this.renderConfig.stepByStepMoveOrderInfoList[0].tickerStatus = _constantValue.tickerStatusI;
+									this.renderConfig.stepByStepMoveOrderInfoList[0].startTime = _j2mUtil.getTime();
+									this.renderConfig.stepByStepMoveOrderInfoList[0].lastUpdate = _j2mUtil.getTime();
+									this.stepByStepCssRendering(0);
 								}
 						} else {
-							this.renderConfig.arrSbsMoveOrderInfo = undefined;
+							var stepByStepMoveOrderInfoListTemp = this.renderConfig.stepByStepMoveOrderInfoList[0];
+							this.renderConfig.stepByStepMoveOrderInfoList = undefined;
 							this.renderConfig.totalTickerStatus = _constantValue.tickerStatusE;
 						}
+
+						var moveKeyTemp = stepByStepMoveOrderInfoListTemp.moveKey;
+						// scale이면 X, Y도 하나로 통합
+						if(_j2mType.getScaleYn(moveKeyTemp)) {
+							moveKeyTemp = _constantValue.scale;
+							stepByStepMoveOrderInfoListTemp.moveKey = _constantValue.scale;
+						}
+						if(_constantValue.rotateZ == moveKeyTemp || _constantValue.rotate == moveKeyTemp) {
+							moveKeyTemp = _constantValue.rotateZ;
+							stepByStepMoveOrderInfoListTemp.moveKey = _constantValue.rotateZ;
+						}
+						var tempOrderInfoArray = this.renderConfig.moveOrderInfoListMemory;
+						if(tempOrderInfoArray != undefined) { //다시 움직임 명령
+							if(tempOrderInfoArray[moveKeyTemp] == undefined) { //신규 명령
+								tempOrderInfoArray.push(moveKeyTemp);
+							}
+							tempOrderInfoArray[moveKeyTemp] = stepByStepMoveOrderInfoListTemp;
+						} else { //처음 움직임 명령
+							tempOrderInfoArray = [];
+							tempOrderInfoArray.push(moveKeyTemp);
+							tempOrderInfoArray[moveKeyTemp] = stepByStepMoveOrderInfoListTemp;
+						}
+						this.renderConfig.moveOrderInfoListMemory = tempOrderInfoArray;
 					}
 				}
 			}
 
 			return returnFunction;
 		}
-		_j2mUtil.createFunction("stepBystepCssRendering", getStepBystepCssRendering());
+		_j2mUtil.createFunction("stepByStepCssRendering", getStepByStepCssRendering());
 
 
 		//사용자가 object를 움직임을 정지 시킬때 사용
