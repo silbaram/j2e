@@ -27,6 +27,7 @@
 			height : "height",         //높이
 			opacity : "opacity",       //투명도
 			backgroundColor : "backgroundColor", //배경색
+			perspective : "perspective",
 			scale : "scale",
 			scaleX : "scaleX",
 			scaleY : "scaleY",
@@ -174,7 +175,6 @@
 
 				//모션 별로 초기값 세팅
 				if(_j2mType.getLineOrderYn(key)) {
-
 					var lineStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
 					moveOrderInfo.s = lineStyle[key] == "auto" ? 0 : parseInt(lineStyle[key].replace("px", ""));
 					moveOrderInfo.e = parseInt(finishPoint);
@@ -246,14 +246,13 @@
 						return false;
 					}
 
-				} else if(_constantValue.opacity == key) { //투명도 초기값 세팅
+				} else if(_j2mType.getOpacityYn(key)) { //투명도 초기값 세팅
 
 					var opacityStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
 					moveOrderInfo.s = parseFloat(opacityStyle.opacity); //처음 위치
 					moveOrderInfo.e = parseFloat(finishPoint);
 					moveOrderInfo.travelRange = parseFloat(moveOrderInfo.e) - parseFloat(moveOrderInfo.s);
 					moveOrderInfo.nextMoveRate = 0; //처음 위치
-
 				} else if(_j2mType.getRgbYn(key)) { //배경색 관련 초기값 세팅
 
 					var startRgbCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement)[moveOrderInfo.moveKey];
@@ -280,6 +279,19 @@
 					   moveOrderInfo.subTickerStatus.b == _constantValue.tickerStatusE && checkTravelRange == true) {
 							 return false;
 				  }
+				} else if(_j2mType.getPerspective(key)) {
+
+					var perspectiveStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
+					var regex = /[^0-9]/g;
+					moveOrderInfo.s = perspectiveStyle[key] == "none" ? 0 : parseInt(perspectiveStyle[key].replace(regex, ''));
+					moveOrderInfo.e = parseInt(finishPoint);
+					moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
+					moveOrderInfo.nextMoveRate = 0; //처음 위치
+
+					//이동할 거리 없음
+					if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
+						return false;
+					}
 				} else if(_j2mType.getScaleYn(key)) { //크기변화 초기값 세팅
 
 					var startScaleCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
@@ -434,7 +446,9 @@
 					return v+"px";
 				} else if(_j2mType.getMarginOrderYn(c)) {
 					return v.t+"px "+v.r+"px "+v.b+"px "+v.l+"px";
-				} else if(_constantValue.opacity == c) {
+				}  else if(_j2mType.getPerspective(c)) {
+					return v+"px";
+				} else if(_j2mType.getOpacityYn(c)) {
 					return v;
 				} else if(_constantValue.backgroundColor == c) {
 					return "rgb(" +v.r+", "+v.g+", "+v.b+")";
@@ -444,7 +458,7 @@
 			getTransform2DUnit : function(o, c) {
 				var transformUnit = "";
 				var orderInfo = o;
-
+// transformUnit += "perspective( 600px )";
 				if(_constantValue.scale == c) {
 					transformUnit += " scale(" +orderInfo.scale.nextMoveRate.x+", "+orderInfo.scale.nextMoveRate.y+")";
 				} else if(_constantValue.scaleX == c) {
@@ -517,7 +531,8 @@
 				if(_constantValue.left == c || _constantValue.right == c || _constantValue.top == c || _constantValue.bottom == c ||
 				   _constantValue.width == c || _constantValue.height == c || _constantValue.opacity == c || _constantValue.backgroundColor == c ||
 				   _constantValue.scale == c || _constantValue.scaleX == c || _constantValue.scaleY == c || _constantValue.margin == c ||
-					 _constantValue.rotateX == c || _constantValue.rotateY == c || _constantValue.rotateZ == c || _constantValue.rotate == c) {
+					 _constantValue.rotateX == c || _constantValue.rotateY == c || _constantValue.rotateZ == c || _constantValue.rotate == c ||
+					 _constantValue.perspective == c) {
 					return true;
 				}
 				return false;
@@ -540,8 +555,20 @@
 				}
 				return false;
 			},
+			getOpacityYn : function(c) {
+				if(_constantValue.opacity == c) {
+					return true;
+				}
+				return false;
+			},
 			getRgbYn : function(c) {
 				if(_constantValue.backgroundColor == c) {
+					return true;
+				}
+				return false;
+			},
+			getPerspective : function(c) {
+				if(_constantValue.perspective == c) {
 					return true;
 				}
 				return false;
@@ -576,10 +603,12 @@
 					_j2mEngine.marginTicker(renderConfig, e, direction);
 				} else if(_j2mType.getAreaOrderYn(direction)) {
 					_j2mEngine.areaMotionTicker(renderConfig, e, direction);
-				} else if(_constantValue.opacity == direction) {
+				} else if(_j2mType.getOpacityYn(direction)) {
 					_j2mEngine.opacityTicker(renderConfig, e, direction);
 				} else if(_j2mType.getRgbYn(direction)) {
 					_j2mEngine.rgbTicker(renderConfig, e, direction);
+				} else if(_j2mType.getPerspective(direction)) {
+					_j2mEngine.perspectiveTicker(renderConfig, e, direction);
 				} else if(_j2mType.getScaleYn(direction)) {
 					_j2mEngine.scaleMotionTicker(renderConfig, e, direction);
 				} else if(_j2mType.getRotate(direction)) {
@@ -606,15 +635,15 @@
 				return 1 - p;
 			},
 			lineMotionTicker : function(renderConfig, e, direction) {
-				var likeE = e;
-				if(likeE.tickerStatus != _constantValue.tickerStatusE) {
+				var lineE = e;
+				if(lineE.tickerStatus != _constantValue.tickerStatusE) {
 					var lineSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
 
 					if(lineSpaceTemp == 1) {
-					 	likeE.tickerStatus = _constantValue.tickerStatusE;
-						likeE.nextMoveRate = likeE.e;
+					 	lineE.tickerStatus = _constantValue.tickerStatusE;
+						lineE.nextMoveRate = lineE.e;
 					} else {
-						likeE.nextMoveRate = likeE.s + Math.round(parseFloat(likeE.travelRange) * parseFloat(lineSpaceTemp));
+						lineE.nextMoveRate = lineE.s + Math.round(parseFloat(lineE.travelRange) * parseFloat(lineSpaceTemp));
 					}
 				}
 			},
@@ -751,6 +780,20 @@
 					rgbE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			},
+			perspectiveTicker : function(renderConfig, e, direction) {
+				var perspectiveE = e;
+				if(perspectiveE.tickerStatus != _constantValue.tickerStatusE) {
+					var perspectiveSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+
+					if(perspectiveSpaceTemp == 1) {
+					 	perspectiveE.tickerStatus = _constantValue.tickerStatusE;
+						perspectiveE.nextMoveRate = perspectiveE.e;
+					} else {
+
+						perspectiveE.nextMoveRate = perspectiveE.s + Math.round(parseFloat(perspectiveE.travelRange) * parseFloat(perspectiveSpaceTemp));
+					}
+				}
+			},
 			scaleMotionTicker : function(renderConfig, e, direction) {
 				var scaleE = e;
 				var scaleSpaceTemp = 0;
@@ -786,13 +829,13 @@
 			rotateMotionTicker : function(renderConfig, e, direction) {
 				var rotateE = e;
 				if(rotateE.tickerStatus != _constantValue.tickerStatusE) {
-					var lineSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					var rotateSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
 
-					if(lineSpaceTemp == 1) {
+					if(rotateSpaceTemp == 1) {
 					 	rotateE.tickerStatus = _constantValue.tickerStatusE;
 						rotateE.nextMoveRate = rotateE.e;
 					} else {
-						rotateE.nextMoveRate =+ rotateE.s + Math.round(parseFloat(rotateE.travelRange) * parseFloat(lineSpaceTemp));
+						rotateE.nextMoveRate =+ rotateE.s + Math.round(parseFloat(rotateE.travelRange) * parseFloat(rotateSpaceTemp));
 					}
 				}
 			}
@@ -846,10 +889,12 @@
 						initPosition = _j2mCssUtil.getUnit(finishMarginPointTemp, key);
 					} else if(_j2mType.getAreaOrderYn(key)) { //넓이 초기위치 지정
 						initPosition = _j2mCssUtil.getUnit(parseInt(s[key]), key);
-					} else if(_constantValue.opacity == key) { //투명도 초기위치 지정
+					} else if(_j2mType.getOpacityYn(key)) { //투명도 초기위치 지정
 						initPosition = _j2mCssUtil.getUnit(parseFloat(s[key]), key);
 					} else if(_j2mType.getRgbYn(key)) { //배경색 초기위치 지정
 						initPosition = _j2mCssUtil.getUnit(_j2mCssUtil.hexToRgb(s[key]), key);
+					} else if(_j2mType.getPerspective(key)) { //시점 초기위치 지정
+						initPosition = _j2mCssUtil.getUnit(parseFloat(s[key]), key);
 					} else if(_constantValue.scale == key) { //크기변화 초기위치 세팅
 						initPosition = _j2mCssUtil.getUnit({x : parseFloat(s[key].split(",")[0]), y : parseFloat(s[key].split(",")[1])}, key);
 					}
