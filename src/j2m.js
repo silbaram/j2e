@@ -27,7 +27,8 @@
 			height : "height",         //높이
 			opacity : "opacity",       //투명도
 			backgroundColor : "backgroundColor", //배경색
-			perspective : "perspective",
+			perspective : "perspective", //깊이
+			transformPerspective : "transformPerspective", //깊이
 			scale : "scale",
 			scaleX : "scaleX",
 			scaleY : "scaleY",
@@ -355,6 +356,7 @@
 						return false;
 				  }
 				} else if(_j2mType.getRotate(key)) { //기울기변경 초기값 세팅
+
 					key = key == _constantValue.rotate ? _constantValue.rotateZ : key;
 					var startrotateCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
 					if(startrotateCode == "none") {
@@ -418,6 +420,53 @@
 					if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
 						return false;
 					}
+				} else if(_j2mType.getTransformPerspective(key)) { //transform perspective 초기값 세팅
+
+					var startTransformPerspectiveCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
+					if(startTransformPerspectiveCode == "none") {
+						moveOrderInfo.s = 0;
+					} else {
+						var startTransformPerspectiveCodeCheck = that.renderConfig.targetElement.style.transform;
+
+						if(checkTravelRange == true) {
+							if(startTransformPerspectiveCodeCheck.indexOf(_constantValue.perspective) != -1) {
+								var tempS = startTransformPerspectiveCodeCheck.substring(startTransformPerspectiveCodeCheck.indexOf(_constantValue.perspective)).split(")");
+								var regex = /[^0-9]/g;
+								moveOrderInfo.s = tempS[0].replace(regex, '');
+							} else {
+								var values = startTransformPerspectiveCode.split('(')[1].split(')')[0].split(',');
+								if(values.length == 16) {
+									moveOrderInfo.s = values[11] == 0 ? 0 : Math.abs(1/values[11]);
+								} else {
+									moveOrderInfo.s = values[5];
+								}
+							}
+						} else if(checkTravelRange == false) {
+							if(that.renderConfig.moveOrderInfoListMemory == undefined || that.renderConfig.moveOrderInfoListMemory[key] == undefined) {
+								if(startTransformPerspectiveCodeCheck.indexOf(_constantValue.perspective) != -1) {
+									var tempS = startTransformPerspectiveCodeCheck.substring(startTransformPerspectiveCodeCheck.indexOf(_constantValue.perspective)).split(")");
+									var regex = /[^0-9]/g;
+									moveOrderInfo.s = tempS[0].replace(regex, '');
+								} else {
+
+									var values = startTransformPerspectiveCode.split('(')[1].split(')')[0].split(',');
+									if(values.length == 16) {
+										moveOrderInfo.s = Math.abs(1/values[11]);
+									}
+								}
+							}
+						}
+					}
+
+					moveOrderInfo.e = parseInt(finishPoint);
+					moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
+					moveOrderInfo.nextMoveRate = 0; //처음 위치
+
+					//이동할 거리 없음
+					if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
+						return false;
+					}
+
 				} else {
 					moveOrderInfo.nextMoveRate = 0; //다음 이동할 거리
 				}
@@ -458,7 +507,11 @@
 			getTransform2DUnit : function(o, c) {
 				var transformUnit = "";
 				var orderInfo = o;
-// transformUnit += "perspective( 600px )";
+
+				if(orderInfo.transformPerspective != undefined) {
+					transformUnit += "perspective(" + orderInfo.transformPerspective.nextMoveRate + "px)";
+				}
+
 				if(_constantValue.scale == c) {
 					transformUnit += " scale(" +orderInfo.scale.nextMoveRate.x+", "+orderInfo.scale.nextMoveRate.y+")";
 				} else if(_constantValue.scaleX == c) {
@@ -532,7 +585,7 @@
 				   _constantValue.width == c || _constantValue.height == c || _constantValue.opacity == c || _constantValue.backgroundColor == c ||
 				   _constantValue.scale == c || _constantValue.scaleX == c || _constantValue.scaleY == c || _constantValue.margin == c ||
 					 _constantValue.rotateX == c || _constantValue.rotateY == c || _constantValue.rotateZ == c || _constantValue.rotate == c ||
-					 _constantValue.perspective == c) {
+					 _constantValue.perspective == c || _constantValue.transformPerspective == c) {
 					return true;
 				}
 				return false;
@@ -585,10 +638,16 @@
 				}
 				return false;
 			},
+			getTransformPerspective : function(c) {
+				if(_constantValue.transformPerspective == c) {
+					return true;
+				}
+				return false;
+			},
 			getTransformYn : function(c) {
 				if(_constantValue.scale == c  || _constantValue.scaleX == c || _constantValue.scaleY == c ||
 					 _constantValue.rotate == c || _constantValue.rotateX == c || _constantValue.rotateY == c ||
-					 _constantValue.rotateZ == c) {
+					 _constantValue.rotateZ == c || _constantValue.transformPerspective == c) {
 					return true;
 				}
 				return false;
@@ -613,6 +672,8 @@
 					_j2mEngine.scaleMotionTicker(renderConfig, e, direction);
 				} else if(_j2mType.getRotate(direction)) {
 					_j2mEngine.rotateMotionTicker(renderConfig, e, direction);
+				} else if(_j2mType.getTransformPerspective(direction)) {
+					_j2mEngine.transformPerspectiveTicker(renderConfig, e, direction);
 				}
 			},
 			getSpace : function(renderConfig, e, direction) {
@@ -838,6 +899,19 @@
 						rotateE.nextMoveRate =+ rotateE.s + Math.round(parseFloat(rotateE.travelRange) * parseFloat(rotateSpaceTemp));
 					}
 				}
+			},
+			transformPerspectiveTicker : function(renderConfig, e, direction) {
+				var transformPerspectiveE = e;
+				if(transformPerspectiveE.tickerStatus != _constantValue.tickerStatusE) {
+					var transformPerspectiveTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+
+					if(transformPerspectiveTemp == 1) {
+					 	transformPerspectiveE.tickerStatus = _constantValue.tickerStatusE;
+						transformPerspectiveE.nextMoveRate = transformPerspectiveE.e;
+					} else {
+						transformPerspectiveE.nextMoveRate =+ transformPerspectiveE.s + Math.round(parseFloat(transformPerspectiveE.travelRange) * parseFloat(transformPerspectiveTemp));
+					}
+				}
 			}
 		}
 
@@ -856,6 +930,7 @@
 			f = typeof(s) === "function" ? s : typeof(f) === "function" ? f : null;
 
 			var initPosition = "";
+			var moveOrderInfo = {}; //CSS설정을 위한 임시 객체
 			for (var key in s) {
 				//모션에 대한 명령만 걸러서 저장
 				if(_j2mType.getMotionOrderYn(key)) {
@@ -895,12 +970,28 @@
 						initPosition = _j2mCssUtil.getUnit(_j2mCssUtil.hexToRgb(s[key]), key);
 					} else if(_j2mType.getPerspective(key)) { //시점 초기위치 지정
 						initPosition = _j2mCssUtil.getUnit(parseFloat(s[key]), key);
-					} else if(_constantValue.scale == key) { //크기변화 초기위치 세팅
+					} else if(_j2mType.getScaleYn(key)) { //크기변화 초기위치 세팅
 						initPosition = _j2mCssUtil.getUnit({x : parseFloat(s[key].split(",")[0]), y : parseFloat(s[key].split(",")[1])}, key);
+					} else if(_j2mType.getTransformPerspective(key)) {
+						moveOrderInfo.nextMoveRate = s[key];
 					}
 
 					if(_j2mType.getTransformYn(key)) {
-						this.renderConfig.targetElement.style.transform = initPosition; //현제 움직임에 해당하는 단위;
+						var tempOrderInfoArray = this.renderConfig.arrMoveOrderInfo;
+						if(tempOrderInfoArray != undefined) { //다시 움직임 명령
+							if(tempOrderInfoArray[key] == undefined) { //신규 명령
+								tempOrderInfoArray.push(key);
+							}
+							moveOrderInfo.tickerStatus = _constantValue.tickerStatusE;
+							tempOrderInfoArray[key] = moveOrderInfo;
+						} else { //처음 움직임 명령
+							tempOrderInfoArray = [];
+							tempOrderInfoArray.push(key);
+							moveOrderInfo.tickerStatus = _constantValue.tickerStatusE;
+							tempOrderInfoArray[key] = moveOrderInfo;
+						}
+
+						this.renderConfig.arrMoveOrderInfo = tempOrderInfoArray;
 					} else {
 						this.renderConfig.targetElement.style[key] = initPosition; //현제 움직임에 해당하는 단위;
 					}
