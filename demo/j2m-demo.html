@@ -38,7 +38,7 @@
 		#demo_object_8_2 {width:120px;height:120px;position:absolute;top:0px;left:140px;background-color:#D941C5;}
 		#demo_object_8_3 {width:120px;height:120px;position:absolute;top:0px;left:280px;background-color:#D941C5;}
 		#demo_object_8_4 {width:120px;height:120px;position:absolute;top:0px;left:420px;background-color:#D941C5;}
-		#perspectiveBox_1 {width:540px;height:120px;position:absolute;top:120px;left:100px;perspective-origin: top left;}
+		#perspectiveBox_1 {width:540px;height:120px;position:absolute;top:120px;left:100px;}
 
 		#demo_object_100 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;opacity: 0;}
 	</style>
@@ -131,6 +131,9 @@
 
 			<div style="position:absolute;top:295px;left:10px;"><input type="radio" value="rotatePerspectiveX" id="radioRotatePerspectiveX" name="radioRotatePerspective" checked>rotateX</div>
 			<div style="position:absolute;top:295px;left:100px;"><input type="radio" value="rotatePerspectiveY" id="radioRotatePerspectiveY" name="radioRotatePerspective">rotateY</div>
+
+			<div style="position:absolute;top:295px;left:210px;"><input type="radio" value="transformPerspective" id="radioTransformPerspective" name="radioPerspective" checked>transformPerspective</div>
+			<div style="position:absolute;top:295px;left:400px;"><input type="radio" value="perspective" id="radioPerspective" name="radioPerspective">perspective</div>
 		</div>
 
 
@@ -195,9 +198,6 @@
 
 
 
-
-
-
 		var scaleCheck = "1";
 		var scaleXCheck = "1";
 		var scaleYCheck = "1";
@@ -239,8 +239,6 @@
 
 			event.stopPropagation();
 		}
-
-
 
 
 
@@ -403,10 +401,27 @@
 				}
 			}
 
-			j2m("#perspectiveBox_1").setPosition({perspective:100});
-			// j2m("#perspectiveBox_1").move({perspective:100}, 2);
-			if(rotateType == "rotatePerspectiveX") {
+			var perspective_num_temp = document.all.radioPerspective.length;
+			var perspectiveType = "";
+			for (i = 0; i < perspective_num_temp;i++) {
+				if (document.all.radioPerspective[i].checked == true) {
+					perspectiveType = document.all.radioPerspective[i].value;
+		   		break;
+				}
+			}
 
+			// j2m("#perspectiveBox_1").move({perspective:100}, 2);
+			// j2m("#demo_object_8_1").move({transformPerspective:600}, 1);
+			if(perspectiveType == "transformPerspective") {
+				j2m("#demo_object_8_1").setPosition({transformPerspective:0});
+				j2m("#demo_object_8_2").setPosition({transformPerspective:0});
+				j2m("#demo_object_8_3").setPosition({transformPerspective:0});
+				j2m("#demo_object_8_4").setPosition({transformPerspective:0});
+			} else {
+				j2m("#perspectiveBox_1").setPosition({perspective:0});
+			}
+
+			if(rotateType == "rotatePerspectiveX") {
 				j2m("#demo_object_8_1").move({rotateX:0}, 1);
 				j2m("#demo_object_8_2").move({rotateX:0}, 1);
 				j2m("#demo_object_8_3").move({rotateX:0}, 1);
@@ -430,8 +445,32 @@
 				}
 			}
 
-			j2m("#perspectiveBox_1").setPosition({perspective:600});
+			var perspective_num_temp = document.all.radioPerspective.length;
+			var perspectiveType = "";
+			for (i = 0; i < perspective_num_temp;i++) {
+				if (document.all.radioPerspective[i].checked == true) {
+					perspectiveType = document.all.radioPerspective[i].value;
+		   		break;
+				}
+			}
+
 			// j2m("#perspectiveBox_1").move({perspective:600}, 2);
+			// j2m("#demo_object_8_1").move({transformPerspective:100}, 1);
+			if(perspectiveType == "transformPerspective") {
+				j2m("#perspectiveBox_1").setPosition({perspective:0});
+
+				j2m("#demo_object_8_1").setPosition({transformPerspective:600});
+				j2m("#demo_object_8_2").setPosition({transformPerspective:600});
+				j2m("#demo_object_8_3").setPosition({transformPerspective:600});
+				j2m("#demo_object_8_4").setPosition({transformPerspective:600});
+			} else {
+				j2m("#demo_object_8_1").setPosition({transformPerspective:0});
+				j2m("#demo_object_8_2").setPosition({transformPerspective:0});
+				j2m("#demo_object_8_3").setPosition({transformPerspective:0});
+				j2m("#demo_object_8_4").setPosition({transformPerspective:0});
+
+				j2m("#perspectiveBox_1").setPosition({perspective:600});
+			}
 
 			if(rotateType == "rotatePerspectiveX") {
 				j2m("#demo_object_8_1").move({rotateX:360}, 1);
