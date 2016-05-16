@@ -6,37 +6,55 @@
 
 	var
 		_commonConfig = {
-			defaultFps : 60 //기본 설정 프레임
+			defaultFps: 60 //기본 설정 프레임
 		},
 		_constantValue = {
-			motionType : "motiontype", //모션 타입
-			continuity : "continuity", //모션 명령을 한번에 하나씩 처리 할지 말지 결정 true : 한번에 한 움직임씩, false : 한번에 모든 움직임
+			motionType: "motiontype", //모션 타입
+			continuity: "continuity", //모션 명령을 한번에 하나씩 처리 할지 말지 결정 true : 한번에 한 움직임씩, false : 한번에 모든 움직임
 
-			acceleratedMotion : "A",   //모션 타입 가속운동
-			uniformMotion : "U",       //모션 타입 등속운동
-			tickerStatusS : "S",       //모션 동작 시작 대기 상태
-			tickerStatusI : "I",       //모션 진행중
-			tickerStatusE : "E",       //모션 완료
+			acceleratedMotion: "A",   //모션 타입 가속운동
+			uniformMotion: "U",       //모션 타입 등속운동
+			tickerStatusS: "S",       //모션 동작 시작 대기 상태
+			tickerStatusI: "I",       //모션 진행중
+			tickerStatusE: "E",       //모션 완료
 
-			left : "left",             //x축 움직임 (왼쪽)
-			right : "right",           //x축 움직임 (오른쪽)
-			top : "top",               //y축 움직임 (아래쪽)
-			bottom : "bottom",         //y축 움직임 (위쪽)
-			margin : "margin",         //마진
-			width : "width",           //넓이
-			height : "height",         //높이
-			opacity : "opacity",       //투명도
-			backgroundColor : "backgroundColor", //배경색
-			perspective : "perspective", //깊이
+			backgroundColor: "backgroundColor",       //배경 색
+			backgroundPosition: "backgroundPosition", //배경 위치
+			backgroundSize: "backgroundSize",         //배경 크기
+			borderWidth: "borderWidth",             //border 4면 넓이 움직임
+			borderTopWidth: "borderTopWidth",       //border 윗쪽면 넓이 움직임
+			borderRightWidth: "borderRightWidth",   //border 오른쪽면 넓이 움직임
+			borderBottomWidth: "borderBottomWidth", //border 아래쪽면 넓이 움직임
+			borderLeftWidth: "borderLeftWidth",     //border 왼쪽면 넓이 움직임
+			borderTopColor: "borderTopColor",       //border 윗쪽면 컬러 변경
+			borderRightColor: "borderRightColor",   //border 오른쪽면 컬러 변경
+			borderBottomColor: "borderBottomColor", //border 아래쪽면 컬러 변경
+			borderLeftColor: "borderLeftColor",     //border 왼쪽면 컬러 변경
+			borderTopLeftRadius: "borderTopLeftRadius",         //border 왼쪽 위 모서리 변경
+			borderTopRightRadius: "borderTopRightRadius",       //border 오른쪽면 컬러 변경
+			borderBottomRightRadius: "borderBottomRightRadius", //border 아래쪽면 컬러 변경
+			borderBottomLeftRadius: "borderBottomLeftRadius",   //border 왼쪽면 컬러 변경
+			left: "left",             //x축 움직임 (왼쪽)
+			right: "right",           //x축 움직임 (오른쪽)
+			top: "top",               //y축 움직임 (아래쪽)
+			bottom: "bottom",         //y축 움직임 (위쪽)
+			margin: "margin",         //마진
+			width: "width",           //넓이
+			height: "height",         //높이
+			opacity: "opacity",       //투명도
+			perspective: "perspective", //깊이
 			transformPerspective : "transformPerspective", //깊이
-			scale : "scale",
-			scaleX : "scaleX",
-			scaleY : "scaleY",
-			rotate : "rotate",
-			rotateX : "rotateX",
-			rotateY : "rotateY",
-			rotateZ : "rotateZ",
-			timeScale : 1
+			scale: "scale",
+			scaleX: "scaleX",
+			scaleY: "scaleY",
+			rotate: "rotate",
+			rotateX: "rotateX",
+			rotateY: "rotateY",
+			rotateZ: "rotateZ",
+			boxShadow: "boxShadow", //그림자
+			color: "color",         //객체 색상
+			fontSize: "fontSize",   //클자 크기
+			timeScale: 1
 		},
 		_j2m = {
 			selector : function(e) {
@@ -170,6 +188,9 @@
 		_j2mCssUtil = {
 			getStartPosition : function(finishPoint, key, t, that, checkTravelRange) {
 
+				var regex = /[^0-9|^.]/g;
+				var regexUnity = /[0-9|.|(^\s*)|(\s*$)|' ']/g;
+				var regexS = /[' ']/g;
 				var moveOrderInfo = {}; //객체에 모션을 주기 위한 옵션들이 있는 객체
 				moveOrderInfo.moveKey = key;
 				moveOrderInfo.duration = t; //이동해야할 시간
@@ -179,7 +200,7 @@
 					var lineStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
 					moveOrderInfo.s = lineStyle[key] == "auto" ? 0 : parseInt(lineStyle[key].replace("px", ""));
 					moveOrderInfo.e = parseInt(finishPoint);
-					moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
+					moveOrderInfo.travelRange = moveOrderInfo.e - moveOrderInfo.s;
 					moveOrderInfo.nextMoveRate = 0; //처음 위치
 
 					//이동할 거리 없음
@@ -188,7 +209,6 @@
 					}
 
 				} else if(_j2mType.getMarginOrderYn(key)) { //마진 관련 초기값 세팅
-
 					var marginStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
 					moveOrderInfo.s = {t : parseInt(marginStyle["margin-top"].replace("px", "")),
 														 r : parseInt(marginStyle["margin-right"].replace("px", "")),
@@ -234,8 +254,230 @@
 							 return false;
 				  }
 
-				} else if(_j2mType.getAreaOrderYn(key)) { //넓이 관련 초기값 세팅
+				} else if(_j2mType.getBackgorundOrderYn(key)) {
+					var backgorundStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
 
+					var startBackgorundTmep = backgorundStyle[key].split(" ");
+
+					if(_constantValue.backgroundPosition == key) {
+						if(startBackgorundTmep.length == 1) {
+							moveOrderInfo.s = {x : startBackgorundTmep[0] == "auto" ? 0 : parseFloat(startBackgorundTmep[0].replace(regex, '')), y : "auto"}
+						} else if(startBackgorundTmep.length == 2) {
+							moveOrderInfo.s = {x : startBackgorundTmep[0] == "auto" ? 0 : parseFloat(startBackgorundTmep[0].replace(regex, '')), y : startBackgorundTmep[1] == "auto" ? 0 : parseFloat(startBackgorundTmep[1].replace(regex, ''))}
+						}
+					} else if(_constantValue.backgroundSize == key) {
+						var backgroundImage = new Image();
+
+						if(startBackgorundTmep.length == 1) {
+							if(startBackgorundTmep[0] == "auto") {
+								backgroundImage.src = backgorundStyle["backgroundImage"].replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+								moveOrderInfo.s = {x : backgroundImage.width, y : backgroundImage.height}
+							} else {
+								moveOrderInfo.s = {x : parseFloat(startBackgorundTmep[0].replace(regex, '')), y : "auto"}
+							}
+						} else if(startBackgorundTmep.length == 2) {
+							if(startBackgorundTmep[0] == "auto" && startBackgorundTmep[1] == "auto") {
+								backgroundImage.src = backgorundStyle["backgroundImage"].replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+								moveOrderInfo.s = {x : backgroundImage.width, y : backgroundImage.height}
+							} else if(startBackgorundTmep[0] == "auto" || startBackgorundTmep[1] == "auto") {
+								moveOrderInfo.s = {x : startBackgorundTmep[0] == "auto" ? "auto" : parseFloat(startBackgorundTmep[0].replace(regex, '')), y : startBackgorundTmep[1] == "auto" ? "auto" : parseFloat(startBackgorundTmep[1].replace(regex, ''))}
+							} else {
+								moveOrderInfo.s = {x : parseFloat(startBackgorundTmep[0].replace(regex, '')), y : parseFloat(startBackgorundTmep[1].replace(regex, ''))}
+							}
+						}
+					}
+
+					var finishBgPositionTemp = finishPoint.split(",");
+					if(finishBgPositionTemp.length == 1) {
+						if(_constantValue.backgroundPosition == key) {
+							moveOrderInfo.e = {x : parseFloat(finishBgPositionTemp[0].replace(regex, '')), y : parseFloat(finishBgPositionTemp[0].replace(regex, ''))}
+						} else {
+							moveOrderInfo.e = {x : parseFloat(finishBgPositionTemp[0].replace(regex, '')), y : "auto"}
+						}
+
+					} else if(finishBgPositionTemp.length == 2) {
+						moveOrderInfo.e = {x : parseFloat(finishBgPositionTemp[0].replace(regex, '')), y : parseFloat(finishBgPositionTemp[1].replace(regex, ''))}
+					}
+
+					if(finishBgPositionTemp.length == 1) {
+						if(_constantValue.backgroundPosition == key) {
+							moveOrderInfo.u = {x : finishBgPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishBgPositionTemp[0].replace(regexUnity, ''),
+							                   y : finishBgPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishBgPositionTemp[0].replace(regexUnity, '')}
+						} else {
+							moveOrderInfo.u = {x : finishBgPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishBgPositionTemp[0].replace(regexUnity, ''), y : ""}
+						}
+
+					} else if(finishBgPositionTemp.length == 2) {
+						moveOrderInfo.u = {x : finishBgPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishBgPositionTemp[0].replace(regexUnity, ''),
+						                   y : finishBgPositionTemp[1].replace(regexUnity, '') == "" ? "px" : finishBgPositionTemp[1].replace(regexUnity, '')}
+					}
+
+					moveOrderInfo.travelRange = {x : moveOrderInfo.s.x == "auto" || moveOrderInfo.e.x == "auto" ? 0 : moveOrderInfo.e.x-moveOrderInfo.s.x,
+																	 		 y : moveOrderInfo.s.y == "auto" || moveOrderInfo.e.y == "auto" ? 0 : moveOrderInfo.e.y-moveOrderInfo.s.y}
+					//개별로 진행 상태
+					moveOrderInfo.subTickerStatus = {x : moveOrderInfo.travelRange.t == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 y : moveOrderInfo.travelRange.r == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+          moveOrderInfo.nextMoveRate = {x : moveOrderInfo.s.x == "auto" || moveOrderInfo.e.x == "auto" ? "auto" : 0,
+					                              y : moveOrderInfo.s.y == "auto" || moveOrderInfo.e.y == "auto" ? "auto" : 0}
+
+					if(moveOrderInfo.subTickerStatus.x == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.y == _constantValue.tickerStatusE &&
+ 					   checkTravelRange == true) {
+ 							 return false;
+ 				  }
+				} else if(_j2mType.getBorderOrderYn(key)) {
+					var borderStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
+					if(_constantValue.borderWidth == key) {
+						var startBorderPointTemp = borderStyle[key].split("px");
+						if(startBorderPointTemp.length == 2) {
+							moveOrderInfo.s = {t : parseInt(startBorderPointTemp[0]), r : parseInt(startBorderPointTemp[0]), b : parseInt(startBorderPointTemp[0]), l : parseInt(startBorderPointTemp[0])}
+						} else if(startBorderPointTemp.length == 3) {
+							moveOrderInfo.s = {t : parseInt(startBorderPointTemp[0]), r : parseInt(startBorderPointTemp[1]), b : parseInt(startBorderPointTemp[0]), l : parseInt(startBorderPointTemp[1])}
+						} else if(startBorderPointTemp.length == 4) {
+							moveOrderInfo.s = {t : parseInt(startBorderPointTemp[0]), r : parseInt(startBorderPointTemp[1]), b : parseInt(startBorderPointTemp[2]), l : parseInt(startBorderPointTemp[1])}
+						} else if(startBorderPointTemp.length == 5) {
+							moveOrderInfo.s = {t : parseInt(startBorderPointTemp[0]), r : parseInt(startBorderPointTemp[1]), b : parseInt(startBorderPointTemp[2]), l : parseInt(startBorderPointTemp[3])}
+						}
+
+						var finishBorderPointTemp = finishPoint.split(",");
+						if(finishBorderPointTemp.length == 1) {
+							moveOrderInfo.e = {t : parseInt(finishBorderPointTemp[0]), r : parseInt(finishBorderPointTemp[0]), b : parseInt(finishBorderPointTemp[0]), l : parseInt(finishBorderPointTemp[0])}
+						} else if(finishBorderPointTemp.length == 2) {
+							moveOrderInfo.e = {t : parseInt(finishBorderPointTemp[0]), r : parseInt(finishBorderPointTemp[1]), b : parseInt(finishBorderPointTemp[0]), l : parseInt(finishBorderPointTemp[1])}
+						} else if(finishBorderPointTemp.length == 3) {
+							moveOrderInfo.e = {t : parseInt(finishBorderPointTemp[0]), r : parseInt(finishBorderPointTemp[1]), b : parseInt(finishBorderPointTemp[2]), l : parseInt(finishBorderPointTemp[1])}
+						} else if(finishBorderPointTemp.length == 4) {
+							moveOrderInfo.e = {t : parseInt(finishBorderPointTemp[0]), r : parseInt(finishBorderPointTemp[1]), b : parseInt(finishBorderPointTemp[2]), l : parseInt(finishBorderPointTemp[3])}
+						}
+
+						moveOrderInfo.travelRange = {t : moveOrderInfo.e.t-moveOrderInfo.s.t,
+																		 		 r : moveOrderInfo.e.r-moveOrderInfo.s.r,
+																		 	 	 b : moveOrderInfo.e.b-moveOrderInfo.s.b,
+																		 	 	 l : moveOrderInfo.e.l-moveOrderInfo.s.l}
+						//개별로 진행 상태
+						moveOrderInfo.subTickerStatus = {t : moveOrderInfo.travelRange.t == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																						 r : moveOrderInfo.travelRange.r == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																						 b : moveOrderInfo.travelRange.b == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																						 l : moveOrderInfo.travelRange.l == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+            moveOrderInfo.nextMoveRate = {t : 0, r : 0, b : 0, l : 0}
+					} else {
+						moveOrderInfo.s = parseInt(borderStyle[key].replace(regex, ''));
+						moveOrderInfo.e = parseInt(finishPoint);
+						moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
+						moveOrderInfo.nextMoveRate = 0; //처음 위치
+
+						//이동할 거리 없음
+						if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
+							return false;
+						}
+					}
+				} else if(_j2mType.getBoxShadowOrderYn(key)) {
+					var boxShadowStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
+					if(boxShadowStyle[key] != "none") {
+						var boxShadowRgb = boxShadowStyle[key].substring(0, boxShadowStyle[key].indexOf(")")).replace("rgb(", "").split(",");
+						var startBoxShadowTemp = boxShadowStyle[key].substring(boxShadowStyle[key].indexOf(")")+1).replace("rgb(", "").split("px");
+
+						moveOrderInfo.s = {ph: parseFloat(startBoxShadowTemp[0].replace(regex, '')),
+															 pv: parseFloat(startBoxShadowTemp[1].replace(regex, '')),
+															 pb: parseFloat(startBoxShadowTemp[2].replace(regex, '')),
+															 ps: parseFloat(startBoxShadowTemp[3].replace(regex, '')),
+															 cr: parseInt(boxShadowRgb[0].replace(regex, '')),
+															 cg: parseInt(boxShadowRgb[1].replace(regex, '')),
+															 cb: parseInt(boxShadowRgb[2].replace(regex, ''))}
+					} else {
+						moveOrderInfo.s = {ph: 0, pv: 0, pb: 0, ps: 0, cr: 0, cg: 0, cb: 0}
+					}
+
+					var finishBoxShadowTemp = finishPoint.split(",");
+					if(finishBoxShadowTemp.length == 2) {
+						moveOrderInfo.e = {ph: parseFloat(finishBoxShadowTemp[0].replace(regex, '')),
+															 pv: parseFloat(finishBoxShadowTemp[1].replace(regex, '')),
+															 pb: 0, ps: 0, cr: 0, cg: 0, cb: 0}
+
+					  moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
+ 														   ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+														   pb: "px", ps: "px"}
+					} else if(finishBoxShadowTemp.length == 3) {
+            if(finishBoxShadowTemp[2].replace(regexS, '').indexOf("#") == 0) {
+							var rgbCodeArr = _j2mCssUtil.hexToRgb(finishBoxShadowTemp[2].replace(regexS, ''));
+						 	moveOrderInfo.e = {ph: parseFloat(finishBoxShadowTemp[0].replace(regex, '')),
+																 pv: parseFloat(finishBoxShadowTemp[1].replace(regex, '')),
+															 	 pb: 0,
+																 ps: 0,
+																 cr: rgbCodeArr.r, cg: rgbCodeArr.g, cb: rgbCodeArr.b}
+
+						  moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
+  														   ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+ 														     pb: "px", ps: "px"}
+	 					} else {
+							moveOrderInfo.e = {ph: parseFloat(finishBoxShadowTemp[0].replace(regex, '')),
+																 pv: parseFloat(finishBoxShadowTemp[1].replace(regex, '')),
+																 pb: parseFloat(finishBoxShadowTemp[2].replace(regex, '')),
+																 ps: 0, cr: 0, cg: 0, cb: 0}
+
+							moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
+	 														   ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+															   pb: finishBoxShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[2].replace(regexUnity, ''),
+																 ps: "px"}
+						}
+					} else if(finishBoxShadowTemp.length == 4) {
+						if(finishBoxShadowTemp[3].replace(regexS, '').indexOf("#") == 0) {
+						 var rgbCodeArr = _j2mCssUtil.hexToRgb(finishBoxShadowTemp[3].replace(regexS, ''));
+						 moveOrderInfo.e = {ph: parseFloat(finishBoxShadowTemp[0].replace(regex, '')),
+																pv: parseFloat(finishBoxShadowTemp[1].replace(regex, '')),
+																pb: parseFloat(finishBoxShadowTemp[2].replace(regex, '')),
+																ps: 0,
+																cr: rgbCodeArr.r, cg: rgbCodeArr.g, cb: rgbCodeArr.b}
+
+						 moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
+																ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+																pb: finishBoxShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[2].replace(regexUnity, ''),
+																ps: "px"}
+	 				} else {
+						 moveOrderInfo.e = {ph: parseFloat(finishBoxShadowTemp[0].replace(regex, '')),
+						 									 pv: parseFloat(finishBoxShadowTemp[1].replace(regex, '')),
+						 									 pb: parseFloat(finishBoxShadowTemp[2].replace(regex, '')),
+						 									 ps: parseFloat(finishBoxShadowTemp[3].replace(regex, '')),
+						 									 cr: 0, cg: 0, cb: 0}
+
+						 moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
+						 									 ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+						 									 pb: finishBoxShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[2].replace(regexUnity, ''),
+						 									 ps: finishBoxShadowTemp[3].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[3].replace(regexUnity, '')}
+						}
+					} else if(finishBoxShadowTemp.length == 5) {
+						var rgbCodeArr = _j2mCssUtil.hexToRgb(finishBoxShadowTemp[4].replace(regexS, ''));
+						moveOrderInfo.e = {ph: parseFloat(finishBoxShadowTemp[0].replace(regex, '')),
+															 pv: parseFloat(finishBoxShadowTemp[1].replace(regex, '')),
+															 pb: parseFloat(finishBoxShadowTemp[2].replace(regex, '')),
+															 ps: parseFloat(finishBoxShadowTemp[3].replace(regex, '')),
+															 cr: rgbCodeArr.r, cg: rgbCodeArr.g, cb: rgbCodeArr.b}
+
+						moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
+															 ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+															 pb: finishBoxShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[2].replace(regexUnity, ''),
+															 ps: finishBoxShadowTemp[3].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[3].replace(regexUnity, '')}
+					}
+
+					moveOrderInfo.travelRange = {ph : moveOrderInfo.e.ph-moveOrderInfo.s.ph,
+																			 pv : moveOrderInfo.e.pv-moveOrderInfo.s.pv,
+																			 pb : moveOrderInfo.e.pb-moveOrderInfo.s.pb,
+																			 ps : moveOrderInfo.e.ps-moveOrderInfo.s.ps,
+																			 cr : moveOrderInfo.e.cr-moveOrderInfo.s.cr,
+																		 	 cg : moveOrderInfo.e.cg-moveOrderInfo.s.cg,
+																	 	   cb : moveOrderInfo.e.cb-moveOrderInfo.s.cb}
+
+          //개별로 진행 상태
+					moveOrderInfo.subTickerStatus = {ph : moveOrderInfo.travelRange.ph == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 pv : moveOrderInfo.travelRange.pv == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 pb : moveOrderInfo.travelRange.pb == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 ps : moveOrderInfo.travelRange.ps == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																				 	 cr : moveOrderInfo.travelRange.cr == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																			 	   cg : moveOrderInfo.travelRange.cg == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																		 		 	 cb : moveOrderInfo.travelRange.cb == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+
+					moveOrderInfo.nextMoveRate = {ph: 0, pv: 0, pb: 0, cr: 0, cg: 0, cb: 0}
+
+				} else if(_j2mType.getAreaOrderYn(key)) { //넓이 관련 초기값 세팅
 					var areaStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
 					moveOrderInfo.s = parseInt(areaStyle[key].replace("px", ""));
 					moveOrderInfo.e = parseInt(finishPoint);
@@ -247,14 +489,14 @@
 						return false;
 					}
 
-				} else if(_j2mType.getOpacityYn(key)) { //투명도 초기값 세팅
+				} else if(_j2mType.getOpacityOrderYn(key)) { //투명도 초기값 세팅
 
 					var opacityStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
 					moveOrderInfo.s = parseFloat(opacityStyle.opacity); //처음 위치
 					moveOrderInfo.e = parseFloat(finishPoint);
 					moveOrderInfo.travelRange = parseFloat(moveOrderInfo.e) - parseFloat(moveOrderInfo.s);
 					moveOrderInfo.nextMoveRate = 0; //처음 위치
-				} else if(_j2mType.getRgbYn(key)) { //배경색 관련 초기값 세팅
+				} else if(_j2mType.getRgbOrderYn(key)) { //배경색 관련 초기값 세팅
 
 					var startRgbCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement)[moveOrderInfo.moveKey];
 					if(startRgbCode.indexOf("#") == 0) {
@@ -269,21 +511,21 @@
 					moveOrderInfo.travelRange = {r : parseInt(moveOrderInfo.e.r)-parseInt(moveOrderInfo.s.r),
 													 						 g : parseInt(moveOrderInfo.e.g)-parseInt(moveOrderInfo.s.g),
 													 					 	 b : parseInt(moveOrderInfo.e.b)-parseInt(moveOrderInfo.s.b)}
-				 //개별로 진행 상태
+
+				  //개별로 진행 상태
 					moveOrderInfo.subTickerStatus = {r : moveOrderInfo.travelRange.r == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
 																					 g : moveOrderInfo.travelRange.g == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
 																					 b : moveOrderInfo.travelRange.b == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
-				 //다음 이동 위치
+				  //다음 이동 위치
 					moveOrderInfo.nextMoveRate = {r : 0, g : 0, b : 0}
 
 					if(moveOrderInfo.subTickerStatus.r == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.g == _constantValue.tickerStatusE &&
 					   moveOrderInfo.subTickerStatus.b == _constantValue.tickerStatusE && checkTravelRange == true) {
 							 return false;
 				  }
-				} else if(_j2mType.getPerspective(key)) {
+				} else if(_j2mType.getPerspectiveOrderYn(key)) {
 
 					var perspectiveStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
-					var regex = /[^0-9]/g;
 					moveOrderInfo.s = perspectiveStyle[key] == "none" ? 0 : parseInt(perspectiveStyle[key].replace(regex, ''));
 					moveOrderInfo.e = parseInt(finishPoint);
 					moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
@@ -293,7 +535,7 @@
 					if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
 						return false;
 					}
-				} else if(_j2mType.getScaleYn(key)) { //크기변화 초기값 세팅
+				} else if(_j2mType.getScaleOrderYn(key)) { //크기변화 초기값 세팅
 
 					var startScaleCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
 					if(startScaleCode == "none") {
@@ -355,7 +597,7 @@
 						 checkTravelRange == true) {
 						return false;
 				  }
-				} else if(_j2mType.getRotate(key)) { //기울기변경 초기값 세팅
+				} else if(_j2mType.getRotateOrderYn(key)) { //기울기변경 초기값 세팅
 
 					key = key == _constantValue.rotate ? _constantValue.rotateZ : key;
 					var startrotateCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
@@ -367,7 +609,6 @@
 						if(checkTravelRange == true) {
 							if(startRotateCodeCheck.indexOf(key) != -1) {
 								var tempS = startRotateCodeCheck.substring(startRotateCodeCheck.indexOf(key)).split(")");
-								var regex = /[^0-9]/g;
 								moveOrderInfo.s = tempS[0].replace(regex, '');
 							} else {
 								var values = startrotateCode.split('(')[1].split(')')[0].split(',');
@@ -389,7 +630,6 @@
 								//TEST 여기가 정상작동 할까??
 								if(startRotateCodeCheck.indexOf(key) != -1) {
 									var tempS = startRotateCodeCheck.substring(startRotateCodeCheck.indexOf(key)).split(")");
-									var regex = /[^0-9]/g;
 									moveOrderInfo.s = tempS[0].replace(regex, '');
 								} else {
 									var values = startrotateCode.split('(')[1].split(')')[0].split(',');
@@ -420,7 +660,7 @@
 					if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
 						return false;
 					}
-				} else if(_j2mType.getTransformPerspective(key)) { //transform perspective 초기값 세팅
+				} else if(_j2mType.getTransformPerspectiveOrderYn(key)) { //transform perspective 초기값 세팅
 
 					var startTransformPerspectiveCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
 					if(startTransformPerspectiveCode == "none") {
@@ -431,7 +671,6 @@
 						if(checkTravelRange == true) {
 							if(startTransformPerspectiveCodeCheck.indexOf(_constantValue.perspective) != -1) {
 								var tempS = startTransformPerspectiveCodeCheck.substring(startTransformPerspectiveCodeCheck.indexOf(_constantValue.perspective)).split(")");
-								var regex = /[^0-9]/g;
 								moveOrderInfo.s = tempS[0].replace(regex, '');
 							} else {
 								var values = startTransformPerspectiveCode.split('(')[1].split(')')[0].split(',');
@@ -445,7 +684,6 @@
 							if(that.renderConfig.moveOrderInfoListMemory == undefined || that.renderConfig.moveOrderInfoListMemory[key] == undefined) {
 								if(startTransformPerspectiveCodeCheck.indexOf(_constantValue.perspective) != -1) {
 									var tempS = startTransformPerspectiveCodeCheck.substring(startTransformPerspectiveCodeCheck.indexOf(_constantValue.perspective)).split(")");
-									var regex = /[^0-9]/g;
 									moveOrderInfo.s = tempS[0].replace(regex, '');
 								} else {
 
@@ -460,6 +698,23 @@
 
 					moveOrderInfo.e = parseInt(finishPoint);
 					moveOrderInfo.travelRange = parseInt(moveOrderInfo.e) - parseInt(moveOrderInfo.s);
+					moveOrderInfo.nextMoveRate = 0; //처음 위치
+
+					//이동할 거리 없음
+					if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
+						return false;
+					}
+				} else if(_j2mType.getFontSizeOrderYn(key)) {
+					var fontSizeStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
+					moveOrderInfo.s = parseInt(fontSizeStyle[key].replace(regex, ""));
+					moveOrderInfo.e = parseInt(finishPoint);
+					if(typeof(finishPoint) == "string") {
+						moveOrderInfo.u = finishPoint.replace(regexUnity, "");
+					} else if(typeof(finishPoint) == "number") {
+						moveOrderInfo.u = "px";
+					}
+
+					moveOrderInfo.travelRange = moveOrderInfo.e - moveOrderInfo.s;
 					moveOrderInfo.nextMoveRate = 0; //처음 위치
 
 					//이동할 거리 없음
@@ -490,17 +745,30 @@
 					return el.currentStyle;
 				}
 			},
-			getUnit : function(v, c) {
+			getUnit : function(v, u, c) {
+
 				if(_j2mType.getLineOrderYn(c) || _j2mType.getAreaOrderYn(c)) {
 					return v+"px";
 				} else if(_j2mType.getMarginOrderYn(c)) {
 					return v.t+"px "+v.r+"px "+v.b+"px "+v.l+"px";
-				}  else if(_j2mType.getPerspective(c)) {
+				} else if(_j2mType.getPerspectiveOrderYn(c)) {
 					return v+"px";
-				} else if(_j2mType.getOpacityYn(c)) {
+				} else if(_j2mType.getOpacityOrderYn(c)) {
 					return v;
-				} else if(_constantValue.backgroundColor == c) {
+				} else if(_j2mType.getRgbOrderYn(c)) {
 					return "rgb(" +v.r+", "+v.g+", "+v.b+")";
+				} else if(_j2mType.getBorderOrderYn(c)) {
+					if(_constantValue.borderWidth == c) {
+						return v.t+"px "+v.r+"px "+v.b+"px "+v.l+"px";
+					} else {
+						return v+"px";
+					}
+				} else if(_j2mType.getBackgorundOrderYn(c)) {
+					return v.x+u.x+" "+v.y+u.y;
+				} else if(_j2mType.getBoxShadowOrderYn(c)) {
+					return v.ph+u.ph+" "+v.ph+u.ph+" "+v.pb+u.pb+" "+v.ps+u.ps + " rgb(" +v.cr+", "+v.cg+", "+v.cb+")";
+				} else if(_j2mType.getFontSizeOrderYn(c)) {
+					return v+u;
 				}
 				return null;
 			},
@@ -509,7 +777,7 @@
 				var orderInfo = o;
 
 				if(orderInfo.transformPerspective != undefined) {
-					transformUnit += "perspective(" + orderInfo.transformPerspective.nextMoveRate + "px)";
+					transformUnit += " perspective(" + orderInfo.transformPerspective.nextMoveRate + "px)";
 				}
 
 				if(_constantValue.scale == c) {
@@ -544,11 +812,11 @@
 						var moveOrderInfoListMemoryMoveKey = that.renderConfig.moveOrderInfoListMemory[that.renderConfig.moveOrderInfoListMemory[i]].moveKey;
 						var moveOrderInfoListMemoryNextMoveRate = that.renderConfig.moveOrderInfoListMemory[that.renderConfig.moveOrderInfoListMemory[i]].nextMoveRate;
 
-						if(_j2mType.getScaleYn(moveOrderInfoListMemoryMoveKey) && !_j2mType.getScaleYn(c)) {
+						if(_j2mType.getScaleOrderYn(moveOrderInfoListMemoryMoveKey) && !_j2mType.getScaleOrderYn(c)) {
 							transformUnit += " scale(" +moveOrderInfoListMemoryNextMoveRate.x+", "+moveOrderInfoListMemoryNextMoveRate.y+")";
 						}
 
-						if(!_j2mType.getRotate(c)) {
+						if(!_j2mType.getRotateOrderYn(c)) {
 							if(_constantValue.rotateX == moveOrderInfoListMemoryMoveKey) {
 								transformUnit += " rotateX("+moveOrderInfoListMemoryNextMoveRate+"deg)";
 							}
@@ -562,7 +830,7 @@
 					}
 				}
 
-				if(_j2mType.getScaleYn(c)) {
+				if(_j2mType.getScaleOrderYn(c)) {
 					transformUnit += " scale(" +orderInfo.nextMoveRate.x+", "+orderInfo.nextMoveRate.y+")";
 				}
 
@@ -580,71 +848,104 @@
 			}
 		},
 		_j2mType = {
-			getMotionOrderYn : function(c) {
+			getMotionOrderYn: function(c) {
 				if(_constantValue.left == c || _constantValue.right == c || _constantValue.top == c || _constantValue.bottom == c ||
 				   _constantValue.width == c || _constantValue.height == c || _constantValue.opacity == c || _constantValue.backgroundColor == c ||
 				   _constantValue.scale == c || _constantValue.scaleX == c || _constantValue.scaleY == c || _constantValue.margin == c ||
 					 _constantValue.rotateX == c || _constantValue.rotateY == c || _constantValue.rotateZ == c || _constantValue.rotate == c ||
-					 _constantValue.perspective == c || _constantValue.transformPerspective == c) {
+					 _constantValue.perspective == c || _constantValue.transformPerspective == c || _constantValue.borderWidth == c ||
+				   _constantValue.borderTopWidth == c || _constantValue.borderRightWidth == c || _constantValue.borderBottomWidth == c ||
+				   _constantValue.borderLeftWidth == c || _constantValue.borderTopColor == c || _constantValue.borderRightColor == c ||
+					 _constantValue.borderBottomColor == c || _constantValue.borderLeftColor == c || _constantValue.borderTopLeftRadius == c ||
+				   _constantValue.borderTopRightRadius == c || _constantValue.borderBottomRightRadius == c || _constantValue.borderBottomLeftRadius == c ||
+				   _constantValue.backgroundPosition == c || _constantValue.backgroundSize == c || _constantValue.boxShadow == c ||
+					 _constantValue.color == c || _constantValue.fontSize == c) {
 					return true;
 				}
 				return false;
 			},
-			getLineOrderYn : function(c) {
-				if(_constantValue.left == c || _constantValue.top == c || _constantValue.right == c || _constantValue.bottom == c) {
-					return true;
-				}
-				return false;
-			},
-			getMarginOrderYn : function(c) {
-				if(_constantValue.margin == c) {
-					return true;
-				}
-				return false;
-			},
-			getAreaOrderYn : function(c) {
+			getAreaOrderYn: function(c) {
 				if(_constantValue.width == c || _constantValue.height == c) {
 					return true;
 				}
 				return false;
 			},
-			getOpacityYn : function(c) {
+			getBackgorundOrderYn: function(c) {
+				if(_constantValue.backgroundPosition == c || _constantValue.backgroundSize == c) {
+					return true;
+				}
+				return false;
+			},
+			getBorderOrderYn: function(c) {
+				if(_constantValue.borderWidth == c || _constantValue.borderTopWidth == c || _constantValue.borderRightWidth == c ||
+					 _constantValue.borderBottomWidth == c || _constantValue.borderLeftWidth == c || _constantValue.borderTopLeftRadius == c ||
+				   _constantValue.borderTopRightRadius == c || _constantValue.borderBottomRightRadius == c || _constantValue.borderBottomLeftRadius == c) {
+					return true;
+				}
+				return false;
+			},
+			getBoxShadowOrderYn: function(c) {
+				if(_constantValue.boxShadow == c) {
+					return true;
+				}
+				return false;
+			},
+			getLineOrderYn: function(c) {
+				if(_constantValue.left == c || _constantValue.top == c || _constantValue.right == c || _constantValue.bottom == c) {
+					return true;
+				}
+				return false;
+			},
+			getMarginOrderYn: function(c) {
+				if(_constantValue.margin == c) {
+					return true;
+				}
+				return false;
+			},
+			getOpacityOrderYn: function(c) {
 				if(_constantValue.opacity == c) {
 					return true;
 				}
 				return false;
 			},
-			getRgbYn : function(c) {
-				if(_constantValue.backgroundColor == c) {
-					return true;
-				}
-				return false;
-			},
-			getPerspective : function(c) {
+			getPerspectiveOrderYn: function(c) {
 				if(_constantValue.perspective == c) {
 					return true;
 				}
 				return false;
 			},
-			getScaleYn : function(c) {
-				if(_constantValue.scale == c || _constantValue.scaleX == c || _constantValue.scaleY == c) {
+			getRgbOrderYn: function(c) {
+				if(_constantValue.backgroundColor ==  c || _constantValue.borderTopColor == c || _constantValue.borderRightColor == c ||
+					 _constantValue.borderBottomColor == c || _constantValue.borderLeftColor == c || _constantValue.color == c) {
 					return true;
 				}
 				return false;
 			},
-			getRotate : function(c) {
+			getRotateOrderYn: function(c) {
 				if(_constantValue.rotate == c || _constantValue.rotateX == c || _constantValue.rotateY == c || _constantValue.rotateZ == c) {
 					return true;
 				}
 				return false;
 			},
-			getTransformPerspective : function(c) {
+			getScaleOrderYn: function(c) {
+				if(_constantValue.scale == c || _constantValue.scaleX == c || _constantValue.scaleY == c) {
+					return true;
+				}
+				return false;
+			},
+			getFontSizeOrderYn: function(c) {
+					if(_constantValue.fontSize == c) {
+						return true;
+					}
+					return false;
+			},
+			getTransformPerspectiveOrderYn: function(c) {
 				if(_constantValue.transformPerspective == c) {
 					return true;
 				}
 				return false;
 			},
-			getTransformYn : function(c) {
+			getTransformOrderYn: function(c) {
 				if(_constantValue.scale == c  || _constantValue.scaleX == c || _constantValue.scaleY == c ||
 					 _constantValue.rotate == c || _constantValue.rotateX == c || _constantValue.rotateY == c ||
 					 _constantValue.rotateZ == c || _constantValue.transformPerspective == c) {
@@ -654,29 +955,37 @@
 			}
 		},
 		_j2mEngine = {
-			tickerManager : function(renderConfig, e, direction) {
+			tickerManager: function(renderConfig, e, direction) {
 
 				if(_j2mType.getLineOrderYn(direction)) {
-					_j2mEngine.lineMotionTicker(renderConfig, e, direction);
+					_j2mEngine.lineTicker(renderConfig, e, direction);
 				} else if(_j2mType.getMarginOrderYn(direction)) {
 					_j2mEngine.marginTicker(renderConfig, e, direction);
+				} else if(_j2mType.getBorderOrderYn(direction)) {
+					 _j2mEngine.borderTicker(renderConfig, e, direction);
+				} else if(_j2mType.getBackgorundOrderYn(direction)) {
+					_j2mEngine.backgroundTicker(renderConfig, e, direction);
 				} else if(_j2mType.getAreaOrderYn(direction)) {
-					_j2mEngine.areaMotionTicker(renderConfig, e, direction);
-				} else if(_j2mType.getOpacityYn(direction)) {
+					_j2mEngine.areaTicker(renderConfig, e, direction);
+				} else if(_j2mType.getOpacityOrderYn(direction)) {
 					_j2mEngine.opacityTicker(renderConfig, e, direction);
-				} else if(_j2mType.getRgbYn(direction)) {
+				} else if(_j2mType.getRgbOrderYn(direction)) {
 					_j2mEngine.rgbTicker(renderConfig, e, direction);
-				} else if(_j2mType.getPerspective(direction)) {
+				} else if(_j2mType.getPerspectiveOrderYn(direction)) {
 					_j2mEngine.perspectiveTicker(renderConfig, e, direction);
-				} else if(_j2mType.getScaleYn(direction)) {
-					_j2mEngine.scaleMotionTicker(renderConfig, e, direction);
-				} else if(_j2mType.getRotate(direction)) {
-					_j2mEngine.rotateMotionTicker(renderConfig, e, direction);
-				} else if(_j2mType.getTransformPerspective(direction)) {
+				} else if(_j2mType.getScaleOrderYn(direction)) {
+					_j2mEngine.scaleTicker(renderConfig, e, direction);
+				} else if(_j2mType.getRotateOrderYn(direction)) {
+					_j2mEngine.rotateTicker(renderConfig, e, direction);
+				} else if(_j2mType.getTransformPerspectiveOrderYn(direction)) {
 					_j2mEngine.transformPerspectiveTicker(renderConfig, e, direction);
+				} else if(_j2mType.getBoxShadowOrderYn(direction)) {
+					_j2mEngine.boxShadowTicker(renderConfig, e, direction);
+				} else if(_j2mType.getFontSizeOrderYn(direction)) {
+					_j2mEngine.fontSizeTicker(renderConfig, e, direction);
 				}
 			},
-			getSpace : function(renderConfig, e, direction) {
+			getSpace: function(renderConfig, e, direction) {
 				var spaceE = e;
 				var elapsed = _j2mUtil.getTime() - spaceE.lastUpdate;
 				if (elapsed > 500) {
@@ -695,7 +1004,7 @@
 				p *= p;
 				return 1 - p;
 			},
-			lineMotionTicker : function(renderConfig, e, direction) {
+			lineTicker: function(renderConfig, e, direction) {
 				var lineE = e;
 				if(lineE.tickerStatus != _constantValue.tickerStatusE) {
 					var lineSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
@@ -708,9 +1017,11 @@
 					}
 				}
 			},
-			marginTicker : function(renderConfig, e, direction) {
+			marginTicker: function(renderConfig, e, direction) {
 				var marginE = e;
 				var marginSpaceTemp = 0;
+
+				//top 이동
 				if(marginE.subTickerStatus.t != _constantValue.tickerStatusE) {
 					marginSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
 					if(marginSpaceTemp == 1) {
@@ -769,7 +1080,222 @@
 					marginE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			},
-			areaMotionTicker : function(renderConfig, e, direction) {
+			borderTicker: function(renderConfig, e, direction) {
+				var borderE = e;
+				if(_constantValue.borderWidth == direction) {
+					var borderSpaceTemp = 0;
+
+					//top 이동
+					if(borderE.subTickerStatus.t != _constantValue.tickerStatusE) {
+						borderSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+						if(borderSpaceTemp == 1) {
+							borderE.subTickerStatus.t = _constantValue.tickerStatusE;
+							borderE.nextMoveRate.t = borderE.e.t;
+						} else {
+							borderE.nextMoveRate.t = borderE.s.t + Math.round(parseFloat(borderE.travelRange.t) * parseFloat(borderSpaceTemp));
+						}
+					} else {
+						borderE.nextMoveRate.t = borderE.e.t;
+					}
+
+					//right 이동
+					if(borderE.subTickerStatus.r != _constantValue.tickerStatusE) {
+						borderSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+						if(borderSpaceTemp == 1) {
+							borderE.subTickerStatus.r = _constantValue.tickerStatusE;
+							borderE.nextMoveRate.r = borderE.e.r;
+						} else {
+							borderE.nextMoveRate.r = borderE.s.r + Math.round(parseFloat(borderE.travelRange.r) * parseFloat(borderSpaceTemp));
+						}
+					} else {
+						borderE.nextMoveRate.r = borderE.e.r;
+					}
+
+					//bottom 이동
+					if(borderE.subTickerStatus.b != _constantValue.tickerStatusE) {
+						borderSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+						if(borderSpaceTemp == 1) {
+							borderE.subTickerStatus.b = _constantValue.tickerStatusE;
+							borderE.nextMoveRate.b = borderE.e.b;
+						} else {
+							borderE.nextMoveRate.b = borderE.s.b + Math.round(parseFloat(borderE.travelRange.b) * parseFloat(borderSpaceTemp));
+						}
+					} else {
+						borderE.nextMoveRate.b = borderE.e.b;
+					}
+
+					//left 이동
+					if(borderE.subTickerStatus.l != _constantValue.tickerStatusE) {
+						borderSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+						if(borderSpaceTemp == 1) {
+							borderE.subTickerStatus.l = _constantValue.tickerStatusE;
+							borderE.nextMoveRate.l = borderE.e.l;
+						} else {
+							borderE.nextMoveRate.l = borderE.s.l + Math.round(parseFloat(borderE.travelRange.l) * parseFloat(borderSpaceTemp));
+						}
+					} else {
+						borderE.nextMoveRate.l = borderE.e.l;
+					}
+
+					if(borderE.subTickerStatus.t == _constantValue.tickerStatusE &&
+					   borderE.subTickerStatus.r == _constantValue.tickerStatusE &&
+					 	 borderE.subTickerStatus.b == _constantValue.tickerStatusE &&
+					   borderE.subTickerStatus.l == _constantValue.tickerStatusE) {
+						borderE.tickerStatus = _constantValue.tickerStatusE;
+					}
+				} else {
+					if(borderE.tickerStatus != _constantValue.tickerStatusE) {
+						var borderSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+
+						if(borderSpaceTemp == 1) {
+							borderE.tickerStatus = _constantValue.tickerStatusE;
+							borderE.nextMoveRate = borderE.e;
+						} else {
+							borderE.nextMoveRate = borderE.s + Math.round(parseFloat(borderE.travelRange) * parseFloat(borderSpaceTemp));
+						}
+					}
+				}
+			},
+			backgroundTicker: function(renderConfig, e, direction) {
+				var backgroundE = e;
+				var backgroundTemp = 0;
+				if(backgroundE.subTickerStatus.x != _constantValue.tickerStatusE) {
+					backgroundTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(backgroundTemp == 1) {
+						backgroundE.subTickerStatus.x = _constantValue.tickerStatusE;
+						backgroundE.nextMoveRate.x = backgroundE.e.x;
+					} else {
+						backgroundE.nextMoveRate.x = backgroundE.s.x + (parseFloat(backgroundE.travelRange.x) * parseFloat(backgroundTemp));
+					}
+				} else {
+					backgroundE.nextMoveRate.x = backgroundE.e.x;
+				}
+
+				if(backgroundE.s.y == "auto" || backgroundE.e.y == "auto") {
+					backgroundE.subTickerStatus.y = _constantValue.tickerStatusE;
+				} else if(backgroundE.subTickerStatus.y != _constantValue.tickerStatusE) {
+					backgroundTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(backgroundTemp == 1) {
+						backgroundE.subTickerStatus.y = _constantValue.tickerStatusE;
+						backgroundE.nextMoveRate.y = backgroundE.e.y;
+					} else {
+						backgroundE.nextMoveRate.y = backgroundE.s.y + (parseFloat(backgroundE.travelRange.y) * parseFloat(backgroundTemp));
+					}
+				} else {
+					backgroundE.nextMoveRate.y = backgroundE.e.y;
+				}
+
+				if(backgroundE.subTickerStatus.x == _constantValue.tickerStatusE &&
+					 backgroundE.subTickerStatus.y == _constantValue.tickerStatusE) {
+					backgroundE.tickerStatus = _constantValue.tickerStatusE;
+				}
+			},
+			boxShadowTicker: function(renderConfig, e, direction) {
+				var boxShadowE = e;
+				var boxShadowSpaceTemp = 0;
+
+				//h-shadow 이동
+				if(boxShadowE.subTickerStatus.ph != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.ph = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.ph = boxShadowE.e.ph;
+					} else {
+						boxShadowE.nextMoveRate.ph = boxShadowE.s.ph + parseFloat(boxShadowE.travelRange.ph) * parseFloat(boxShadowSpaceTemp);
+					}
+				} else {
+					boxShadowE.nextMoveRate.ph = boxShadowE.e.ph;
+				}
+
+				//v-shadow 이동
+				if(boxShadowE.subTickerStatus.pv != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.pv = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.pv = boxShadowE.e.pv;
+					} else {
+						boxShadowE.nextMoveRate.pv = boxShadowE.s.pv + parseFloat(boxShadowE.travelRange.pv) * parseFloat(boxShadowSpaceTemp);
+					}
+				} else {
+					boxShadowE.nextMoveRate.pv = boxShadowE.e.pv;
+				}
+
+				//blur 이동
+				if(boxShadowE.subTickerStatus.pb != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.pb = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.pb = boxShadowE.e.pb;
+					} else {
+						boxShadowE.nextMoveRate.pb = boxShadowE.s.pb + parseFloat(boxShadowE.travelRange.pb) * parseFloat(boxShadowSpaceTemp);
+					}
+				} else {
+					boxShadowE.nextMoveRate.pb = boxShadowE.e.pb;
+				}
+
+				//spread 이동
+				if(boxShadowE.subTickerStatus.ps != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.ps = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.ps = boxShadowE.e.ps;
+					} else {
+						boxShadowE.nextMoveRate.ps = boxShadowE.s.ps + parseFloat(boxShadowE.travelRange.ps) * parseFloat(boxShadowSpaceTemp);
+					}
+				} else {
+					boxShadowE.nextMoveRate.ps = boxShadowE.e.ps;
+				}
+
+				//color R 이동
+				if(boxShadowE.subTickerStatus.cr != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.cr = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.cr = boxShadowE.e.cr;
+					} else {
+						boxShadowE.nextMoveRate.cr = boxShadowE.s.cr + Math.round(parseFloat(boxShadowE.travelRange.cr) * parseFloat(boxShadowSpaceTemp));
+					}
+				} else {
+					boxShadowE.nextMoveRate.cr = boxShadowE.e.cr;
+				}
+
+				//color G 이동
+				if(boxShadowE.subTickerStatus.cg != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.cg = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.cg = boxShadowE.e.cg;
+					} else {
+						boxShadowE.nextMoveRate.cg = boxShadowE.s.cg + Math.round(parseFloat(boxShadowE.travelRange.cg) * parseFloat(boxShadowSpaceTemp));
+					}
+				} else {
+					boxShadowE.nextMoveRate.cg = boxShadowE.e.cg;
+				}
+
+				//color B 이동
+				if(boxShadowE.subTickerStatus.cb != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.cb = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.cb = boxShadowE.e.cb;
+					} else {
+						boxShadowE.nextMoveRate.cb = boxShadowE.s.cb + Math.round(parseFloat(boxShadowE.travelRange.cb) * parseFloat(boxShadowSpaceTemp));
+					}
+				} else {
+					boxShadowE.nextMoveRate.cb = boxShadowE.e.cb;
+				}
+
+				if(boxShadowE.subTickerStatus.ph == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.pv == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.pb == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.ps == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.cr == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.cg == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.cb == _constantValue.tickerStatusE) {
+					boxShadowE.tickerStatus = _constantValue.tickerStatusE;
+				}
+			},
+			areaTicker: function(renderConfig, e, direction) {
 				var areaE = e;
 				if(areaE.tickerStatus != _constantValue.tickerStatusE) {
 					var areaSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
@@ -782,7 +1308,7 @@
 					}
 				}
 			},
-			opacityTicker : function(renderConfig, e, direction) {
+			opacityTicker: function(renderConfig, e, direction) {
 				var opacityE = e;
 				if(opacityE.tickerStatus != _constantValue.tickerStatusE) {
 					var opacitySpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
@@ -795,7 +1321,7 @@
 					}
 				}
 			},
-			rgbTicker : function(renderConfig, e, direction) {
+			rgbTicker: function(renderConfig, e, direction) {
 				var rgbE = e;
 				var rgbSpaceTemp = 0;
 				if(rgbE.subTickerStatus.r != _constantValue.tickerStatusE) {
@@ -841,7 +1367,7 @@
 					rgbE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			},
-			perspectiveTicker : function(renderConfig, e, direction) {
+			perspectiveTicker: function(renderConfig, e, direction) {
 				var perspectiveE = e;
 				if(perspectiveE.tickerStatus != _constantValue.tickerStatusE) {
 					var perspectiveSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
@@ -855,7 +1381,7 @@
 					}
 				}
 			},
-			scaleMotionTicker : function(renderConfig, e, direction) {
+			scaleTicker: function(renderConfig, e, direction) {
 				var scaleE = e;
 				var scaleSpaceTemp = 0;
 				if(scaleE.subTickerStatus.x != _constantValue.tickerStatusE) {
@@ -887,7 +1413,7 @@
 					scaleE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			},
-			rotateMotionTicker : function(renderConfig, e, direction) {
+			rotateTicker: function(renderConfig, e, direction) {
 				var rotateE = e;
 				if(rotateE.tickerStatus != _constantValue.tickerStatusE) {
 					var rotateSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
@@ -900,7 +1426,21 @@
 					}
 				}
 			},
-			transformPerspectiveTicker : function(renderConfig, e, direction) {
+			fontSizeTicker: function(renderConfig, e, direction) {
+				var fontSizeE = e;
+				if(fontSizeE.tickerStatus != _constantValue.tickerStatusE) {
+					var fontSizeSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+
+					if(fontSizeSpaceTemp == 1) {
+					 	fontSizeE.tickerStatus = _constantValue.tickerStatusE;
+						fontSizeE.nextMoveRate = fontSizeSpaceTemp.e;
+					} else {
+						//fontSizeE.nextMoveRate = fontSizeE.s + Math.round(parseFloat(fontSizeE.travelRange) * parseFloat(fontSizeSpaceTemp));
+						fontSizeE.nextMoveRate = fontSizeE.s + parseFloat(fontSizeE.travelRange) * parseFloat(fontSizeSpaceTemp);
+					}
+				}
+			},
+			transformPerspectiveTicker: function(renderConfig, e, direction) {
 				var transformPerspectiveE = e;
 				if(transformPerspectiveE.tickerStatus != _constantValue.tickerStatusE) {
 					var transformPerspectiveTemp = _j2mEngine.getSpace(renderConfig, e, direction);
@@ -935,7 +1475,7 @@
 				//모션에 대한 명령만 걸러서 저장
 				if(_j2mType.getMotionOrderYn(key)) {
 					if(_j2mType.getLineOrderYn(key)) {
-						initPosition = _j2mCssUtil.getUnit(parseInt(s[key]), key);
+						initPosition = _j2mCssUtil.getUnit(parseInt(s[key]), "", key);
 					} else if(_j2mType.getMarginOrderYn(key)) { //마진 초기위치 지정
 						var finishMarginPointTemp = s[key].split(",");
 
@@ -961,22 +1501,22 @@
 																			 l : parseInt(finishMarginPointTemp[3].replace("px", ""))}
 						}
 
-						initPosition = _j2mCssUtil.getUnit(finishMarginPointTemp, key);
+						initPosition = _j2mCssUtil.getUnit(finishMarginPointTemp, "", key);
 					} else if(_j2mType.getAreaOrderYn(key)) { //넓이 초기위치 지정
-						initPosition = _j2mCssUtil.getUnit(parseInt(s[key]), key);
-					} else if(_j2mType.getOpacityYn(key)) { //투명도 초기위치 지정
-						initPosition = _j2mCssUtil.getUnit(parseFloat(s[key]), key);
-					} else if(_j2mType.getRgbYn(key)) { //배경색 초기위치 지정
-						initPosition = _j2mCssUtil.getUnit(_j2mCssUtil.hexToRgb(s[key]), key);
-					} else if(_j2mType.getPerspective(key)) { //시점 초기위치 지정
-						initPosition = _j2mCssUtil.getUnit(parseFloat(s[key]), key);
-					} else if(_j2mType.getScaleYn(key)) { //크기변화 초기위치 세팅
-						initPosition = _j2mCssUtil.getUnit({x : parseFloat(s[key].split(",")[0]), y : parseFloat(s[key].split(",")[1])}, key);
-					} else if(_j2mType.getTransformPerspective(key)) {
-						moveOrderInfo.nextMoveRate = s[key];
+						initPosition = _j2mCssUtil.getUnit(parseInt(s[key]), "", key);
+					} else if(_j2mType.getOpacityOrderYn(key)) { //투명도 초기위치 지정
+						initPosition = _j2mCssUtil.getUnit(parseFloat(s[key]), "", key);
+					} else if(_j2mType.getRgbOrderYn(key)) { //배경색 초기위치 지정
+						initPosition = _j2mCssUtil.getUnit(_j2mCssUtil.hexToRgb(s[key]), "", key);
+					} else if(_j2mType.getPerspectiveOrderYn(key)) { //시점 초기위치 지정
+						initPosition = _j2mCssUtil.getUnit(parseFloat(s[key]), "", key);
+					} else if(_j2mType.getScaleOrderYn(key)) { //크기변화 초기위치 세팅
+						initPosition = _j2mCssUtil.getUnit({x : parseFloat(s[key].split(",")[0]), y : parseFloat(s[key].split(",")[1])}, "", key);
+					} else if(_j2mType.getTransformPerspectiveOrderYn(key)) {
+						moveOrderInfo.nextMoveRate = parseInt(s[key]);
 					}
 
-					if(_j2mType.getTransformYn(key)) {
+					if(_j2mType.getTransformOrderYn(key)) {
 						var tempOrderInfoArray = this.renderConfig.arrMoveOrderInfo;
 						if(tempOrderInfoArray != undefined) { //다시 움직임 명령
 							if(tempOrderInfoArray[key] == undefined) { //신규 명령
@@ -1026,7 +1566,7 @@
 		_j2mUtil.createFunction("batchCssRenderingManager", function(s, t, f) {
 
 			for (var key in s) {
-				//모션에 대한 명령만 걸러서 저장
+				//모션에 대한 명령만 걸러서 저장 >> 이부분을 수정해야할거 같음
 				if(_j2mType.getMotionOrderYn(key)) {
 					var moveOrderInfo = _j2mCssUtil.getStartPosition(s[key], key, t, this, true);
 
@@ -1161,20 +1701,20 @@
 					if(e.tickerStatus == _constantValue.tickerStatusI) {
 						requestAniFrame(function(time){
 
-							if(_j2mType.getTransformYn(direction)) {
+							if(_j2mType.getTransformOrderYn(direction)) {
 								e.style.transform = _j2mCssUtil.getTransform2DUnit(that.renderConfig.arrMoveOrderInfo, direction); //현제 움직임에 해당하는 단위;
 							} else {
-								e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, direction); //현제 움직임에 해당하는 단위;
+								e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, direction); //현제 움직임에 해당하는 단위;
 							}
 							that.cssRendering(direction, Number(loopCntTemp + 1));
 						});
 					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
 
 						//마지막에 모자라는 px르 마추는 작업
-						if(_j2mType.getTransformYn(direction)) {
+						if(_j2mType.getTransformOrderYn(direction)) {
 							e.style.transform = _j2mCssUtil.getTransform2DUnit(this.renderConfig.arrMoveOrderInfo, direction);
 						} else {
-							e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, direction);
+							e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, direction);
 						}
 					}
 				}
@@ -1189,20 +1729,20 @@
 					if(e.tickerStatus == _constantValue.tickerStatusI) {
 						setTimeout(function(){
 
-							if(_j2mType.getTransformYn(direction)) {
+							if(_j2mType.getTransformOrderYn(direction)) {
 								e.style.transform = _j2mCssUtil.getTransform2DUnit(that.renderConfig.arrMoveOrderInfo, direction); //현제 움직임에 해당하는 단위;
 							} else {
-								e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, direction); //현제 움직임에 해당하는 단위;
+								e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, direction); //현제 움직임에 해당하는 단위;
 							}
 
 							that.cssRendering(direction, Number(loopCntTemp + 1));
 						}, Number(this.renderConfig.loopTime+1));
 					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
 						//마지막에 모자라는 px르 마추는 작업
-						if(_j2mType.getTransformYn(direction)) {
+						if(_j2mType.getTransformOrderYn(direction)) {
 							e.style.transform = _j2mCssUtil.getTransform2DUnit(this.renderConfig.arrMoveOrderInfo, direction); //현제 움직임에 해당하는 단위;
 						} else {
-							e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, direction); //현제 움직임에 해당하는 단위;
+							e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, direction); //현제 움직임에 해당하는 단위;
 						}
 					}
 				}
@@ -1229,10 +1769,10 @@
 					if(e.tickerStatus == _constantValue.tickerStatusI) {
 						requestAniFrame(function(time){
 
-							if(_j2mType.getTransformYn(e.moveKey)) {
+							if(_j2mType.getTransformOrderYn(e.moveKey)) {
 								e.style.transform = _j2mCssUtil.getStepByStepTransform2DUnit(that, e, e.moveKey); //현제 움직임에 해당하는 단위;
 							} else {
-								e.style[e.moveKey] = _j2mCssUtil.getUnit(e.nextMoveRate, e.moveKey); //현제 움직임에 해당하는 단위;
+								e.style[e.moveKey] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, e.moveKey); //현제 움직임에 해당하는 단위;
 							}
 
 							that.stepByStepCssRendering(Number(loopCntTemp + 1));
@@ -1241,10 +1781,10 @@
 					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
 
 						//마지막에 모자라는 px르 마추는 작업
-						if(_j2mType.getTransformYn(e.moveKey)) {
+						if(_j2mType.getTransformOrderYn(e.moveKey)) {
 							e.style.transform = _j2mCssUtil.getStepByStepTransform2DUnit(that, e, e.moveKey);
 						} else {
-							e.style[e.moveKey] = _j2mCssUtil.getUnit(e.nextMoveRate, e.moveKey);
+							e.style[e.moveKey] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, e.moveKey);
 						}
 
 						if(this.renderConfig.stepByStepMoveOrderInfoList != undefined && this.renderConfig.stepByStepMoveOrderInfoList.length > 1) {
@@ -1276,7 +1816,7 @@
 
 						var moveKeyTemp = stepByStepMoveOrderInfoListTemp.moveKey;
 						// scale이면 X, Y도 하나로 통합
-						if(_j2mType.getScaleYn(moveKeyTemp)) {
+						if(_j2mType.getScaleOrderYn(moveKeyTemp)) {
 							moveKeyTemp = _constantValue.scale;
 							stepByStepMoveOrderInfoListTemp.moveKey = _constantValue.scale;
 						}
@@ -1309,17 +1849,17 @@
 					if(e.tickerStatus == _constantValue.tickerStatusI) {
 						setTimeout(function(){
 
-							if(_j2mType.getTransformYn(direction)) {
+							if(_j2mType.getTransformOrderYn(direction)) {
 								e.style.transform = _j2mCssUtil.getStepByStepTransform2DUnit(that, e, e.moveKey); //현제 움직임에 해당하는 단위;
 							} else {
-								e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.moveKey); //현제 움직임에 해당하는 단위;
+								e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, e.moveKey); //현제 움직임에 해당하는 단위;
 							}
 
 							that.stepByStepCssRendering(Number(loopCntTemp + 1));
 						}, Number(this.renderConfig.loopTime+1));
 					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
 						//마지막에 모자라는 px르 마추는 작업
-						if(_j2mType.getTransformYn(e.moveKey)) {
+						if(_j2mType.getTransformOrderYn(e.moveKey)) {
 							e.style.transform = _j2mCssUtil.getStepByStepTransform2DUnit(that, e, e.moveKey);
 						} else {
 							e.style[e.moveKey] = _j2mCssUtil.getUnit(e.nextMoveRate, e.moveKey);
@@ -1354,7 +1894,7 @@
 
 						var moveKeyTemp = stepByStepMoveOrderInfoListTemp.moveKey;
 						// scale이면 X, Y도 하나로 통합
-						if(_j2mType.getScaleYn(moveKeyTemp)) {
+						if(_j2mType.getScaleOrderYn(moveKeyTemp)) {
 							moveKeyTemp = _constantValue.scale;
 							stepByStepMoveOrderInfoListTemp.moveKey = _constantValue.scale;
 						}
