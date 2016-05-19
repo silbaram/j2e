@@ -65,7 +65,24 @@
 		#demo_object_11_1 {width:120px;height:120px;position:absolute;top:120px;left:100px;background-color:#D941C5;}
 		#demo_object_11_2 {width:120px;height:120px;position:absolute;top:120px;left:260px;border:1px solid;}
 		#demo_object_12_1 {width:120px;height:120px;position:absolute;top:120px;left:100px;background-color:#D941C5;}
+		#demo_object_13_1 {width:120px;height:120px;position:absolute;top:120px;left:100px;background-color:#D941C5;border:0px solid #FF0000;clip: rect(20px,70px,70px,20px);}
+		#demo_object_13_2 {width:120px;height:120px;position:absolute;top:120px;left:280px;background-color:#D941C5;border:0px solid #FF0000;}
+		#demo_object_13_3 {width:120px;height:120px;position:absolute;top:120px;left:460px;background-color:#D941C5;border:0px solid #FF0000;}
+		#demo_object_13_4 {width:120px;height:120px;position:absolute;top:120px;left:640px;background-color:#D941C5;border:0px solid #FF0000;}
+		#demo_object_14_1 {width:140px;height:120px;position:absolute;top:120px;left:100px;background-color:#D941C5;}
+		#demo_object_14_2 {width:140px;height:120px;position:absolute;top:120px;left:260px;background-color:#D941C5}
+		#demo_object_14_3 {width:140px;height:120px;position:absolute;top:120px;left:420px;background-color:#D941C5;}
+		#demo_object_15_1 {width:120px;height:120px;position:absolute;top:0px;left:0px;background-color:#D941C5;transform: rotateX(45deg)}
+		#demo_object_15_2 {width:120px;height:120px;position:absolute;top:0px;left:140px;background-color:#D941C5;transform: rotateX(45deg)}
+		#demo_object_15_3 {width:120px;height:120px;position:absolute;top:0px;left:280px;background-color:#D941C5;transform: rotateX(45deg)}
+		#demo_object_15_4 {width:120px;height:120px;position:absolute;top:0px;left:420px;background-color:#D941C5;transform: rotateX(45deg)}
+		#demo_object_16_1 {width:120px;height:120px;position:absolute;top:150px;left:140px;background-color:#D941C5;transform: rotate(45deg)}
+		#demo_object_16_2 {width:120px;height:120px;position:absolute;top:150px;left:280px;background-color:#D941C5;transform: rotate(45deg)}
+		#demo_object_16_3 {width:120px;height:120px;position:absolute;top:150px;left:420px;background-color:#D941C5;transform: rotate(45deg)}
+		#demo_object_16_4 {width:120px;height:120px;position:absolute;top:150px;left:560px;background-color:#D941C5;transform: rotate(45deg)}
+
 		#perspectiveBox_1 {width:540px;height:120px;position:absolute;top:120px;left:100px;}
+		#perspectiveBox_15 {width:540px;height:120px;position:absolute;top:120px;left:100px;perspective: 125px;}
 
 		#demo_object_100 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;opacity: 0;}
 	</style>
@@ -250,6 +267,48 @@
 			<input type="button" value="fontSize 조절" id="fontSizeButton" style="position:absolute;top:270px;">
 		</div>
 
+		<div id="demo_contain_13" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_13" class="demo_title_contain" onmouseover="demoObjectOn('13');" >Clip 조절</h2>
+			<div id="demo_object_13_1">Clip 크기 변경</div>
+			<div id="demo_object_13_2">Clip 크기 변경</div>
+			<div id="demo_object_13_3">Clip 크기 변경</div>
+			<div id="demo_object_13_4">Clip 크기 변경</div>
+
+			<input type="button" value="Clip 조절" id="clipButton" style="position:absolute;top:270px;">
+		</div>
+
+		<div id="demo_contain_14" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_14" class="demo_title_contain" onmouseover="demoObjectOn('14');" >textShadow 조절</h2>
+			<div id="demo_object_14_1">textShadow 조절</div>
+			<div id="demo_object_14_2">textShadow 조절</div>
+			<div id="demo_object_14_3">textShadow 조절</div>
+
+			<input type="button" value="textShadow 조절" id="textShadowButton" style="position:absolute;top:270px;">
+		</div>
+
+		<div id="demo_contain_15" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_15" class="demo_title_contain" onmouseover="demoObjectOn('15');" >perspectiveOrigin 조절</h2>
+			<div id="perspectiveBox_15">
+				<div id="demo_object_15_1">perspectiveOrigin 조절</div>
+				<div id="demo_object_15_2">perspectiveOrigin 조절</div>
+				<div id="demo_object_15_3">perspectiveOrigin 조절</div>
+				<div id="demo_object_15_4">perspectiveOrigin 조절</div>
+			</div>
+
+			<input type="button" value="perspectiveOrigin 조절" id="perspectiveOriginButton" style="position:absolute;top:270px;">
+		</div>
+
+		<div id="demo_contain_16" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_16" class="demo_title_contain" onmouseover="demoObjectOn('16');" >transformOrigin 조절</h2>
+			<div id="perspectiveBox_16">
+				<div id="demo_object_16_1">transformOrigin 조절</div>
+				<div id="demo_object_16_2">transformOrigin 조절</div>
+				<div id="demo_object_16_3">transformOrigin 조절</div>
+				<div id="demo_object_16_4">transformOrigin 조절</div>
+			</div>
+
+			<input type="button" value="perspectiveOrigin 조절" id="transformOriginButton" style="position:absolute;top:270px;">
+		</div>
 
 		<div id="demo_contain_100" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
 			<h2 id="demo_contain_text_100" class="demo_title_contain" onmouseover="demoObjectOn('100');" >순차 이동</h2>
@@ -264,6 +323,41 @@
 <script type="text/javascript">
 
 	function demoObjectOn(e) {
+		// j2m("#demo_contain_1").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_1").move({height:100}, 0.5);
+		// j2m("#demo_contain_2").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_2").move({height:100}, 0.5);
+		// j2m("#demo_contain_3").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_3").move({height:100}, 0.5);
+		// j2m("#demo_contain_4").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_4").move({height:100}, 0.5);
+		// j2m("#demo_contain_5").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_5").move({height:100}, 0.5);
+		// j2m("#demo_contain_5-1").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_5-1").move({height:100}, 0.5);
+		// j2m("#demo_contain_5-2").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_5-2").move({height:100}, 0.5);
+		// j2m("#demo_contain_6").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_6").move({height:100}, 0.5);
+		// j2m("#demo_contain_7").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_7").move({height:100}, 0.5);
+		// j2m("#demo_contain_8").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_8").move({height:100}, 0.5);
+		// j2m("#demo_contain_9").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_9").move({height:100}, 0.5);
+		// j2m("#demo_contain_9-1").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_9-1").move({height:100}, 0.5);
+		// j2m("#demo_contain_9-2").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_9-2").move({height:100}, 0.5);
+		// j2m("#demo_contain_10").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_10").move({height:100}, 0.5);
+		// j2m("#demo_contain_11").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_11").move({height:100}, 0.5);
+		// j2m("#demo_contain_12").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_12").move({height:100}, 0.5);
+		// j2m("#demo_contain_100").move({margin:"10", scale:"1, 1"}, 0.4);
+		// j2m("#demo_contain_100").move({height:100}, 0.5);
+
 		j2m("#demo_contain_" + e).move({margin:"30, 10, 40, 10"}, 0.4);
 		j2m("#demo_contain_" + e).move({scale:"1.1, 1.2"}, 0.4);
 	}
@@ -750,20 +844,88 @@
 		}
 
 
-		var fontSizeCheck = "1";
+		var clipCheck = "1";
 		document.getElementById("fontSizeButton").onclick = function(event) {
 
-			if(fontSizeCheck == "1") {
-				fontSizeCheck = "2";
+			if(clipCheck == "1") {
+				clipCheck = "2";
 				j2m("#demo_object_12_1").move({fontSize:20}, 1);
 			} else {
-				fontSizeCheck = "1";
+				clipCheck = "1";
 				j2m("#demo_object_12_1").move({fontSize:10}, 1);
 			}
 
 			event.stopPropagation();
 		}
 
+
+		var fontSizeCheck = "1";
+		document.getElementById("clipButton").onclick = function(event) {
+
+			if(fontSizeCheck == "1") {
+				fontSizeCheck = "2";
+				j2m("#demo_object_13_1").move({clip:"0, 50, 50, 0"}, 1);
+			} else {
+				fontSizeCheck = "1";
+				j2m("#demo_object_13_1").move({clip:"20, 70, 70, 20"}, 1);
+			}
+
+			event.stopPropagation();
+		}
+
+		var textShadowCheck = "1";
+		document.getElementById("textShadowButton").onclick = function(event) {
+
+			if(textShadowCheck == "1") {
+				textShadowCheck = "2";
+				j2m("#demo_object_14_1").move({textShadow:"10, 10"}, 0.5);
+				j2m("#demo_object_14_2").move({textShadow:"10, 10, 10"}, 0.5);
+				j2m("#demo_object_14_3").move({textShadow:"10, 10, 10, #8041D9"}, 0.5);
+			} else {
+				textShadowCheck = "1";
+				j2m("#demo_object_14_1").move({textShadow:"0, 0"}, 0.5);
+				j2m("#demo_object_14_2").move({textShadow:"0, 0, 0"}, 0.5);
+				j2m("#demo_object_14_3").move({textShadow:"0, 0, 0, #000000"}, 0.5);
+			}
+
+			event.stopPropagation();
+		}
+
+
+		var perspectiveOriginCheck = "1";
+		document.getElementById("perspectiveOriginButton").onclick = function(event) {
+
+			if(perspectiveOriginCheck == "1") {
+				perspectiveOriginCheck = "2";
+				j2m("#perspectiveBox_15").move({perspectiveOrigin:"10, 10"}, 0.5);
+			} else {
+				perspectiveOriginCheck = "1";
+				j2m("#perspectiveBox_15").move({perspectiveOrigin:"125, 125"}, 0.5);
+			}
+
+			event.stopPropagation();
+		}
+
+
+		var transformOriginCheck = "1";
+		document.getElementById("transformOriginButton").onclick = function(event) {
+
+			if(transformOriginCheck == "1") {
+				transformOriginCheck = "2";
+				j2m("#demo_object_16_1").move({transformOrigin:"10, 10"}, 0.5);
+				j2m("#demo_object_16_2").move({transformOrigin:"10, 10"}, 0.5);
+				j2m("#demo_object_16_3").move({transformOrigin:"10, 10"}, 0.5);
+				j2m("#demo_object_16_4").move({transformOrigin:"10, 10"}, 0.5);
+			} else {
+				transformOriginCheck = "1";
+				j2m("#demo_object_16_1").move({transformOrigin:"60, 60"}, 0.5);
+				j2m("#demo_object_16_2").move({transformOrigin:"60, 60"}, 0.5);
+				j2m("#demo_object_16_3").move({transformOrigin:"60, 60"}, 0.5);
+				j2m("#demo_object_16_4").move({transformOrigin:"60, 60"}, 0.5);
+			}
+
+			event.stopPropagation();
+		}
 	}
 
 
