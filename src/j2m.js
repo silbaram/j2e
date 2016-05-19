@@ -52,8 +52,16 @@
 			rotateY: "rotateY",
 			rotateZ: "rotateZ",
 			boxShadow: "boxShadow", //그림자
+			textShadow: "textShadow", //그림자
 			color: "color",         //객체 색상
 			fontSize: "fontSize",   //클자 크기
+			clip: "clip",
+			perspectiveOrigin: "perspectiveOrigin",
+			transformOrigin: "transformOrigin",
+			translate: "translate",
+			translateX: "translateX",
+			translateY: "translateY",
+			translateZ: "translateZ",
 			timeScale: 1
 		},
 		_j2m = {
@@ -359,6 +367,12 @@
 																						 b : moveOrderInfo.travelRange.b == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
 																						 l : moveOrderInfo.travelRange.l == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
             moveOrderInfo.nextMoveRate = {t : 0, r : 0, b : 0, l : 0}
+
+						//이동할 거리 없음
+						if(moveOrderInfo.travelRange.t == 0 && moveOrderInfo.travelRange.r == 0 &&
+							 moveOrderInfo.travelRange.b == 0 && moveOrderInfo.travelRange.l == 0 && checkTravelRange == true) {
+							return false;
+						}
 					} else {
 						moveOrderInfo.s = parseInt(borderStyle[key].replace(regex, ''));
 						moveOrderInfo.e = parseInt(finishPoint);
@@ -394,7 +408,7 @@
 															 pb: 0, ps: 0, cr: 0, cg: 0, cb: 0}
 
 					  moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
- 														   ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+ 														   pv: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
 														   pb: "px", ps: "px"}
 					} else if(finishBoxShadowTemp.length == 3) {
             if(finishBoxShadowTemp[2].replace(regexS, '').indexOf("#") == 0) {
@@ -406,7 +420,7 @@
 																 cr: rgbCodeArr.r, cg: rgbCodeArr.g, cb: rgbCodeArr.b}
 
 						  moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
-  														   ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+  														   pv: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
  														     pb: "px", ps: "px"}
 	 					} else {
 							moveOrderInfo.e = {ph: parseFloat(finishBoxShadowTemp[0].replace(regex, '')),
@@ -415,7 +429,7 @@
 																 ps: 0, cr: 0, cg: 0, cb: 0}
 
 							moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
-	 														   ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+	 														   pv: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
 															   pb: finishBoxShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[2].replace(regexUnity, ''),
 																 ps: "px"}
 						}
@@ -429,20 +443,20 @@
 																cr: rgbCodeArr.r, cg: rgbCodeArr.g, cb: rgbCodeArr.b}
 
 						 moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
-																ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+																pv: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
 																pb: finishBoxShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[2].replace(regexUnity, ''),
 																ps: "px"}
 	 				} else {
 						 moveOrderInfo.e = {ph: parseFloat(finishBoxShadowTemp[0].replace(regex, '')),
-						 									 pv: parseFloat(finishBoxShadowTemp[1].replace(regex, '')),
-						 									 pb: parseFloat(finishBoxShadowTemp[2].replace(regex, '')),
-						 									 ps: parseFloat(finishBoxShadowTemp[3].replace(regex, '')),
-						 									 cr: 0, cg: 0, cb: 0}
+						 									  pv: parseFloat(finishBoxShadowTemp[1].replace(regex, '')),
+						 									  pb: parseFloat(finishBoxShadowTemp[2].replace(regex, '')),
+						 									  ps: parseFloat(finishBoxShadowTemp[3].replace(regex, '')),
+						 									  cr: 0, cg: 0, cb: 0}
 
 						 moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
-						 									 ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
-						 									 pb: finishBoxShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[2].replace(regexUnity, ''),
-						 									 ps: finishBoxShadowTemp[3].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[3].replace(regexUnity, '')}
+						 									  pv: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+						 									  pb: finishBoxShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[2].replace(regexUnity, ''),
+						 								    ps: finishBoxShadowTemp[3].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[3].replace(regexUnity, '')}
 						}
 					} else if(finishBoxShadowTemp.length == 5) {
 						var rgbCodeArr = _j2mCssUtil.hexToRgb(finishBoxShadowTemp[4].replace(regexS, ''));
@@ -453,7 +467,7 @@
 															 cr: rgbCodeArr.r, cg: rgbCodeArr.g, cb: rgbCodeArr.b}
 
 						moveOrderInfo.u = {ph: finishBoxShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[0].replace(regexUnity, ''),
-															 ph: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
+															 pv: finishBoxShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[1].replace(regexUnity, ''),
 															 pb: finishBoxShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[2].replace(regexUnity, ''),
 															 ps: finishBoxShadowTemp[3].replace(regexUnity, '') == "" ? "px" : finishBoxShadowTemp[3].replace(regexUnity, '')}
 					}
@@ -475,7 +489,107 @@
 																			 	   cg : moveOrderInfo.travelRange.cg == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
 																		 		 	 cb : moveOrderInfo.travelRange.cb == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
 
+					moveOrderInfo.nextMoveRate = {ph: 0, pv: 0, pb: 0, ps: 0, cr: 0, cg: 0, cb: 0}
+
+					//이동할 거리 없음
+					if(moveOrderInfo.travelRange.ph == 0 && moveOrderInfo.travelRange.pv == 0 &&
+						 moveOrderInfo.travelRange.pb == 0 && moveOrderInfo.travelRange.ps == 0 &&
+						 moveOrderInfo.travelRange.cr == 0 && moveOrderInfo.travelRange.cg == 0 &&
+						 moveOrderInfo.travelRange.cb == 0 && checkTravelRange == true) {
+						return false;
+					}
+
+				} else if(_j2mType.getTextShadowOrderYn(key)) {
+					var textShadowStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
+					if(textShadowStyle[key] != "none") {
+						var textShadowRgb = textShadowStyle[key].substring(0, textShadowStyle[key].indexOf(")")).replace("rgb(", "").split(",");
+						var startTextShadowTemp = textShadowStyle[key].substring(textShadowStyle[key].indexOf(")")+1).replace("rgb(", "").split("px");
+
+						moveOrderInfo.s = {ph: parseFloat(startTextShadowTemp[0].replace(regex, '')),
+															 pv: parseFloat(startTextShadowTemp[1].replace(regex, '')),
+															 pb: parseFloat(startTextShadowTemp[2].replace(regex, '')),
+															 cr: parseInt(textShadowRgb[0].replace(regex, '')),
+															 cg: parseInt(textShadowRgb[1].replace(regex, '')),
+															 cb: parseInt(textShadowRgb[2].replace(regex, ''))}
+					} else {
+						moveOrderInfo.s = {ph: 0, pv: 0, pb: 0, cr: 0, cg: 0, cb: 0}
+					}
+
+					var finishTextShadowTemp = finishPoint.split(",");
+					if(finishTextShadowTemp.length == 2) {
+						moveOrderInfo.e = {ph: parseFloat(finishTextShadowTemp[0].replace(regex, '')),
+															 pv: parseFloat(finishTextShadowTemp[1].replace(regex, '')),
+															 pb: 0, cr: 0, cg: 0, cb: 0}
+					  moveOrderInfo.u = {ph: finishTextShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[0].replace(regexUnity, ''),
+ 														   pv: finishTextShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[1].replace(regexUnity, ''),
+														   pb: "px"}
+					} else if(finishTextShadowTemp.length == 3) {
+            if(finishTextShadowTemp[2].replace(regexS, '').indexOf("#") == 0) {
+							var rgbCodeArr = _j2mCssUtil.hexToRgb(finishTextShadowTemp[2].replace(regexS, ''));
+						 	moveOrderInfo.e = {ph: parseFloat(finishTextShadowTemp[0].replace(regex, '')),
+																 pv: parseFloat(finishTextShadowTemp[1].replace(regex, '')),
+															 	 pb: 0,
+																 cr: rgbCodeArr.r, cg: rgbCodeArr.g, cb: rgbCodeArr.b}
+
+						  moveOrderInfo.u = {ph: finishTextShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[0].replace(regexUnity, ''),
+  														   pv: finishTextShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[1].replace(regexUnity, ''),
+ 														     pb: "px"}
+	 					} else {
+							moveOrderInfo.e = {ph: parseFloat(finishTextShadowTemp[0].replace(regex, '')),
+																 pv: parseFloat(finishTextShadowTemp[1].replace(regex, '')),
+																 pb: parseFloat(finishTextShadowTemp[2].replace(regex, '')),
+																 cr: 0, cg: 0, cb: 0}
+
+							moveOrderInfo.u = {ph: finishTextShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[0].replace(regexUnity, ''),
+	 														   pv: finishTextShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[1].replace(regexUnity, ''),
+															   pb: finishTextShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[2].replace(regexUnity, '')}
+						}
+					} else if(finishTextShadowTemp.length == 4) {
+						if(finishTextShadowTemp[3].replace(regexS, '').indexOf("#") == 0) {
+						 var rgbCodeArr = _j2mCssUtil.hexToRgb(finishTextShadowTemp[3].replace(regexS, ''));
+						 moveOrderInfo.e = {ph: parseFloat(finishTextShadowTemp[0].replace(regex, '')),
+																pv: parseFloat(finishTextShadowTemp[1].replace(regex, '')),
+																pb: parseFloat(finishTextShadowTemp[2].replace(regex, '')),
+																cr: rgbCodeArr.r, cg: rgbCodeArr.g, cb: rgbCodeArr.b}
+
+						 moveOrderInfo.u = {ph: finishTextShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[0].replace(regexUnity, ''),
+																pv: finishTextShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[1].replace(regexUnity, ''),
+																pb: finishTextShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[2].replace(regexUnity, ''),}
+	 				} else {
+						 moveOrderInfo.e = {ph: parseFloat(finishTextShadowTemp[0].replace(regex, '')),
+						 									  pv: parseFloat(finishTextShadowTemp[1].replace(regex, '')),
+						 									  pb: parseFloat(finishTextShadowTemp[2].replace(regex, '')),
+						 									  cr: 0, cg: 0, cb: 0}
+
+						 moveOrderInfo.u = {ph: finishTextShadowTemp[0].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[0].replace(regexUnity, ''),
+						 									  pv: finishTextShadowTemp[1].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[1].replace(regexUnity, ''),
+						 									  pb: finishTextShadowTemp[2].replace(regexUnity, '') == "" ? "px" : finishTextShadowTemp[2].replace(regexUnity, '')}
+						}
+					}
+
+					moveOrderInfo.travelRange = {ph : moveOrderInfo.e.ph-moveOrderInfo.s.ph,
+																			 pv : moveOrderInfo.e.pv-moveOrderInfo.s.pv,
+																			 pb : moveOrderInfo.e.pb-moveOrderInfo.s.pb,
+																			 cr : moveOrderInfo.e.cr-moveOrderInfo.s.cr,
+																		 	 cg : moveOrderInfo.e.cg-moveOrderInfo.s.cg,
+																	 	   cb : moveOrderInfo.e.cb-moveOrderInfo.s.cb}
+
+          //개별로 진행 상태
+					moveOrderInfo.subTickerStatus = {ph : moveOrderInfo.travelRange.ph == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 pv : moveOrderInfo.travelRange.pv == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 pb : moveOrderInfo.travelRange.pb == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																				 	 cr : moveOrderInfo.travelRange.cr == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																			 	   cg : moveOrderInfo.travelRange.cg == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																		 		 	 cb : moveOrderInfo.travelRange.cb == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+
 					moveOrderInfo.nextMoveRate = {ph: 0, pv: 0, pb: 0, cr: 0, cg: 0, cb: 0}
+
+					//이동할 거리 없음
+					if(moveOrderInfo.travelRange.ph == 0 && moveOrderInfo.travelRange.pv == 0 &&
+						 moveOrderInfo.travelRange.pb == 0 && moveOrderInfo.travelRange.cr == 0 &&
+						 moveOrderInfo.travelRange.cg == 0 && moveOrderInfo.travelRange.cb == 0 && checkTravelRange == true) {
+						return false;
+					}
 
 				} else if(_j2mType.getAreaOrderYn(key)) { //넓이 관련 초기값 세팅
 					var areaStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
@@ -721,13 +835,100 @@
 					if(moveOrderInfo.travelRange == 0 && checkTravelRange == true) {
 						return false;
 					}
+				} else if(_j2mType.getClipOrderYn(key)) {
+					var clipStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
+					var startClipPointTemp = clipStyle[key];
+					if(startClipPointTemp == "auto") {
+						moveOrderInfo.s = {a: 0, b: parseFloat(clipStyle["width"].replace(regex, '')), c: parseFloat(clipStyle["height"].replace(regex, '')), d: 0}
+					} else {
+						startClipPointTemp = startClipPointTemp.replace("rect(", "");
+						startClipPointTemp = startClipPointTemp.split("px");
+						moveOrderInfo.s = {a: parseFloat(startClipPointTemp[0].replace(regex, '')), b: parseFloat(startClipPointTemp[1].replace(regex, '')), c: parseFloat(startClipPointTemp[2].replace(regex, '')), d: parseFloat(startClipPointTemp[3].replace(regex, ''))}
+					}
+
+					var finishClipPointTemp = finishPoint.split(",");
+					moveOrderInfo.e = {a: parseFloat(finishClipPointTemp[0].replace(regex, '')), b: parseFloat(finishClipPointTemp[1].replace(regex, '')), c: parseFloat(finishClipPointTemp[2].replace(regex, '')), d: parseFloat(finishClipPointTemp[3].replace(regex, ''))}
+					moveOrderInfo.u = {a: finishClipPointTemp[0].replace(regexUnity, '')==""?"px":finishClipPointTemp[0].replace(regexUnity, ''),
+					                   b: finishClipPointTemp[1].replace(regexUnity, '')==""?"px":finishClipPointTemp[1].replace(regexUnity, ''),
+														 c: finishClipPointTemp[2].replace(regexUnity, '')==""?"px":finishClipPointTemp[2].replace(regexUnity, ''),
+														 d: finishClipPointTemp[3].replace(regexUnity, '')==""?"px":finishClipPointTemp[3].replace(regexUnity, '')}
+
+					moveOrderInfo.travelRange = {a: moveOrderInfo.e.a-moveOrderInfo.s.a,
+																			 b: moveOrderInfo.e.b-moveOrderInfo.s.b,
+																			 c: moveOrderInfo.e.c-moveOrderInfo.s.c,
+																			 d: moveOrderInfo.e.d-moveOrderInfo.s.d}
+
+				  //개별로 진행 상태
+					moveOrderInfo.subTickerStatus = {a: moveOrderInfo.travelRange.a == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 b: moveOrderInfo.travelRange.b == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 c: moveOrderInfo.travelRange.c == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 d: moveOrderInfo.travelRange.d == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+
+          moveOrderInfo.nextMoveRate = {a: 0, b: 0, c: 0, d: 0}
+
+				  //이동할 거리 없음
+					if(moveOrderInfo.travelRange.a == 0 && moveOrderInfo.travelRange.b == 0 &&
+						 moveOrderInfo.travelRange.c == 0 && moveOrderInfo.travelRange.d == 0 && checkTravelRange == true) {
+						return false;
+					}
+				} else if(_j2mType.getPerspectiveOriginOrderYn(key)) {
+					var perspectiveOriginStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
+					var startPerspectiveOriginTmep = perspectiveOriginStyle[key].split(" ");
+					moveOrderInfo.s = {x: parseFloat(startPerspectiveOriginTmep[0].replace(regex, '')), y: parseFloat(startPerspectiveOriginTmep[1].replace(regex, ''))}
+
+					var finishPerspectiveOriginPositionTemp = finishPoint.split(",");
+					if(finishPerspectiveOriginPositionTemp.length == 1) {
+						moveOrderInfo.e = {x: parseFloat(finishPerspectiveOriginPositionTemp[0].replace(regex, '')), y : parseFloat(finishPerspectiveOriginPositionTemp[0].replace(regex, ''))}
+						moveOrderInfo.u = {x: finishPerspectiveOriginPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishPerspectiveOriginPositionTemp[0].replace(regexUnity, ''),
+						                   y: finishPerspectiveOriginPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishPerspectiveOriginPositionTemp[0].replace(regexUnity, '')}
+					} else {
+						moveOrderInfo.e = {x: parseFloat(finishPerspectiveOriginPositionTemp[0].replace(regex, '')), y : parseFloat(finishPerspectiveOriginPositionTemp[1].replace(regex, ''))}
+						moveOrderInfo.u = {x: finishPerspectiveOriginPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishPerspectiveOriginPositionTemp[0].replace(regexUnity, ''),
+						                   y: finishPerspectiveOriginPositionTemp[1].replace(regexUnity, '') == "" ? "px" : finishPerspectiveOriginPositionTemp[1].replace(regexUnity, '')}
+					}
+					moveOrderInfo.travelRange = {x: moveOrderInfo.e.x - moveOrderInfo.s.x,
+																	 		 y: moveOrderInfo.e.y - moveOrderInfo.s.y}
+					//개별로 진행 상태
+ 					moveOrderInfo.subTickerStatus = {x: moveOrderInfo.travelRange.t == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+ 																					 y: moveOrderInfo.travelRange.r == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+          moveOrderInfo.nextMoveRate = {x: 0, y: 0}
+
+ 					if(moveOrderInfo.subTickerStatus.x == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.y == _constantValue.tickerStatusE &&
+  				   checkTravelRange == true) {
+  				 	return false;
+  				}
+				} else if(_j2mType.getTransformOriginOrderYn(key)) {
+					var transformOriginStyle = _j2mCssUtil.getStyle(that.renderConfig.targetElement);
+					var starTtransformOriginTmep = transformOriginStyle[key].split(" ");
+					moveOrderInfo.s = {x: parseFloat(starTtransformOriginTmep[0].replace(regex, '')), y: parseFloat(starTtransformOriginTmep[1].replace(regex, ''))}
+
+					var finishTransformOriginPositionTemp = finishPoint.split(",");
+					if(finishTransformOriginPositionTemp.length == 1) {
+						moveOrderInfo.e = {x: parseFloat(finishTransformOriginPositionTemp[0].replace(regex, '')), y : parseFloat(finishTransformOriginPositionTemp[0].replace(regex, ''))}
+						moveOrderInfo.u = {x: finishTransformOriginPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishTransformOriginPositionTemp[0].replace(regexUnity, ''),
+															 y: finishTransformOriginPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishTransformOriginPositionTemp[0].replace(regexUnity, '')}
+					} else {
+						moveOrderInfo.e = {x: parseFloat(finishTransformOriginPositionTemp[0].replace(regex, '')), y : parseFloat(finishTransformOriginPositionTemp[1].replace(regex, ''))}
+						moveOrderInfo.u = {x: finishTransformOriginPositionTemp[0].replace(regexUnity, '') == "" ? "px" : finishTransformOriginPositionTemp[0].replace(regexUnity, ''),
+															 y: finishTransformOriginPositionTemp[1].replace(regexUnity, '') == "" ? "px" : finishTransformOriginPositionTemp[1].replace(regexUnity, '')}
+					}
+					moveOrderInfo.travelRange = {x: moveOrderInfo.e.x - moveOrderInfo.s.x,
+																			 y: moveOrderInfo.e.y - moveOrderInfo.s.y}
+					//개별로 진행 상태
+					moveOrderInfo.subTickerStatus = {x: moveOrderInfo.travelRange.t == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 y: moveOrderInfo.travelRange.r == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+					moveOrderInfo.nextMoveRate = {x: 0, y: 0}
+
+					if(moveOrderInfo.subTickerStatus.x == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.y == _constantValue.tickerStatusE &&
+						 checkTravelRange == true) {
+						return false;
+					}
 
 				} else {
 					moveOrderInfo.nextMoveRate = 0; //다음 이동할 거리
 				}
 
 				moveOrderInfo.style = that.renderConfig.targetElement.style;
-
 				return moveOrderInfo;
 			},
 			hexToRgb : function(hex) {
@@ -766,10 +967,19 @@
 				} else if(_j2mType.getBackgorundOrderYn(c)) {
 					return v.x+u.x+" "+v.y+u.y;
 				} else if(_j2mType.getBoxShadowOrderYn(c)) {
-					return v.ph+u.ph+" "+v.ph+u.ph+" "+v.pb+u.pb+" "+v.ps+u.ps + " rgb(" +v.cr+", "+v.cg+", "+v.cb+")";
+					return v.ph+u.ph+" "+v.pv+u.pv+" "+v.pb+u.pb+" "+v.ps+u.ps + " rgb(" +v.cr+", "+v.cg+", "+v.cb+")";
+				} else if(_j2mType.getTextShadowOrderYn(c)) {
+					return v.ph+u.ph+" "+v.pv+u.pv+" "+v.pb+u.pb+" rgb(" +v.cr+", "+v.cg+", "+v.cb+")";
 				} else if(_j2mType.getFontSizeOrderYn(c)) {
 					return v+u;
+				} else if(_j2mType.getClipOrderYn(c)) {
+					return "rect("+v.a+u.a+", "+v.b+u.b+", "+v.c+u.c+", "+v.d+u.d+")";
+				} else if(_j2mType.getPerspectiveOriginOrderYn(c)) {
+					return v.x+u.x+" "+v.y+u.y;
+				} else if(_j2mType.getTransformOriginOrderYn(c)) {
+					return v.x+u.x+" "+v.y+u.y;
 				}
+
 				return null;
 			},
 			getTransform2DUnit : function(o, c) {
@@ -859,7 +1069,8 @@
 					 _constantValue.borderBottomColor == c || _constantValue.borderLeftColor == c || _constantValue.borderTopLeftRadius == c ||
 				   _constantValue.borderTopRightRadius == c || _constantValue.borderBottomRightRadius == c || _constantValue.borderBottomLeftRadius == c ||
 				   _constantValue.backgroundPosition == c || _constantValue.backgroundSize == c || _constantValue.boxShadow == c ||
-					 _constantValue.color == c || _constantValue.fontSize == c) {
+					 _constantValue.color == c || _constantValue.fontSize == c || _constantValue.clip == c ||
+				   _constantValue.textShadow == c || _constantValue.perspectiveOrigin == c || _constantValue.transformOrigin == c) {
 					return true;
 				}
 				return false;
@@ -890,6 +1101,12 @@
 				}
 				return false;
 			},
+			getTextShadowOrderYn: function(c) {
+				if(_constantValue.textShadow == c) {
+					return true;
+				}
+				return false;
+			},
 			getLineOrderYn: function(c) {
 				if(_constantValue.left == c || _constantValue.top == c || _constantValue.right == c || _constantValue.bottom == c) {
 					return true;
@@ -910,6 +1127,18 @@
 			},
 			getPerspectiveOrderYn: function(c) {
 				if(_constantValue.perspective == c) {
+					return true;
+				}
+				return false;
+			},
+			getPerspectiveOriginOrderYn: function(c) {
+				if(_constantValue.perspectiveOrigin == c) {
+					return true;
+				}
+				return false;
+			},
+			getTransformOriginOrderYn: function(c) {
+				if(_constantValue.transformOrigin == c) {
 					return true;
 				}
 				return false;
@@ -938,6 +1167,12 @@
 						return true;
 					}
 					return false;
+			},
+			getClipOrderYn: function(c) {
+				if(_constantValue.clip == c) {
+					return true;
+				}
+				return false;
 			},
 			getTransformPerspectiveOrderYn: function(c) {
 				if(_constantValue.transformPerspective == c) {
@@ -981,9 +1216,18 @@
 					_j2mEngine.transformPerspectiveTicker(renderConfig, e, direction);
 				} else if(_j2mType.getBoxShadowOrderYn(direction)) {
 					_j2mEngine.boxShadowTicker(renderConfig, e, direction);
+				} else if(_j2mType.getTextShadowOrderYn(direction)) {
+					_j2mEngine.textShadowTicker(renderConfig, e, direction);
 				} else if(_j2mType.getFontSizeOrderYn(direction)) {
 					_j2mEngine.fontSizeTicker(renderConfig, e, direction);
+				} else if(_j2mType.getClipOrderYn(direction)) {
+					_j2mEngine.clipTicker(renderConfig, e, direction);
+				} else if(_j2mType.getPerspectiveOriginOrderYn(direction)) {
+					_j2mEngine.perspectiveOriginTicker(renderConfig, e, direction);
+				} else if(_j2mType.getTransformOriginOrderYn(direction)) {
+					_j2mEngine.transformOriginTicker(renderConfig, e, direction);
 				}
+
 			},
 			getSpace: function(renderConfig, e, direction) {
 				var spaceE = e;
@@ -1295,6 +1539,111 @@
 					boxShadowE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			},
+			textShadowTicker: function(renderConfig, e, direction) {
+				var boxShadowE = e;
+				var boxShadowSpaceTemp = 0;
+
+				//h-shadow 이동
+				if(boxShadowE.subTickerStatus.ph != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.ph = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.ph = boxShadowE.e.ph;
+					} else {
+						boxShadowE.nextMoveRate.ph = boxShadowE.s.ph + parseFloat(boxShadowE.travelRange.ph) * parseFloat(boxShadowSpaceTemp);
+					}
+				} else {
+					boxShadowE.nextMoveRate.ph = boxShadowE.e.ph;
+				}
+
+				//v-shadow 이동
+				if(boxShadowE.subTickerStatus.pv != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.pv = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.pv = boxShadowE.e.pv;
+					} else {
+						boxShadowE.nextMoveRate.pv = boxShadowE.s.pv + parseFloat(boxShadowE.travelRange.pv) * parseFloat(boxShadowSpaceTemp);
+					}
+				} else {
+					boxShadowE.nextMoveRate.pv = boxShadowE.e.pv;
+				}
+
+				//blur 이동
+				if(boxShadowE.subTickerStatus.pb != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.pb = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.pb = boxShadowE.e.pb;
+					} else {
+						boxShadowE.nextMoveRate.pb = boxShadowE.s.pb + parseFloat(boxShadowE.travelRange.pb) * parseFloat(boxShadowSpaceTemp);
+					}
+				} else {
+					boxShadowE.nextMoveRate.pb = boxShadowE.e.pb;
+				}
+
+				//spread 이동
+				if(boxShadowE.subTickerStatus.ps != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.ps = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.ps = boxShadowE.e.ps;
+					} else {
+						boxShadowE.nextMoveRate.ps = boxShadowE.s.ps + parseFloat(boxShadowE.travelRange.ps) * parseFloat(boxShadowSpaceTemp);
+					}
+				} else {
+					boxShadowE.nextMoveRate.ps = boxShadowE.e.ps;
+				}
+
+				//color R 이동
+				if(boxShadowE.subTickerStatus.cr != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.cr = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.cr = boxShadowE.e.cr;
+					} else {
+						boxShadowE.nextMoveRate.cr = boxShadowE.s.cr + Math.round(parseFloat(boxShadowE.travelRange.cr) * parseFloat(boxShadowSpaceTemp));
+					}
+				} else {
+					boxShadowE.nextMoveRate.cr = boxShadowE.e.cr;
+				}
+
+				//color G 이동
+				if(boxShadowE.subTickerStatus.cg != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.cg = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.cg = boxShadowE.e.cg;
+					} else {
+						boxShadowE.nextMoveRate.cg = boxShadowE.s.cg + Math.round(parseFloat(boxShadowE.travelRange.cg) * parseFloat(boxShadowSpaceTemp));
+					}
+				} else {
+					boxShadowE.nextMoveRate.cg = boxShadowE.e.cg;
+				}
+
+				//color B 이동
+				if(boxShadowE.subTickerStatus.cb != _constantValue.tickerStatusE) {
+					boxShadowSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(boxShadowSpaceTemp == 1) {
+						boxShadowE.subTickerStatus.cb = _constantValue.tickerStatusE;
+						boxShadowE.nextMoveRate.cb = boxShadowE.e.cb;
+					} else {
+						boxShadowE.nextMoveRate.cb = boxShadowE.s.cb + Math.round(parseFloat(boxShadowE.travelRange.cb) * parseFloat(boxShadowSpaceTemp));
+					}
+				} else {
+					boxShadowE.nextMoveRate.cb = boxShadowE.e.cb;
+				}
+
+				if(boxShadowE.subTickerStatus.ph == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.pv == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.pb == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.ps == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.cr == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.cg == _constantValue.tickerStatusE &&
+					 boxShadowE.subTickerStatus.cb == _constantValue.tickerStatusE) {
+					boxShadowE.tickerStatus = _constantValue.tickerStatusE;
+				}
+			},
 			areaTicker: function(renderConfig, e, direction) {
 				var areaE = e;
 				if(areaE.tickerStatus != _constantValue.tickerStatusE) {
@@ -1438,6 +1787,128 @@
 						//fontSizeE.nextMoveRate = fontSizeE.s + Math.round(parseFloat(fontSizeE.travelRange) * parseFloat(fontSizeSpaceTemp));
 						fontSizeE.nextMoveRate = fontSizeE.s + parseFloat(fontSizeE.travelRange) * parseFloat(fontSizeSpaceTemp);
 					}
+				}
+			},
+			clipTicker: function(renderConfig, e, direction) {
+				var clipE = e;
+				var clipSpaceTemp = 0;
+				if(clipE.subTickerStatus.a != _constantValue.tickerStatusE) {
+					clipSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(clipSpaceTemp == 1) {
+						clipE.subTickerStatus.a = _constantValue.tickerStatusE;
+						clipE.nextMoveRate.a = clipE.e.a;
+					} else {
+						clipE.nextMoveRate.a = clipE.s.a + (parseFloat(clipE.travelRange.a) * parseFloat(clipSpaceTemp));
+					}
+				} else {
+					clipE.nextMoveRate.a = clipE.e.a;
+				}
+
+				if(clipE.subTickerStatus.b != _constantValue.tickerStatusE) {
+					clipSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(clipSpaceTemp == 1) {
+						clipE.subTickerStatus.b = _constantValue.tickerStatusE;
+						clipE.nextMoveRate.b = clipE.e.b;
+					} else {
+						clipE.nextMoveRate.b = clipE.s.b + (parseFloat(clipE.travelRange.b) * parseFloat(clipSpaceTemp));
+					}
+				} else {
+					clipE.nextMoveRate.b = clipE.e.b;
+				}
+
+				if(clipE.subTickerStatus.c != _constantValue.tickerStatusE) {
+					clipSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(clipSpaceTemp == 1) {
+						clipE.subTickerStatus.c = _constantValue.tickerStatusE;
+						clipE.nextMoveRate.c = clipE.e.c;
+					} else {
+						clipE.nextMoveRate.c = clipE.s.c + (parseFloat(clipE.travelRange.c) * parseFloat(clipSpaceTemp));
+					}
+				} else {
+					clipE.nextMoveRate.c = clipE.e.c;
+				}
+
+				if(clipE.subTickerStatus.d != _constantValue.tickerStatusE) {
+					clipSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(clipSpaceTemp == 1) {
+						clipE.subTickerStatus.d = _constantValue.tickerStatusE;
+						clipE.nextMoveRate.d = clipE.e.d;
+					} else {
+						clipE.nextMoveRate.d = clipE.s.d + (parseFloat(clipE.travelRange.d) * parseFloat(clipSpaceTemp));
+					}
+				} else {
+					clipE.nextMoveRate.d = clipE.e.d;
+				}
+
+				if(clipE.subTickerStatus.a == _constantValue.tickerStatusE &&
+					 clipE.subTickerStatus.b == _constantValue.tickerStatusE &&
+					 clipE.subTickerStatus.c == _constantValue.tickerStatusE &&
+					 clipE.subTickerStatus.d == _constantValue.tickerStatusE) {
+					clipE.tickerStatus = _constantValue.tickerStatusE;
+				}
+			},
+			perspectiveOriginTicker: function(renderConfig, e, direction) {
+				var perspectiveOriginE = e;
+				var perspectiveOriginSpaceTemp = 0;
+				if(perspectiveOriginE.subTickerStatus.x != _constantValue.tickerStatusE) {
+					perspectiveOriginSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(perspectiveOriginSpaceTemp == 1) {
+						perspectiveOriginE.subTickerStatus.x = _constantValue.tickerStatusE;
+						perspectiveOriginE.nextMoveRate.x = perspectiveOriginE.e.x;
+					} else {
+						perspectiveOriginE.nextMoveRate.x = perspectiveOriginE.s.x + (parseFloat(perspectiveOriginE.travelRange.x) * parseFloat(perspectiveOriginSpaceTemp));
+					}
+				} else {
+					perspectiveOriginE.nextMoveRate.x = perspectiveOriginE.e.x;
+				}
+
+				if(perspectiveOriginE.subTickerStatus.y != _constantValue.tickerStatusE) {
+					perspectiveOriginSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(perspectiveOriginSpaceTemp == 1) {
+						perspectiveOriginE.subTickerStatus.y = _constantValue.tickerStatusE;
+						perspectiveOriginE.nextMoveRate.y = perspectiveOriginE.e.y;
+					} else {
+						perspectiveOriginE.nextMoveRate.y = perspectiveOriginE.s.y + (parseFloat(perspectiveOriginE.travelRange.y) * parseFloat(perspectiveOriginSpaceTemp));
+					}
+				} else {
+					perspectiveOriginE.nextMoveRate.y = perspectiveOriginE.e.y;
+				}
+
+				if(perspectiveOriginE.subTickerStatus.x == _constantValue.tickerStatusE &&
+					 perspectiveOriginE.subTickerStatus.y == _constantValue.tickerStatusE) {
+					perspectiveOriginE.tickerStatus = _constantValue.tickerStatusE;
+				}
+			},
+			transformOriginTicker: function(renderConfig, e, direction) {
+				var transformOriginE = e;
+				var transformOriginSpaceTemp = 0;
+				if(transformOriginE.subTickerStatus.x != _constantValue.tickerStatusE) {
+					transformOriginSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(transformOriginSpaceTemp == 1) {
+						transformOriginE.subTickerStatus.x = _constantValue.tickerStatusE;
+						transformOriginE.nextMoveRate.x = transformOriginE.e.x;
+					} else {
+						transformOriginE.nextMoveRate.x = transformOriginE.s.x + (parseFloat(transformOriginE.travelRange.x) * parseFloat(transformOriginSpaceTemp));
+					}
+				} else {
+					transformOriginE.nextMoveRate.x = transformOriginE.e.x;
+				}
+
+				if(transformOriginE.subTickerStatus.y != _constantValue.tickerStatusE) {
+					transformOriginSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(transformOriginSpaceTemp == 1) {
+						transformOriginE.subTickerStatus.y = _constantValue.tickerStatusE;
+						transformOriginE.nextMoveRate.y = transformOriginE.e.y;
+					} else {
+						transformOriginE.nextMoveRate.y = transformOriginE.s.y + (parseFloat(transformOriginE.travelRange.y) * parseFloat(transformOriginSpaceTemp));
+					}
+				} else {
+					transformOriginE.nextMoveRate.y = transformOriginE.e.y;
+				}
+
+				if(transformOriginE.subTickerStatus.x == _constantValue.tickerStatusE &&
+					 transformOriginE.subTickerStatus.y == _constantValue.tickerStatusE) {
+					transformOriginE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			},
 			transformPerspectiveTicker: function(renderConfig, e, direction) {
