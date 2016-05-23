@@ -80,11 +80,18 @@
 		#demo_object_16_2 {width:120px;height:120px;position:absolute;top:150px;left:280px;background-color:#D941C5;transform: rotate(45deg)}
 		#demo_object_16_3 {width:120px;height:120px;position:absolute;top:150px;left:420px;background-color:#D941C5;transform: rotate(45deg)}
 		#demo_object_16_4 {width:120px;height:120px;position:absolute;top:150px;left:560px;background-color:#D941C5;transform: rotate(45deg)}
+		#demo_object_17_1 {width:120px;height:120px;position:absolute;top:120px;left:100px;background-color:#D941C5;}
+		#demo_object_17_2 {width:120px;height:120px;position:absolute;top:120px;left:240px;background-color:#D941C5;}
+		#demo_object_17_3 {width:120px;height:120px;position:absolute;top:120px;left:380px;background-color:#D941C5;}
+		#demo_object_17_4 {width:120px;height:120px;position:absolute;top:120px;left:520px;background-color:#D941C5;}
+		#demo_object_18_1 {width:120px;height:120px;position:absolute;top:120px;left:100px;background-color:#D941C5;}
+		#demo_object_18_2 {width:120px;height:120px;position:absolute;top:120px;left:240px;background-color:#D941C5;}
+		#demo_object_18_3 {width:120px;height:120px;position:absolute;top:120px;left:380px;background-color:#D941C5;}
 
 		#perspectiveBox_1 {width:540px;height:120px;position:absolute;top:120px;left:100px;}
 		#perspectiveBox_15 {width:540px;height:120px;position:absolute;top:120px;left:100px;perspective: 125px;}
 
-		#demo_object_100 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;opacity: 0;}
+		#demo_object_100 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;opacity: 1;}
 	</style>
 </head>
 <body>
@@ -308,6 +315,25 @@
 			</div>
 
 			<input type="button" value="perspectiveOrigin 조절" id="transformOriginButton" style="position:absolute;top:270px;">
+		</div>
+
+		<div id="demo_contain_17" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_17" class="demo_title_contain" onmouseover="demoObjectOn('17');" >translate 이동</h2>
+			<div id="demo_object_17_1">translate X</div>
+			<div id="demo_object_17_2">translate Y</div>
+			<div id="demo_object_17_3">translate Z</div>
+			<div id="demo_object_17_4">translate3d</div>
+
+			<input type="button" value="translate 조절" id="translateButton" style="position:absolute;top:270px;">
+		</div>
+
+		<div id="demo_contain_18" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
+			<h2 id="demo_contain_text_18" class="demo_title_contain" onmouseover="demoObjectOn('18');" >skew 조절</h2>
+			<div id="demo_object_18_1">skew X</div>
+			<div id="demo_object_18_2">skew Y</div>
+			<div id="demo_object_18_3">skew</div>
+
+			<input type="button" value="skew 조절" id="skewButton" style="position:absolute;top:270px;">
 		</div>
 
 		<div id="demo_contain_100" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
@@ -926,6 +952,46 @@
 
 			event.stopPropagation();
 		}
+
+
+		var translateCheck = "1";
+		document.getElementById("translateButton").onclick = function(event) {
+
+			if(translateCheck == "1") {
+				translateCheck = "2";
+				j2m("#demo_object_17_1").move({translateX:"10"}, 1);
+				j2m("#demo_object_17_2").move({translateY:"10"}, 1);
+				j2m("#demo_object_17_3").move({translate:"10, 10"}, 1);
+				j2m("#demo_object_17_4").move({translate3d:"10, 10, 10"}, 1);
+			} else {
+				translateCheck = "1";
+				j2m("#demo_object_17_1").move({translateX:"0"}, 1);
+				j2m("#demo_object_17_2").move({translateY:"0"}, 1);
+				j2m("#demo_object_17_3").move({translate:"0, 0"}, 1);
+				j2m("#demo_object_17_4").move({translate3d:"0, 0, 0"}, 1);
+			}
+
+			event.stopPropagation();
+		}
+
+
+		var skewCheck = "1";
+		document.getElementById("skewButton").onclick = function(event) {
+
+			if(skewCheck == "1") {
+				skewCheck = "2";
+				j2m("#demo_object_18_1").move({skewX:"10"}, 1);
+				j2m("#demo_object_18_2").move({skewY:"10"}, 1);
+				j2m("#demo_object_18_3").move({skew:"10, 10"}, 1);
+			} else {
+				skewCheck = "1";
+				j2m("#demo_object_18_1").move({skewX:"0"}, 1);
+				j2m("#demo_object_18_2").move({skewY:"0"}, 1);
+				j2m("#demo_object_18_3").move({skew:"0, 0"}, 1);
+			}
+
+			event.stopPropagation();
+		}
 	}
 
 
@@ -1011,7 +1077,11 @@
 		j2m("#demo_object_100").move({backgroundColor:"#FF5E00", continuity:true}, 0.5);
 		j2m("#demo_object_100").move({top:120, continuity:true}, 0.5);
 		j2m("#demo_object_100").move({backgroundColor:"#D941C5", continuity:true}, 0.5);
-		j2m("#demo_object_100").move({opacity:0, continuity:true}, 0.5);
+
+		// j2m("#demo_object_100").move({translateX:"100", continuity:true}, 0.5);
+		// j2m("#demo_object_100").move({translateX :"0", continuity:true}, 0.5);
+
+		// j2m("#demo_object_100").move({opacity:0, continuity:true}, 0.5);
 	}
 
 
