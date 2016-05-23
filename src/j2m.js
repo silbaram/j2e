@@ -62,6 +62,10 @@
 			translateX: "translateX",
 			translateY: "translateY",
 			translateZ: "translateZ",
+			translate3d: "translate3d",
+			skew: "skew",
+			skewX: "skewX",
+			skewY: "skewY",
 			timeScale: 1
 		},
 		_j2m = {
@@ -195,7 +199,6 @@
 		},
 		_j2mCssUtil = {
 			getStartPosition : function(finishPoint, key, t, that, checkTravelRange) {
-
 				var regex = /[^0-9|^.]/g;
 				var regexUnity = /[0-9|.|(^\s*)|(\s*$)|' ']/g;
 				var regexS = /[' ']/g;
@@ -696,7 +699,7 @@
 					} else if(_constantValue.scaleX == key) {
 						moveOrderInfo.e = {x : parseFloat(typeof(finishPoint) == "object" ? finishPoint.x : finishPoint), y : parseFloat(scaleY)}
 					} else if(_constantValue.scaleY == key) {
-						moveOrderInfo.e = {x : parseFloat(scaleX), y : parseFloat(parseFloat(typeof(finishPoint) == "object" ? finishPoint.y : finishPoint))}
+						moveOrderInfo.e = {x : parseFloat(scaleX), y : parseFloat(typeof(finishPoint) == "object" ? finishPoint.y : finishPoint)}
 					}
 
 					moveOrderInfo.travelRange = {x : parseFloat(moveOrderInfo.e.x)-parseFloat(moveOrderInfo.s.x),
@@ -714,8 +717,8 @@
 				} else if(_j2mType.getRotateOrderYn(key)) { //기울기변경 초기값 세팅
 
 					key = key == _constantValue.rotate ? _constantValue.rotateZ : key;
-					var startrotateCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
-					if(startrotateCode == "none") {
+					var startRotateCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
+					if(startRotateCode == "none") {
 						moveOrderInfo.s = 0;
 					} else {
 						var startRotateCodeCheck = that.renderConfig.targetElement.style.transform;
@@ -746,7 +749,7 @@
 									var tempS = startRotateCodeCheck.substring(startRotateCodeCheck.indexOf(key)).split(")");
 									moveOrderInfo.s = tempS[0].replace(regex, '');
 								} else {
-									var values = startrotateCode.split('(')[1].split(')')[0].split(',');
+									var values = startRotateCode.split('(')[1].split(')')[0].split(',');
 									var a = values[0];
 									var b = values[1];
 									var c = values[2];
@@ -923,7 +926,129 @@
 						 checkTravelRange == true) {
 						return false;
 					}
+				} else if(_j2mType.getTranslateOrderYn(key)) {
+					var translateX = 0;
+					var translateY = 0;
+					var translateZ = 0;
 
+					var starTranslateCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
+					if(starTranslateCode == "none") {
+						moveOrderInfo.s = {x: 0, y: 0, z: 0}
+					} else {
+						var values = starTranslateCode.split('(')[1].split(')')[0].split(',');
+						if(checkTravelRange == true) {
+							values = starTranslateCode.split('(')[1].split(')')[0].split(',');
+							if(values.length == 16) {
+								translateX = Math.abs(values[12]);
+								translateY = Math.abs(values[13]);
+								translateZ = Math.abs(values[14]);
+							} else {
+								translateX = Math.abs(values[4]);
+								translateY = Math.abs(values[5]);
+							}
+							moveOrderInfo.s = {x: parseFloat(translateX), y: parseFloat(translateY), z: parseFloat(translateZ)}
+						} else if(checkTravelRange == false) {
+							if(that.renderConfig.moveOrderInfoListMemory == undefined || that.renderConfig.moveOrderInfoListMemory[key] == undefined) {
+								values = starTranslateCode.split('(')[1].split(')')[0].split(',');
+								if(values.length == 16) {
+									translateX = Math.abs(values[12]);
+									translateY = Math.abs(values[13]);
+									translateZ = Math.abs(values[14]);
+								} else {
+									translateX = Math.abs(values[4]);
+									translateY = Math.abs(values[5]);
+								}
+								moveOrderInfo.s = {x: parseFloat(translateX), y: parseFloat(translateY), z: parseFloat(translateZ)}
+							} else if(that.renderConfig.moveOrderInfoListMemory[key] != undefined) {
+								moveOrderInfo.s = {x: that.renderConfig.moveOrderInfoListMemory[key].e.x, y: that.renderConfig.moveOrderInfoListMemory[key].e.y}
+							}
+						}
+					}
+
+					if(_constantValue.translate == key) {
+						moveOrderInfo.e = typeof(finishPoint) == "object" ? {x: finishPoint.x, y: finishPoint.y, z: parseFloat(translateZ)} : {x: parseFloat(finishPoint.split(",")[0]), y: parseFloat(finishPoint.split(",")[1]), z: parseFloat(translateZ)}
+					} else if(_constantValue.translateX == key) {
+						moveOrderInfo.e = {x: parseFloat(typeof(finishPoint) == "object" ? finishPoint.x : finishPoint), y: parseFloat(translateY), z: parseFloat(translateZ)}
+					} else if(_constantValue.translateY == key) {
+						moveOrderInfo.e = {x: parseFloat(translateX), y: parseFloat(typeof(finishPoint) == "object" ? finishPoint.y : finishPoint), z: parseFloat(translateZ)}
+					} else if(_constantValue.translateZ == key) {
+						moveOrderInfo.e = {x: parseFloat(translateX), y: parseFloat(translateY), z: parseFloat(typeof(finishPoint) == "object" ? finishPoint.z : finishPoint)}
+					} else if(_constantValue.translate3d == key) {
+						moveOrderInfo.e = typeof(finishPoint) == "object" ? {x: finishPoint.x, y: finishPoint.y, z: finishPoint.z} : {x: parseFloat(finishPoint.split(",")[0]), y: parseFloat(finishPoint.split(",")[1]), z: parseFloat(finishPoint.split(",")[2])}
+					}
+
+					if(typeof(finishPoint) == "object") {
+						moveOrderInfo.u = {x: that.renderConfig.stepByStepMoveOrderInfoList[0].u.x, y: that.renderConfig.stepByStepMoveOrderInfoList[0].u.y, z: that.renderConfig.stepByStepMoveOrderInfoList[0].u.z}
+					} else {
+						if(finishPoint.split(",").length == 1) {
+							moveOrderInfo.u = {x: finishPoint.split(",")[0].replace(regexUnity, '') == "" ? "px" : finishPoint.split(",")[0].replace(regexUnity, ''), y: "px", z: "px"}
+						} else if (finishPoint.split(",").length == 2) {
+							moveOrderInfo.u = {x: finishPoint.split(",")[0].replace(regexUnity, '') == "" ? "px" : finishPoint.split(",")[0].replace(regexUnity, ''), y: finishPoint.split(",")[0].replace(regexUnity, '') == "" ? "px" : finishPoint.split(",")[0].replace(regexUnity, ''), z: "px"}
+						} else if (finishPoint.split(",").length == 3) {
+							moveOrderInfo.u = {x: finishPoint.split(",")[0].replace(regexUnity, '') == "" ? "px" : finishPoint.split(",")[0].replace(regexUnity, ''), y: finishPoint.split(",")[1].replace(regexUnity, '') == "" ? "px" : finishPoint.split(",")[1].replace(regexUnity, ''), z: finishPoint.split(",")[2].replace(regexUnity, '') == "" ? "px" : finishPoint.split(",")[2].replace(regexUnity, '')}
+						}
+					}
+
+					moveOrderInfo.travelRange = {x: moveOrderInfo.e.x - moveOrderInfo.s.x,
+																			 y: moveOrderInfo.e.y - moveOrderInfo.s.y,
+																		   z: moveOrderInfo.e.z - moveOrderInfo.s.z}
+
+				 //개별로 진행 상태
+					moveOrderInfo.subTickerStatus = {x: moveOrderInfo.travelRange.x == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 y: moveOrderInfo.travelRange.y == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																				   z: moveOrderInfo.travelRange.z == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+				  moveOrderInfo.nextMoveRate = {x: 0, y: 0, z: 0}
+
+					if(moveOrderInfo.subTickerStatus.x == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.y == _constantValue.tickerStatusE &&
+						 moveOrderInfo.subTickerStatus.z == _constantValue.tickerStatusE && checkTravelRange == true) {
+						return false;
+				  }
+				}  else if(_j2mType.getSkewOrderYn(key)) {
+					var skewX = 0;
+					var skewY = 0;
+					var values = "";
+					var starSkewCode = _j2mCssUtil.getStyle(that.renderConfig.targetElement).transform;
+
+					if(starSkewCode == "none") {
+						moveOrderInfo.s = {x: 0, y: 0}
+					} else {
+						if(checkTravelRange == true) {
+							values = starSkewCode.split('(')[1].split(')')[0].split(',');
+							skewX = (180/Math.PI) * Math.atan2( ((1*values[2])+(0*values[3])),((1*values[0])-(0*values[1])));
+							skewY = ((180/Math.PI) * Math.atan2( ((0*values[2])+(1*values[3])),((0*values[0])-(1*values[1])))) - 90;
+							moveOrderInfo.s = {x: parseFloat(skewX), y: parseFloat(skewY)}
+						} else if(checkTravelRange == false) {
+							if(that.renderConfig.moveOrderInfoListMemory == undefined || that.renderConfig.moveOrderInfoListMemory[key] == undefined) {
+								values = starTranslateCode.split('(')[1].split(')')[0].split(',');
+								skewX = (180/Math.PI) * Math.atan2( ((1*values[2])+(0*values[3])),((1*values[0])-(0*values[1])));
+								skewY = ((180/Math.PI) * Math.atan2( ((0*values[2])+(1*values[3])),((0*values[0])-(1*values[1])))) - 90;
+								moveOrderInfo.s = {x: parseFloat(skewX), y: parseFloat(skewY)}
+							} else if(that.renderConfig.moveOrderInfoListMemory[key] != undefined) {
+								moveOrderInfo.s = {x: that.renderConfig.moveOrderInfoListMemory[key].e.x, y: that.renderConfig.moveOrderInfoListMemory[key].e.y}
+							}
+						}
+					}
+
+					if(_constantValue.skew == key) {
+						moveOrderInfo.e = typeof(finishPoint) == "object" ? {x: finishPoint.x, y: finishPoint.y} : {x: parseFloat(finishPoint.split(",")[0]), y: parseFloat(finishPoint.split(",")[1])}
+					} else if(_constantValue.skewX == key) {
+						moveOrderInfo.e = {x: parseFloat(typeof(finishPoint) == "object" ? finishPoint.x : finishPoint), y: parseFloat(skewY)}
+					} else if(_constantValue.skewY == key) {
+						moveOrderInfo.e = {x: parseFloat(skewX), y: parseFloat(typeof(finishPoint) == "object" ? finishPoint.y : finishPoint)}
+					}
+
+					moveOrderInfo.u = {x: "deg", y: "deg"}
+					moveOrderInfo.travelRange = {x: moveOrderInfo.e.x - moveOrderInfo.s.x,
+																			 y: moveOrderInfo.e.y - moveOrderInfo.s.y}
+          //개별로 진행 상태
+					moveOrderInfo.subTickerStatus = {x: moveOrderInfo.travelRange.x == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI,
+																					 y: moveOrderInfo.travelRange.y == 0 ? _constantValue.tickerStatusE : _constantValue.tickerStatusI}
+				  moveOrderInfo.nextMoveRate = {x: 0, y: 0}
+
+					if(moveOrderInfo.subTickerStatus.x == _constantValue.tickerStatusE && moveOrderInfo.subTickerStatus.y == _constantValue.tickerStatusE &&
+						 checkTravelRange == true) {
+						return false;
+				  }
 				} else {
 					moveOrderInfo.nextMoveRate = 0; //다음 이동할 거리
 				}
@@ -982,7 +1107,7 @@
 
 				return null;
 			},
-			getTransform2DUnit : function(o, c) {
+			getTransformUnit : function(o, c) {
 				var transformUnit = "";
 				var orderInfo = o;
 
@@ -990,11 +1115,13 @@
 					transformUnit += " perspective(" + orderInfo.transformPerspective.nextMoveRate + "px)";
 				}
 
-				if(_constantValue.scale == c) {
+				if(orderInfo.scale != undefined) {
 					transformUnit += " scale(" +orderInfo.scale.nextMoveRate.x+", "+orderInfo.scale.nextMoveRate.y+")";
-				} else if(_constantValue.scaleX == c) {
+				}
+				if(orderInfo.scaleX != undefined) {
 					transformUnit += " scale(" +orderInfo.scaleX.nextMoveRate.x+", "+orderInfo.scaleX.nextMoveRate.y+")";
-				} else if(_constantValue.scaleY == c) {
+				}
+				if(orderInfo.scaleY != undefined) {
 					transformUnit += " scale(" +orderInfo.scaleY.nextMoveRate.x+", "+orderInfo.scaleY.nextMoveRate.y+")";
 				}
 
@@ -1011,6 +1138,32 @@
 					transformUnit += " rotate(" +orderInfo.rotate.nextMoveRate+"deg)";
 				}
 
+				if(orderInfo.translateX != undefined) {
+					transformUnit += " translate3d(" +orderInfo.translateX.nextMoveRate.x+orderInfo.translateX.u.x+ ", "+ orderInfo.translateX.nextMoveRate.y+orderInfo.translateX.u.y+ ", "+ orderInfo.translateX.nextMoveRate.z+orderInfo.translateX.u.z+")";
+				}
+				if(orderInfo.translateY != undefined) {
+					transformUnit += " translate3d(" +orderInfo.translateY.nextMoveRate.x+orderInfo.translateY.u.x+ ", "+ orderInfo.translateY.nextMoveRate.y+orderInfo.translateY.u.y+ ", "+ orderInfo.translateY.nextMoveRate.z+orderInfo.translateY.u.z+")";
+				}
+				if(orderInfo.translateZ != undefined) {
+					transformUnit += " translate3d(" +orderInfo.translateZ.nextMoveRate.x+orderInfo.translateZ.u.x+ ", "+ orderInfo.translateZ.nextMoveRate.y+orderInfo.translateZ.u.y+ ", "+ orderInfo.translateZ.nextMoveRate.z+orderInfo.translateZ.u.z+")";
+				}
+				if(orderInfo.translate != undefined) {
+					transformUnit += " translate3d(" +orderInfo.translate.nextMoveRate.x+orderInfo.translate.u.x+ ", "+ orderInfo.translate.nextMoveRate.y+orderInfo.translate.u.y+ ", "+ orderInfo.translate.nextMoveRate.z+orderInfo.translate.u.z+")";
+				}
+				if(orderInfo.translate3d != undefined) {
+					transformUnit += " translate3d(" +orderInfo.translate3d.nextMoveRate.x+orderInfo.translate3d.u.x+ ", "+ orderInfo.translate3d.nextMoveRate.y+orderInfo.translate3d.u.y+ ", "+ orderInfo.translate3d.nextMoveRate.z+orderInfo.translate3d.u.z+")";
+				}
+
+				if(orderInfo.skew != undefined) {
+					transformUnit += " skew(" +orderInfo.skew.nextMoveRate.x+orderInfo.skew.u.x+", "+orderInfo.skew.nextMoveRate.y+orderInfo.skew.u.y+")";
+				}
+				if(orderInfo.skewX != undefined) {
+					transformUnit += " skew(" +orderInfo.skewX.nextMoveRate.x+orderInfo.skewX.u.x+", "+orderInfo.skewX.nextMoveRate.y+orderInfo.skewX.u.y+")";
+				}
+				if(orderInfo.skewY != undefined) {
+					transformUnit += " skew(" +orderInfo.skewY.nextMoveRate.x+orderInfo.skewY.u.x+", "+orderInfo.skewY.nextMoveRate.y+orderInfo.skewY.u.y+")";
+				}
+
 				return transformUnit;
 			},
 			getStepByStepTransform2DUnit : function(that, o, c) {
@@ -1021,6 +1174,10 @@
 					for(var i = 0; i < that.renderConfig.moveOrderInfoListMemory.length; i++) {
 						var moveOrderInfoListMemoryMoveKey = that.renderConfig.moveOrderInfoListMemory[that.renderConfig.moveOrderInfoListMemory[i]].moveKey;
 						var moveOrderInfoListMemoryNextMoveRate = that.renderConfig.moveOrderInfoListMemory[that.renderConfig.moveOrderInfoListMemory[i]].nextMoveRate;
+
+						if(_j2mType.getTransformPerspectiveOrderYn(moveOrderInfoListMemoryMoveKey) && !_j2mType.getTransformPerspectiveOrderYn(c)) {
+							transformUnit += " perspective(" + orderInfo.transformPerspective.nextMoveRate + "px)";
+						}
 
 						if(_j2mType.getScaleOrderYn(moveOrderInfoListMemoryMoveKey) && !_j2mType.getScaleOrderYn(c)) {
 							transformUnit += " scale(" +moveOrderInfoListMemoryNextMoveRate.x+", "+moveOrderInfoListMemoryNextMoveRate.y+")";
@@ -1036,6 +1193,15 @@
 							if(_constantValue.rotateZ == moveOrderInfoListMemoryMoveKey || _constantValue.rotate == moveOrderInfoListMemoryMoveKey) {
 								transformUnit += " rotateZ("+moveOrderInfoListMemoryNextMoveRate+"deg)";
 							}
+						}
+
+						if(_j2mType.getTranslateOrderYn(moveOrderInfoListMemoryMoveKey) && !_j2mType.getTranslateOrderYn(c)) {
+							var moveOrderInfoListMemoryU = that.renderConfig.moveOrderInfoListMemory[that.renderConfig.moveOrderInfoListMemory[i]].u;
+							transformUnit += " translate3d(" +moveOrderInfoListMemoryNextMoveRate.x+moveOrderInfoListMemoryU.x+ ", "+ moveOrderInfoListMemoryNextMoveRate.y+moveOrderInfoListMemoryU.y+ ", "+ moveOrderInfoListMemoryNextMoveRate.z+moveOrderInfoListMemoryU.z+")";
+						}
+
+						if(_j2mType.getSkewOrderYn(moveOrderInfoListMemoryMoveKey) && !_j2mType.getSkewOrderYn(c)) {
+							transformUnit += " skew(" +moveOrderInfoListMemoryNextMoveRate.x+", "+moveOrderInfoListMemoryNextMoveRate.y+")";
 						}
 					}
 				}
@@ -1054,6 +1220,14 @@
 					transformUnit += " rotateZ(" +orderInfo.nextMoveRate+"deg)";
 				}
 
+				if(_j2mType.getTranslateOrderYn(c)) {
+					transformUnit += " translate3d(" +orderInfo.nextMoveRate.x+orderInfo.u.x+ ", "+ orderInfo.nextMoveRate.y+orderInfo.u.y+ ", "+ orderInfo.nextMoveRate.z+orderInfo.u.z+")";
+				}
+
+				if(_j2mType.getSkewOrderYn(c)) {
+					transformUnit += " skew(" +orderInfo.nextMoveRate.x+orderInfo.u.x+ ", "+ orderInfo.nextMoveRate.y+orderInfo.u.y+ ", "+ orderInfo.nextMoveRate.z+orderInfo.u.z+")";
+				}
+
 				return transformUnit;
 			}
 		},
@@ -1070,7 +1244,10 @@
 				   _constantValue.borderTopRightRadius == c || _constantValue.borderBottomRightRadius == c || _constantValue.borderBottomLeftRadius == c ||
 				   _constantValue.backgroundPosition == c || _constantValue.backgroundSize == c || _constantValue.boxShadow == c ||
 					 _constantValue.color == c || _constantValue.fontSize == c || _constantValue.clip == c ||
-				   _constantValue.textShadow == c || _constantValue.perspectiveOrigin == c || _constantValue.transformOrigin == c) {
+				   _constantValue.textShadow == c || _constantValue.perspectiveOrigin == c || _constantValue.transformOrigin == c ||
+				   _constantValue.translate == c || _constantValue.translateX == c || _constantValue.translateY == c ||
+				   _constantValue.translateZ == c || _constantValue.translate3d == c || _constantValue.skew == c ||
+					 _constantValue.skewX == c || _constantValue.skewY == c) {
 					return true;
 				}
 				return false;
@@ -1162,6 +1339,19 @@
 				}
 				return false;
 			},
+			getTranslateOrderYn: function(c) {
+				if(_constantValue.translate == c || _constantValue.translateX == c || _constantValue.translateY == c ||
+				   _constantValue.translateZ == c || _constantValue.translate3d == c) {
+						 return true;
+	 				}
+	 				return false;
+			},
+			getSkewOrderYn: function(c) {
+				if(_constantValue.skew == c || _constantValue.skewX == c || _constantValue.skewY == c) {
+						 return true;
+	 				}
+	 				return false;
+			},
 			getFontSizeOrderYn: function(c) {
 					if(_constantValue.fontSize == c) {
 						return true;
@@ -1183,7 +1373,10 @@
 			getTransformOrderYn: function(c) {
 				if(_constantValue.scale == c  || _constantValue.scaleX == c || _constantValue.scaleY == c ||
 					 _constantValue.rotate == c || _constantValue.rotateX == c || _constantValue.rotateY == c ||
-					 _constantValue.rotateZ == c || _constantValue.transformPerspective == c) {
+					 _constantValue.rotateZ == c || _constantValue.transformPerspective == c || _constantValue.translate == c |
+					 _constantValue.translateX == c || _constantValue.translateY == c || _constantValue.translateZ == c ||
+					 _constantValue.translate3d == c || _constantValue.skew == c || _constantValue.skewX == c ||
+					 _constantValue.skewY == c) {
 					return true;
 				}
 				return false;
@@ -1226,6 +1419,10 @@
 					_j2mEngine.perspectiveOriginTicker(renderConfig, e, direction);
 				} else if(_j2mType.getTransformOriginOrderYn(direction)) {
 					_j2mEngine.transformOriginTicker(renderConfig, e, direction);
+				} else if(_j2mType.getTranslateOrderYn(direction)) {
+					_j2mEngine.translateTicker(renderConfig, e, direction);
+				} else if(_j2mType.getSkewOrderYn(direction)) {
+					_j2mEngine.skewTicker(renderConfig, e, direction);
 				}
 
 			},
@@ -1762,6 +1959,85 @@
 					scaleE.tickerStatus = _constantValue.tickerStatusE;
 				}
 			},
+			translateTicker: function(renderConfig, e, direction) {
+				var translateE = e;
+				var translateSpaceTemp = 0;
+
+				if(translateE.subTickerStatus.x != _constantValue.tickerStatusE) {
+					translateSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(translateSpaceTemp == 1) {
+						translateE.subTickerStatus.x = _constantValue.tickerStatusE;
+						translateE.nextMoveRate.x = translateE.e.x;
+					} else {
+						translateE.nextMoveRate.x = translateE.s.x + (parseFloat(translateE.travelRange.x) * parseFloat(translateSpaceTemp));
+					}
+				} else {
+					translateE.nextMoveRate.x = translateE.e.x;
+				}
+
+				if(translateE.subTickerStatus.y != _constantValue.tickerStatusE) {
+					translateSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(translateSpaceTemp == 1) {
+						translateE.subTickerStatus.y = _constantValue.tickerStatusE;
+						translateE.nextMoveRate.y = translateE.e.y;
+					} else {
+						translateE.nextMoveRate.y = translateE.s.y + (parseFloat(translateE.travelRange.y) * parseFloat(translateSpaceTemp));
+					}
+				} else {
+					translateE.nextMoveRate.y = translateE.e.y;
+				}
+
+				if(translateE.subTickerStatus.z != _constantValue.tickerStatusE) {
+					translateSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(translateSpaceTemp == 1) {
+						translateE.subTickerStatus.z = _constantValue.tickerStatusE;
+						translateE.nextMoveRate.z = translateE.e.z;
+					} else {
+						translateE.nextMoveRate.z = translateE.s.z + (parseFloat(translateE.travelRange.z) * parseFloat(translateSpaceTemp));
+					}
+				} else {
+					translateE.nextMoveRate.z = translateE.e.z;
+				}
+
+				if(translateE.subTickerStatus.x == _constantValue.tickerStatusE &&
+					 translateE.subTickerStatus.y == _constantValue.tickerStatusE &&
+				   translateE.subTickerStatus.z == _constantValue.tickerStatusE) {
+					translateE.tickerStatus = _constantValue.tickerStatusE;
+				}
+			},
+			skewTicker: function(renderConfig, e, direction) {
+				var skewE = e;
+				var skewSpaceTemp = 0;
+
+				if(skewE.subTickerStatus.x != _constantValue.tickerStatusE) {
+					skewSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(skewSpaceTemp == 1) {
+						skewE.subTickerStatus.x = _constantValue.tickerStatusE;
+						skewE.nextMoveRate.x = skewE.e.x;
+					} else {
+						skewE.nextMoveRate.x = skewE.s.x + (parseFloat(skewE.travelRange.x) * parseFloat(skewSpaceTemp));
+					}
+				} else {
+					skewE.nextMoveRate.x = skewE.e.x;
+				}
+
+				if(skewE.subTickerStatus.y != _constantValue.tickerStatusE) {
+					skewSpaceTemp = _j2mEngine.getSpace(renderConfig, e, direction);
+					if(skewSpaceTemp == 1) {
+						skewE.subTickerStatus.y = _constantValue.tickerStatusE;
+						skewE.nextMoveRate.y = skewE.e.y;
+					} else {
+						skewE.nextMoveRate.y = skewE.s.y + (parseFloat(skewE.travelRange.y) * parseFloat(skewSpaceTemp));
+					}
+				} else {
+					skewE.nextMoveRate.y = skewE.e.y;
+				}
+
+				if(skewE.subTickerStatus.x == _constantValue.tickerStatusE &&
+					 skewE.subTickerStatus.y == _constantValue.tickerStatusE) {
+					skewE.tickerStatus = _constantValue.tickerStatusE;
+				}
+			},
 			rotateTicker: function(renderConfig, e, direction) {
 				var rotateE = e;
 				if(rotateE.tickerStatus != _constantValue.tickerStatusE) {
@@ -2164,7 +2440,6 @@
 			if(requestAniFrame) {
 
 				returnFunction = function(direction, loopCntTemp) {
-
 					var e = this.renderConfig.arrMoveOrderInfo[direction];
 					var that = this;
 					_j2mEngine.tickerManager(this.renderConfig, e, direction);
@@ -2173,7 +2448,7 @@
 						requestAniFrame(function(time){
 
 							if(_j2mType.getTransformOrderYn(direction)) {
-								e.style.transform = _j2mCssUtil.getTransform2DUnit(that.renderConfig.arrMoveOrderInfo, direction); //현제 움직임에 해당하는 단위;
+								e.style.transform = _j2mCssUtil.getTransformUnit(that.renderConfig.arrMoveOrderInfo, direction); //현제 움직임에 해당하는 단위;
 							} else {
 								e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, direction); //현제 움직임에 해당하는 단위;
 							}
@@ -2183,7 +2458,7 @@
 
 						//마지막에 모자라는 px르 마추는 작업
 						if(_j2mType.getTransformOrderYn(direction)) {
-							e.style.transform = _j2mCssUtil.getTransform2DUnit(this.renderConfig.arrMoveOrderInfo, direction);
+							e.style.transform = _j2mCssUtil.getTransformUnit(this.renderConfig.arrMoveOrderInfo, direction);
 						} else {
 							e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, direction);
 						}
@@ -2201,7 +2476,7 @@
 						setTimeout(function(){
 
 							if(_j2mType.getTransformOrderYn(direction)) {
-								e.style.transform = _j2mCssUtil.getTransform2DUnit(that.renderConfig.arrMoveOrderInfo, direction); //현제 움직임에 해당하는 단위;
+								e.style.transform = _j2mCssUtil.getTransformUnit(that.renderConfig.arrMoveOrderInfo, direction); //현제 움직임에 해당하는 단위;
 							} else {
 								e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, direction); //현제 움직임에 해당하는 단위;
 							}
@@ -2211,7 +2486,7 @@
 					} else if(e.tickerStatus == _constantValue.tickerStatusE) {
 						//마지막에 모자라는 px르 마추는 작업
 						if(_j2mType.getTransformOrderYn(direction)) {
-							e.style.transform = _j2mCssUtil.getTransform2DUnit(this.renderConfig.arrMoveOrderInfo, direction); //현제 움직임에 해당하는 단위;
+							e.style.transform = _j2mCssUtil.getTransformUnit(this.renderConfig.arrMoveOrderInfo, direction); //현제 움직임에 해당하는 단위;
 						} else {
 							e.style[direction] = _j2mCssUtil.getUnit(e.nextMoveRate, e.u, direction); //현제 움직임에 해당하는 단위;
 						}
@@ -2260,7 +2535,6 @@
 
 						if(this.renderConfig.stepByStepMoveOrderInfoList != undefined && this.renderConfig.stepByStepMoveOrderInfoList.length > 1) {
 								var stepByStepMoveOrderInfoListTemp = this.renderConfig.stepByStepMoveOrderInfoList.shift();
-
 								var moveOrderInfo = _j2mCssUtil.getStartPosition(this.renderConfig.stepByStepMoveOrderInfoList[0].e, this.renderConfig.stepByStepMoveOrderInfoList[0].moveKey, this.renderConfig.stepByStepMoveOrderInfoList[0].duration, this, false);
 								if(moveOrderInfo === false) {
 									while(this.renderConfig.stepByStepMoveOrderInfoList.length > 1) {
@@ -2392,6 +2666,7 @@
 			return returnFunction;
 		}
 		_j2mUtil.createFunction("stepByStepCssRendering", getStepByStepCssRendering());
+
 
 
 		//사용자가 object를 움직임을 정지 시킬때 사용
