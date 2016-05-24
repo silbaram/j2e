@@ -1,2 +1,2 @@
-# j2m
-javascript를 이용한 모션 엔진 개발
+# j2e
+javascript를 이용하여 element에 애니메이션 효과를 주는 라이브러리
