@@ -110,6 +110,14 @@
 					cloneObject.renderConfig = j2mObjectArr[renderConfig.targetElement.className];
 				}
 
+				if(j2mObjectArr[renderConfig.targetElement] !== renderConfig.targetElement || j2mObjectArr[renderConfig.targetElement] == undefined) {
+					cloneObject.renderConfig = renderConfig;
+					j2mObjectArr.push(renderConfig.targetElement);
+					j2mObjectArr[renderConfig.targetElement] = renderConfig;
+				} else {
+					cloneObject.renderConfig = j2mObjectArr[renderConfig.targetElement];
+				}
+
 				return cloneObject;
 			},
 			init : function() {
@@ -728,7 +736,7 @@
 								var tempS = startRotateCodeCheck.substring(startRotateCodeCheck.indexOf(key)).split(")");
 								moveOrderInfo.s = tempS[0].replace(regex, '');
 							} else {
-								var values = startrotateCode.split('(')[1].split(')')[0].split(',');
+								var values = startRotateCode.split('(')[1].split(')')[0].split(',');
 								var a = values[0];
 								var b = values[1];
 								var c = values[2];
