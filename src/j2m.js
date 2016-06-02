@@ -627,6 +627,8 @@
 					if(startRgbCode.indexOf("#") == 0) {
 						var rgbCodeArr = _j2mCssUtil.hexToRgb(startRgbCode);
 						moveOrderInfo.s = {r : rgbCodeArr.r, g : rgbCodeArr.g, b : rgbCodeArr.b}
+					} else if(startRgbCode.indexOf("rgba") == 0) {
+						moveOrderInfo.s = {r : 255, g : 255, b : 255}
 					} else {
 						var rgbCodeArr = startRgbCode.substring(4).replace(")", "").split(",");
 						moveOrderInfo.s = {r : parseInt(rgbCodeArr[0]), g : parseInt(rgbCodeArr[1]), b : parseInt(rgbCodeArr[2])}
