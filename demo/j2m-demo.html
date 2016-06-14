@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 
-	<title>j2m Demo</title>
+	<title>j2e Demo</title>
 	<!--[if lt IE 9]>
 	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
@@ -25,7 +25,7 @@
 		#demo_object_2_4 {width:100px; height:100px; position:absolute; top:120px; left:340px; background-color:#D941C5;}
 		#demo_object_3 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;}
 		#demo_object_4 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;}
-		#demo_object_5_1 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;}
+		#demo_object_5_1 {width:100px;height:100px;position:absolute;top:120px;left:10px;}
 		#demo_object_5_2 {width:100px;height:100px;position:absolute;top:120px;left:120px;background-color:#D941C5;}
 		#demo_object_5_3 {width:100px;height:100px;position:absolute;top:120px;left:230px;background-color:#D941C5;}
 		#demo_object_5_4 {width:100px;height:100px;position:absolute;top:120px;left:340px;background-color:#D941C5;}
@@ -91,7 +91,7 @@
 		#perspectiveBox_1 {width:540px;height:120px;position:absolute;top:120px;left:100px;}
 		#perspectiveBox_15 {width:540px;height:120px;position:absolute;top:120px;left:100px;perspective: 125px;}
 
-		#demo_object_100 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;opacity: 1;}
+		#demo_object_100 {width:100px;height:100px;position:absolute;top:120px;left:10px;background-color:#D941C5;opacity: 0;}
 	</style>
 </head>
 <body>
@@ -340,63 +340,28 @@
 			<h2 id="demo_contain_text_100" class="demo_title_contain" onmouseover="demoObjectOn('100');" >순차 이동</h2>
 			<div id="demo_object_100"></div>
 
-			<input type="button" value="scale" onclick="demoObjectStepByStep()" style="position:absolute;top:270px;">
+			<input type="button" value="StopByStep" onclick="demoObjectStepByStep()" style="position:absolute;top:270px;">
 		</div>
 
 </body>
 
-<script src="../src/j2m.js"></script>
+<script src="../src/j2e.js"></script>
 <script type="text/javascript">
 
 	function demoObjectOn(e) {
-		// j2m("#demo_contain_1").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_1").move({height:100}, 0.5);
-		// j2m("#demo_contain_2").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_2").move({height:100}, 0.5);
-		// j2m("#demo_contain_3").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_3").move({height:100}, 0.5);
-		// j2m("#demo_contain_4").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_4").move({height:100}, 0.5);
-		// j2m("#demo_contain_5").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_5").move({height:100}, 0.5);
-		// j2m("#demo_contain_5-1").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_5-1").move({height:100}, 0.5);
-		// j2m("#demo_contain_5-2").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_5-2").move({height:100}, 0.5);
-		// j2m("#demo_contain_6").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_6").move({height:100}, 0.5);
-		// j2m("#demo_contain_7").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_7").move({height:100}, 0.5);
-		// j2m("#demo_contain_8").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_8").move({height:100}, 0.5);
-		// j2m("#demo_contain_9").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_9").move({height:100}, 0.5);
-		// j2m("#demo_contain_9-1").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_9-1").move({height:100}, 0.5);
-		// j2m("#demo_contain_9-2").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_9-2").move({height:100}, 0.5);
-		// j2m("#demo_contain_10").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_10").move({height:100}, 0.5);
-		// j2m("#demo_contain_11").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_11").move({height:100}, 0.5);
-		// j2m("#demo_contain_12").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_12").move({height:100}, 0.5);
-		// j2m("#demo_contain_100").move({margin:"10", scale:"1, 1"}, 0.4);
-		// j2m("#demo_contain_100").move({height:100}, 0.5);
-
-		j2m("#demo_contain_" + e).move({margin:"30, 10, 40, 10"}, 0.4);
-		j2m("#demo_contain_" + e).move({scale:"1.1, 1.2"}, 0.4);
+		j2e("#demo_contain_" + e).move({margin:"30, 10, 40, 10"}, 0.4);
+		j2e("#demo_contain_" + e).move({scale:"1.1, 1.2"}, 0.4);
 	}
 
 	function demoObjectOff(e) {
 		addEvent(e, 'mouseleave', function() {
-			j2m(e).move({margin:"10", scale:"1, 1"}, 0.4);
-			j2m(e).move({height:100}, 0.5);
+			j2e(e).move({margin:"10", scale:"1, 1"}, 0.4);
+			j2e(e).move({height:100}, 0.5);
 		});
 	}
 
 	function demoObjectClick(e) {
-		j2m(e).move({height:300}, 0.5);
+		j2e(e).move({height:300}, 0.5);
 	}
 
 	window.onload =function(){
@@ -406,10 +371,10 @@
 		document.getElementById("leftButton").onclick = function(event){
 			if(leftCheck == "1") {
 				leftCheck = "2";
-				j2m("#demo_object_1").move({left:720}, 1);
+				j2e("#demo_object_1").move({left:720}, 1);
 			} else {
 				leftCheck = "1";
-				j2m("#demo_object_1").move({left:10}, 1);
+				j2e("#demo_object_1").move({left:10}, 1);
 			}
 			event.stopPropagation();
 		}
@@ -418,10 +383,10 @@
 		document.getElementById("topButton").onclick = function(event) {
 			if(topCheck == "1") {
 				topCheck = "2";
-				j2m("#demo_object_1").move({top:200}, 1);
+				j2e("#demo_object_1").move({top:200}, 1);
 			} else {
 				topCheck = "1";
-				j2m("#demo_object_1").move({top:70}, 1);
+				j2e("#demo_object_1").move({top:70}, 1);
 			}
 
 			event.stopPropagation();
@@ -445,26 +410,26 @@
 			if(scaleType == "scale") {
 				if(scaleCheck == "1") {
 					scaleCheck = "2";
-					j2m("#demo_object_6").move({scale:"6.5, 1.8"}, 1);
+					j2e("#demo_object_6").move({scale:"6.5, 1.8"}, 1);
 				} else {
 					scaleCheck = "1";
-					j2m("#demo_object_6").move({scale:"1, 1"}, 1);
+					j2e("#demo_object_6").move({scale:"1, 1"}, 1);
 				}
 			} else if (scaleType == "scaleX") {
 				if(scaleXCheck == "1") {
 					scaleXCheck = "2";
-					j2m("#demo_object_6").move({scaleX:"6.5"}, 1);
+					j2e("#demo_object_6").move({scaleX:"6.5"}, 1);
 				} else {
 					scaleXCheck = "1";
-					j2m("#demo_object_6").move({scaleX:"1"}, 1);
+					j2e("#demo_object_6").move({scaleX:"1"}, 1);
 				}
 			} else if (scaleType == "scaleY") {
 				if(scaleYCheck == "1") {
 					scaleYCheck = "2";
-					j2m("#demo_object_6").move({scaleY:"1.8"}, 1);
+					j2e("#demo_object_6").move({scaleY:"1.8"}, 1);
 				} else {
 					scaleYCheck = "1";
-					j2m("#demo_object_6").move({scaleY:"1"}, 1);
+					j2e("#demo_object_6").move({scaleY:"1"}, 1);
 				}
 			}
 
@@ -477,16 +442,16 @@
 		document.getElementById("bgPosition").onclick = function(event) {
 			if(bgPositionCheck == "1") {
 				bgPositionCheck = "2";
-				j2m("#demo_object_5-1_1").move({backgroundPosition:"90px"}, 1);
-				j2m("#demo_object_5-1_2").move({backgroundPosition:"90, 20"}, 1);
-				j2m("#demo_object_5-1_3").move({backgroundPosition:"50, 40"}, 1);
-				j2m("#demo_object_5-1_4").move({backgroundPosition:"20, 90"}, 1);
+				j2e("#demo_object_5-1_1").move({backgroundPosition:"90px"}, 1);
+				j2e("#demo_object_5-1_2").move({backgroundPosition:"90, 20"}, 1);
+				j2e("#demo_object_5-1_3").move({backgroundPosition:"50, 40"}, 1);
+				j2e("#demo_object_5-1_4").move({backgroundPosition:"20, 90"}, 1);
 			} else {
 				bgPositionCheck = "1";
-				j2m("#demo_object_5-1_1").move({backgroundPosition:"0"}, 1);
-				j2m("#demo_object_5-1_2").move({backgroundPosition:"0"}, 1);
-				j2m("#demo_object_5-1_3").move({backgroundPosition:"0"}, 1);
-				j2m("#demo_object_5-1_4").move({backgroundPosition:"0"}, 1);
+				j2e("#demo_object_5-1_1").move({backgroundPosition:"0"}, 1);
+				j2e("#demo_object_5-1_2").move({backgroundPosition:"0"}, 1);
+				j2e("#demo_object_5-1_3").move({backgroundPosition:"0"}, 1);
+				j2e("#demo_object_5-1_4").move({backgroundPosition:"0"}, 1);
 			}
 
 		}
@@ -496,16 +461,16 @@
 		document.getElementById("bgSize").onclick = function(event) {
 			if(bgPositionSize == "1") {
 				bgPositionSize = "2";
-				j2m("#demo_object_5-2_1").move({backgroundSize:"90px"}, 1);
-				j2m("#demo_object_5-2_2").move({backgroundSize:"90, 20"}, 1);
-				j2m("#demo_object_5-2_3").move({backgroundSize:"50, 40"}, 1);
-				j2m("#demo_object_5-2_4").move({backgroundSize:"20, 90"}, 1);
+				j2e("#demo_object_5-2_1").move({backgroundSize:"90px"}, 1);
+				j2e("#demo_object_5-2_2").move({backgroundSize:"90, 20"}, 1);
+				j2e("#demo_object_5-2_3").move({backgroundSize:"50, 40"}, 1);
+				j2e("#demo_object_5-2_4").move({backgroundSize:"20, 90"}, 1);
 			} else {
 				bgPositionSize = "1";
-				j2m("#demo_object_5-2_1").move({backgroundSize:"14"}, 1);
-				j2m("#demo_object_5-2_2").move({backgroundSize:"14, 14"}, 1);
-				j2m("#demo_object_5-2_3").move({backgroundSize:"14, 14"}, 1);
-				j2m("#demo_object_5-2_4").move({backgroundSize:"14, 14px"}, 1);
+				j2e("#demo_object_5-2_1").move({backgroundSize:"14"}, 1);
+				j2e("#demo_object_5-2_2").move({backgroundSize:"14, 14"}, 1);
+				j2e("#demo_object_5-2_3").move({backgroundSize:"14, 14"}, 1);
+				j2e("#demo_object_5-2_4").move({backgroundSize:"14, 14px"}, 1);
 			}
 
 		}
@@ -523,20 +488,20 @@
 			}
 
 			if(rotateType == "rotateX") {
-				j2m("#demo_object_7_1").move({rotateX:0}, 1);
-				j2m("#demo_object_7_2").move({rotateX:0}, 1);
-				j2m("#demo_object_7_3").move({rotateX:0}, 1);
-				j2m("#demo_object_7_4").move({rotateX:0}, 1);
+				j2e("#demo_object_7_1").move({rotateX:0}, 1);
+				j2e("#demo_object_7_2").move({rotateX:0}, 1);
+				j2e("#demo_object_7_3").move({rotateX:0}, 1);
+				j2e("#demo_object_7_4").move({rotateX:0}, 1);
 			} else if(rotateType == "rotateY") {
-				j2m("#demo_object_7_1").move({rotateY:0}, 1);
-				j2m("#demo_object_7_2").move({rotateY:0}, 1);
-				j2m("#demo_object_7_3").move({rotateY:0}, 1);
-				j2m("#demo_object_7_4").move({rotateY:0}, 1);
+				j2e("#demo_object_7_1").move({rotateY:0}, 1);
+				j2e("#demo_object_7_2").move({rotateY:0}, 1);
+				j2e("#demo_object_7_3").move({rotateY:0}, 1);
+				j2e("#demo_object_7_4").move({rotateY:0}, 1);
 			} else if(rotateType == "rotateZ") {
-				j2m("#demo_object_7_1").move({rotateZ:0}, 1);
-				j2m("#demo_object_7_2").move({rotateZ:0}, 1);
-				j2m("#demo_object_7_3").move({rotateZ:0}, 1);
-				j2m("#demo_object_7_4").move({rotateZ:0}, 1);
+				j2e("#demo_object_7_1").move({rotateZ:0}, 1);
+				j2e("#demo_object_7_2").move({rotateZ:0}, 1);
+				j2e("#demo_object_7_3").move({rotateZ:0}, 1);
+				j2e("#demo_object_7_4").move({rotateZ:0}, 1);
 			}
 
 			event.stopPropagation();
@@ -552,20 +517,20 @@
 			}
 
 			if(rotateType == "rotateX") {
-				j2m("#demo_object_7_1").move({rotateX:90}, 1);
-				j2m("#demo_object_7_2").move({rotateX:90}, 1);
-				j2m("#demo_object_7_3").move({rotateX:90}, 1);
-				j2m("#demo_object_7_4").move({rotateX:90}, 1);
+				j2e("#demo_object_7_1").move({rotateX:90}, 1);
+				j2e("#demo_object_7_2").move({rotateX:90}, 1);
+				j2e("#demo_object_7_3").move({rotateX:90}, 1);
+				j2e("#demo_object_7_4").move({rotateX:90}, 1);
 			} else if(rotateType == "rotateY") {
-				j2m("#demo_object_7_1").move({rotateY:90}, 1);
-				j2m("#demo_object_7_2").move({rotateY:90}, 1);
-				j2m("#demo_object_7_3").move({rotateY:90}, 1);
-				j2m("#demo_object_7_4").move({rotateY:90}, 1);
+				j2e("#demo_object_7_1").move({rotateY:90}, 1);
+				j2e("#demo_object_7_2").move({rotateY:90}, 1);
+				j2e("#demo_object_7_3").move({rotateY:90}, 1);
+				j2e("#demo_object_7_4").move({rotateY:90}, 1);
 			} else if(rotateType == "rotateZ") {
-				j2m("#demo_object_7_1").move({rotateZ:90}, 1);
-				j2m("#demo_object_7_2").move({rotateZ:90}, 1);
-				j2m("#demo_object_7_3").move({rotateZ:90}, 1);
-				j2m("#demo_object_7_4").move({rotateZ:90}, 1);
+				j2e("#demo_object_7_1").move({rotateZ:90}, 1);
+				j2e("#demo_object_7_2").move({rotateZ:90}, 1);
+				j2e("#demo_object_7_3").move({rotateZ:90}, 1);
+				j2e("#demo_object_7_4").move({rotateZ:90}, 1);
 			}
 
 			event.stopPropagation();
@@ -581,20 +546,20 @@
 			}
 
 			if(rotateType == "rotateX") {
-				j2m("#demo_object_7_1").move({rotateX:180}, 1);
-				j2m("#demo_object_7_2").move({rotateX:180}, 1);
-				j2m("#demo_object_7_3").move({rotateX:180}, 1);
-				j2m("#demo_object_7_4").move({rotateX:180}, 1);
+				j2e("#demo_object_7_1").move({rotateX:180}, 1);
+				j2e("#demo_object_7_2").move({rotateX:180}, 1);
+				j2e("#demo_object_7_3").move({rotateX:180}, 1);
+				j2e("#demo_object_7_4").move({rotateX:180}, 1);
 			} else if(rotateType == "rotateY") {
-				j2m("#demo_object_7_1").move({rotateY:180}, 1);
-				j2m("#demo_object_7_2").move({rotateY:180}, 1);
-				j2m("#demo_object_7_3").move({rotateY:180}, 1);
-				j2m("#demo_object_7_4").move({rotateY:180}, 1);
+				j2e("#demo_object_7_1").move({rotateY:180}, 1);
+				j2e("#demo_object_7_2").move({rotateY:180}, 1);
+				j2e("#demo_object_7_3").move({rotateY:180}, 1);
+				j2e("#demo_object_7_4").move({rotateY:180}, 1);
 			} else if(rotateType == "rotateZ") {
-				j2m("#demo_object_7_1").move({rotateZ:180}, 1);
-				j2m("#demo_object_7_2").move({rotateZ:180}, 1);
-				j2m("#demo_object_7_3").move({rotateZ:180}, 1);
-				j2m("#demo_object_7_4").move({rotateZ:180}, 1);
+				j2e("#demo_object_7_1").move({rotateZ:180}, 1);
+				j2e("#demo_object_7_2").move({rotateZ:180}, 1);
+				j2e("#demo_object_7_3").move({rotateZ:180}, 1);
+				j2e("#demo_object_7_4").move({rotateZ:180}, 1);
 			}
 
 			event.stopPropagation();
@@ -610,20 +575,20 @@
 			}
 
 			if(rotateType == "rotateX") {
-				j2m("#demo_object_7_1").move({rotateX:270}, 1);
-				j2m("#demo_object_7_2").move({rotateX:270}, 1);
-				j2m("#demo_object_7_3").move({rotateX:270}, 1);
-				j2m("#demo_object_7_4").move({rotateX:270}, 1);
+				j2e("#demo_object_7_1").move({rotateX:270}, 1);
+				j2e("#demo_object_7_2").move({rotateX:270}, 1);
+				j2e("#demo_object_7_3").move({rotateX:270}, 1);
+				j2e("#demo_object_7_4").move({rotateX:270}, 1);
 			} else if(rotateType == "rotateY") {
-				j2m("#demo_object_7_1").move({rotateY:270}, 1);
-				j2m("#demo_object_7_2").move({rotateY:270}, 1);
-				j2m("#demo_object_7_3").move({rotateY:270}, 1);
-				j2m("#demo_object_7_4").move({rotateY:270}, 1);
+				j2e("#demo_object_7_1").move({rotateY:270}, 1);
+				j2e("#demo_object_7_2").move({rotateY:270}, 1);
+				j2e("#demo_object_7_3").move({rotateY:270}, 1);
+				j2e("#demo_object_7_4").move({rotateY:270}, 1);
 			} else if(rotateType == "rotateZ") {
-				j2m("#demo_object_7_1").move({rotateZ:270}, 1);
-				j2m("#demo_object_7_2").move({rotateZ:270}, 1);
-				j2m("#demo_object_7_3").move({rotateZ:270}, 1);
-				j2m("#demo_object_7_4").move({rotateZ:270}, 1);
+				j2e("#demo_object_7_1").move({rotateZ:270}, 1);
+				j2e("#demo_object_7_2").move({rotateZ:270}, 1);
+				j2e("#demo_object_7_3").move({rotateZ:270}, 1);
+				j2e("#demo_object_7_4").move({rotateZ:270}, 1);
 			}
 
 			event.stopPropagation();
@@ -639,20 +604,20 @@
 			}
 
 			if(rotateType == "rotateX") {
-				j2m("#demo_object_7_1").move({rotateX:360}, 1);
-				j2m("#demo_object_7_2").move({rotateX:360}, 1);
-				j2m("#demo_object_7_3").move({rotateX:360}, 1);
-				j2m("#demo_object_7_4").move({rotateX:360}, 1);
+				j2e("#demo_object_7_1").move({rotateX:360}, 1);
+				j2e("#demo_object_7_2").move({rotateX:360}, 1);
+				j2e("#demo_object_7_3").move({rotateX:360}, 1);
+				j2e("#demo_object_7_4").move({rotateX:360}, 1);
 			} else if(rotateType == "rotateY") {
-				j2m("#demo_object_7_1").move({rotateY:360}, 1);
-				j2m("#demo_object_7_2").move({rotateY:360}, 1);
-				j2m("#demo_object_7_3").move({rotateY:360}, 1);
-				j2m("#demo_object_7_4").move({rotateY:360}, 1);
+				j2e("#demo_object_7_1").move({rotateY:360}, 1);
+				j2e("#demo_object_7_2").move({rotateY:360}, 1);
+				j2e("#demo_object_7_3").move({rotateY:360}, 1);
+				j2e("#demo_object_7_4").move({rotateY:360}, 1);
 			} else if(rotateType == "rotateZ") {
-				j2m("#demo_object_7_1").move({rotateZ:360}, 1);
-				j2m("#demo_object_7_2").move({rotateZ:360}, 1);
-				j2m("#demo_object_7_3").move({rotateZ:360}, 1);
-				j2m("#demo_object_7_4").move({rotateZ:360}, 1);
+				j2e("#demo_object_7_1").move({rotateZ:360}, 1);
+				j2e("#demo_object_7_2").move({rotateZ:360}, 1);
+				j2e("#demo_object_7_3").move({rotateZ:360}, 1);
+				j2e("#demo_object_7_4").move({rotateZ:360}, 1);
 			}
 
 			event.stopPropagation();
@@ -679,27 +644,27 @@
 				}
 			}
 
-			// j2m("#perspectiveBox_1").move({perspective:100}, 2);
-			// j2m("#demo_object_8_1").move({transformPerspective:600}, 1);
+			// j2e("#perspectiveBox_1").move({perspective:100}, 2);
+			// j2e("#demo_object_8_1").move({transformPerspective:600}, 1);
 			if(perspectiveType == "transformPerspective") {
-				j2m("#demo_object_8_1").setPosition({transformPerspective:100});
-				j2m("#demo_object_8_2").setPosition({transformPerspective:100});
-				j2m("#demo_object_8_3").setPosition({transformPerspective:100});
-				j2m("#demo_object_8_4").setPosition({transformPerspective:100});
+				j2e("#demo_object_8_1").setPosition({transformPerspective:100});
+				j2e("#demo_object_8_2").setPosition({transformPerspective:100});
+				j2e("#demo_object_8_3").setPosition({transformPerspective:100});
+				j2e("#demo_object_8_4").setPosition({transformPerspective:100});
 			} else {
-				j2m("#perspectiveBox_1").setPosition({perspective:0});
+				j2e("#perspectiveBox_1").setPosition({perspective:0});
 			}
 
 			if(rotateType == "rotatePerspectiveX") {
-				j2m("#demo_object_8_1").move({rotateX:0}, 1);
-				j2m("#demo_object_8_2").move({rotateX:0}, 1);
-				j2m("#demo_object_8_3").move({rotateX:0}, 1);
-				j2m("#demo_object_8_4").move({rotateX:0}, 1);
+				j2e("#demo_object_8_1").move({rotateX:0}, 1);
+				j2e("#demo_object_8_2").move({rotateX:0}, 1);
+				j2e("#demo_object_8_3").move({rotateX:0}, 1);
+				j2e("#demo_object_8_4").move({rotateX:0}, 1);
 			} else if(rotateType == "rotatePerspectiveY") {
-				j2m("#demo_object_8_1").move({rotateY:0}, 1);
-				j2m("#demo_object_8_2").move({rotateY:0}, 1);
-				j2m("#demo_object_8_3").move({rotateY:0}, 1);
-				j2m("#demo_object_8_4").move({rotateY:0}, 1);
+				j2e("#demo_object_8_1").move({rotateY:0}, 1);
+				j2e("#demo_object_8_2").move({rotateY:0}, 1);
+				j2e("#demo_object_8_3").move({rotateY:0}, 1);
+				j2e("#demo_object_8_4").move({rotateY:0}, 1);
 			}
 
 			event.stopPropagation();
@@ -723,27 +688,27 @@
 				}
 			}
 
-			// j2m("#perspectiveBox_1").move({perspective:600}, 2);
-			// j2m("#demo_object_8_1").move({transformPerspective:100}, 1);
+			// j2e("#perspectiveBox_1").move({perspective:600}, 2);
+			// j2e("#demo_object_8_1").move({transformPerspective:100}, 1);
 			if(perspectiveType == "transformPerspective") {
-				j2m("#demo_object_8_1").setPosition({transformPerspective:600});
-				j2m("#demo_object_8_2").setPosition({transformPerspective:600});
-				j2m("#demo_object_8_3").setPosition({transformPerspective:600});
-				j2m("#demo_object_8_4").setPosition({transformPerspective:600});
+				j2e("#demo_object_8_1").setPosition({transformPerspective:600});
+				j2e("#demo_object_8_2").setPosition({transformPerspective:600});
+				j2e("#demo_object_8_3").setPosition({transformPerspective:600});
+				j2e("#demo_object_8_4").setPosition({transformPerspective:600});
 			} else {
-				j2m("#perspectiveBox_1").setPosition({perspective:600});
+				j2e("#perspectiveBox_1").setPosition({perspective:600});
 			}
 
 			if(rotateType == "rotatePerspectiveX") {
-				j2m("#demo_object_8_1").move({rotateX:360}, 1);
-				j2m("#demo_object_8_2").move({rotateX:360}, 1);
-				j2m("#demo_object_8_3").move({rotateX:360}, 1);
-				j2m("#demo_object_8_4").move({rotateX:360}, 1);
+				j2e("#demo_object_8_1").move({rotateX:360}, 1);
+				j2e("#demo_object_8_2").move({rotateX:360}, 1);
+				j2e("#demo_object_8_3").move({rotateX:360}, 1);
+				j2e("#demo_object_8_4").move({rotateX:360}, 1);
 			} else if(rotateType == "rotatePerspectiveY") {
-				j2m("#demo_object_8_1").move({rotateY:360}, 1);
-				j2m("#demo_object_8_2").move({rotateY:360}, 1);
-				j2m("#demo_object_8_3").move({rotateY:360}, 1);
-				j2m("#demo_object_8_4").move({rotateY:360}, 1);
+				j2e("#demo_object_8_1").move({rotateY:360}, 1);
+				j2e("#demo_object_8_2").move({rotateY:360}, 1);
+				j2e("#demo_object_8_3").move({rotateY:360}, 1);
+				j2e("#demo_object_8_4").move({rotateY:360}, 1);
 			}
 
 			event.stopPropagation();
@@ -755,16 +720,16 @@
 
 			if(marginCheck == "1") {
 				marginCheck = "2";
-				j2m("#demo_object_2_1").move({margin:"0, 0, 0, 100"}, 1);
-				j2m("#demo_object_2_2").move({margin:"0, 0, 0, 160"}, 1);
-				j2m("#demo_object_2_3").move({margin:"0, 0, 0, 220"}, 1);
-				j2m("#demo_object_2_4").move({margin:"0, 0, 0, 280"}, 1);
+				j2e("#demo_object_2_1").move({margin:"0, 0, 0, 100"}, 1);
+				j2e("#demo_object_2_2").move({margin:"0, 0, 0, 160"}, 1);
+				j2e("#demo_object_2_3").move({margin:"0, 0, 0, 220"}, 1);
+				j2e("#demo_object_2_4").move({margin:"0, 0, 0, 280"}, 1);
 			} else {
 				marginCheck = "1";
-				j2m("#demo_object_2_1").move({margin:"0"}, 1);
-				j2m("#demo_object_2_2").move({margin:"0"}, 1);
-				j2m("#demo_object_2_3").move({margin:"0"}, 1);
-				j2m("#demo_object_2_4").move({margin:"0"}, 1);
+				j2e("#demo_object_2_1").move({margin:"0"}, 1);
+				j2e("#demo_object_2_2").move({margin:"0"}, 1);
+				j2e("#demo_object_2_3").move({margin:"0"}, 1);
+				j2e("#demo_object_2_4").move({margin:"0"}, 1);
 			}
 
 			event.stopPropagation();
@@ -776,16 +741,16 @@
 
 			if(borderCheck == "1") {
 				borderCheck = "2";
-				j2m("#demo_object_9_1").move({borderTopWidth:"60"}, 1);
-				j2m("#demo_object_9_2").move({borderRightWidth:"60"}, 1);
-				j2m("#demo_object_9_3").move({borderBottomWidth:"60"}, 1);
-				j2m("#demo_object_9_4").move({borderLeftWidth:"60"}, 1);
+				j2e("#demo_object_9_1").move({borderTopWidth:"60"}, 1);
+				j2e("#demo_object_9_2").move({borderRightWidth:"60"}, 1);
+				j2e("#demo_object_9_3").move({borderBottomWidth:"60"}, 1);
+				j2e("#demo_object_9_4").move({borderLeftWidth:"60"}, 1);
 			} else {
 				borderCheck = "1";
-				j2m("#demo_object_9_1").move({borderTopWidth:"0"}, 1);
-				j2m("#demo_object_9_2").move({borderRightWidth:"0"}, 1);
-				j2m("#demo_object_9_3").move({borderBottomWidth:"0"}, 1);
-				j2m("#demo_object_9_4").move({borderLeftWidth:"0"}, 1);
+				j2e("#demo_object_9_1").move({borderTopWidth:"0"}, 1);
+				j2e("#demo_object_9_2").move({borderRightWidth:"0"}, 1);
+				j2e("#demo_object_9_3").move({borderBottomWidth:"0"}, 1);
+				j2e("#demo_object_9_4").move({borderLeftWidth:"0"}, 1);
 			}
 
 			event.stopPropagation();
@@ -796,16 +761,16 @@
 
 			if(borderCheck_1 == "1") {
 				borderCheck_1 = "2";
-				j2m("#demo_object_9-1_1").move({borderTopColor:"#0054FF"}, 1);
-				j2m("#demo_object_9-1_2").move({borderRightColor:"#FFE400"}, 1);
-				j2m("#demo_object_9-1_3").move({borderBottomColor:"#00D8FF"}, 1);
-				j2m("#demo_object_9-1_4").move({borderLeftColor:"#ABF200"}, 1);
+				j2e("#demo_object_9-1_1").move({borderTopColor:"#0054FF"}, 1);
+				j2e("#demo_object_9-1_2").move({borderRightColor:"#FFE400"}, 1);
+				j2e("#demo_object_9-1_3").move({borderBottomColor:"#00D8FF"}, 1);
+				j2e("#demo_object_9-1_4").move({borderLeftColor:"#ABF200"}, 1);
 			} else {
 				borderCheck_1 = "1";
-				j2m("#demo_object_9-1_1").move({borderTopColor:"#FF0000"}, 1);
-				j2m("#demo_object_9-1_2").move({borderRightColor:"#FF0000"}, 1);
-				j2m("#demo_object_9-1_3").move({borderBottomColor:"#FF0000"}, 1);
-				j2m("#demo_object_9-1_4").move({borderLeftColor:"#FF0000"}, 1);
+				j2e("#demo_object_9-1_1").move({borderTopColor:"#FF0000"}, 1);
+				j2e("#demo_object_9-1_2").move({borderRightColor:"#FF0000"}, 1);
+				j2e("#demo_object_9-1_3").move({borderBottomColor:"#FF0000"}, 1);
+				j2e("#demo_object_9-1_4").move({borderLeftColor:"#FF0000"}, 1);
 			}
 
 			event.stopPropagation();
@@ -816,16 +781,16 @@
 
 			if(borderCheck_2 == "1") {
 				borderCheck_2 = "2";
-				j2m("#demo_object_9-2_1").move({borderTopLeftRadius:"60"}, 1);
-				j2m("#demo_object_9-2_2").move({borderTopRightRadius:"60"}, 1);
-				j2m("#demo_object_9-2_3").move({borderBottomRightRadius:"60"}, 1);
-				j2m("#demo_object_9-2_4").move({borderBottomLeftRadius:"60"}, 1);
+				j2e("#demo_object_9-2_1").move({borderTopLeftRadius:"60"}, 1);
+				j2e("#demo_object_9-2_2").move({borderTopRightRadius:"60"}, 1);
+				j2e("#demo_object_9-2_3").move({borderBottomRightRadius:"60"}, 1);
+				j2e("#demo_object_9-2_4").move({borderBottomLeftRadius:"60"}, 1);
 			} else {
 				borderCheck_2 = "1";
-				j2m("#demo_object_9-2_1").move({borderTopLeftRadius:"0"}, 1);
-				j2m("#demo_object_9-2_2").move({borderTopRightRadius:"0"}, 1);
-				j2m("#demo_object_9-2_3").move({borderBottomRightRadius:"0"}, 1);
-				j2m("#demo_object_9-2_4").move({borderBottomLeftRadius:"0"}, 1);
+				j2e("#demo_object_9-2_1").move({borderTopLeftRadius:"0"}, 1);
+				j2e("#demo_object_9-2_2").move({borderTopRightRadius:"0"}, 1);
+				j2e("#demo_object_9-2_3").move({borderBottomRightRadius:"0"}, 1);
+				j2e("#demo_object_9-2_4").move({borderBottomLeftRadius:"0"}, 1);
 			}
 
 			event.stopPropagation();
@@ -837,16 +802,16 @@
 
 			if(boxShadowCheck == "1") {
 				boxShadowCheck = "2";
-				j2m("#demo_object_10_1").move({boxShadow:"10, 10"}, 0.5);
-				j2m("#demo_object_10_2").move({boxShadow:"10, 10, 10"}, 0.5);
-				j2m("#demo_object_10_3").move({boxShadow:"10, 10, 10, 10"}, 0.5);
-				j2m("#demo_object_10_4").move({boxShadow:"10, 10, 10, 10, #8041D9"}, 0.5);
+				j2e("#demo_object_10_1").move({boxShadow:"10, 10"}, 0.5);
+				j2e("#demo_object_10_2").move({boxShadow:"10, 10, 10"}, 0.5);
+				j2e("#demo_object_10_3").move({boxShadow:"10, 10, 10, 10"}, 0.5);
+				j2e("#demo_object_10_4").move({boxShadow:"10, 10, 10, 10, #8041D9"}, 0.5);
 			} else {
 				boxShadowCheck = "1";
-				j2m("#demo_object_10_1").move({boxShadow:"0, 0"}, 0.5);
-				j2m("#demo_object_10_2").move({boxShadow:"0, 0, 0"}, 0.5);
-				j2m("#demo_object_10_3").move({boxShadow:"0, 0, 0, 0"}, 0.5);
-				j2m("#demo_object_10_4").move({boxShadow:"0, 0, 0, 0, #000000"}, 0.5);
+				j2e("#demo_object_10_1").move({boxShadow:"0, 0"}, 0.5);
+				j2e("#demo_object_10_2").move({boxShadow:"0, 0, 0"}, 0.5);
+				j2e("#demo_object_10_3").move({boxShadow:"0, 0, 0, 0"}, 0.5);
+				j2e("#demo_object_10_4").move({boxShadow:"0, 0, 0, 0, #000000"}, 0.5);
 			}
 
 			event.stopPropagation();
@@ -858,12 +823,12 @@
 
 			if(colorCheck == "1") {
 				colorCheck = "2";
-				j2m("#demo_object_11_5").move({color:"#8041D9"}, 0.5);
-				j2m("#demo_object_11_2").move({color:"#0100FF"}, 0.5);
+				j2e("#demo_object_11_5").move({color:"#8041D9"}, 0.5);
+				j2e("#demo_object_11_2").move({color:"#0100FF"}, 0.5);
 			} else {
 				colorCheck = "1";
-				j2m("#demo_object_11_5").move({color:"#000000"}, 0.5);
-				j2m("#demo_object_11_2").move({color:"#000000"}, 0.5);
+				j2e("#demo_object_11_5").move({color:"#000000"}, 0.5);
+				j2e("#demo_object_11_2").move({color:"#000000"}, 0.5);
 			}
 
 			event.stopPropagation();
@@ -875,10 +840,10 @@
 
 			if(clipCheck == "1") {
 				clipCheck = "2";
-				j2m("#demo_object_12_1").move({fontSize:20}, 1);
+				j2e("#demo_object_12_1").move({fontSize:20}, 1);
 			} else {
 				clipCheck = "1";
-				j2m("#demo_object_12_1").move({fontSize:10}, 1);
+				j2e("#demo_object_12_1").move({fontSize:10}, 1);
 			}
 
 			event.stopPropagation();
@@ -890,10 +855,10 @@
 
 			if(fontSizeCheck == "1") {
 				fontSizeCheck = "2";
-				j2m("#demo_object_13_1").move({clip:"0, 50, 50, 0"}, 1);
+				j2e("#demo_object_13_1").move({clip:"0, 50, 50, 0"}, 1);
 			} else {
 				fontSizeCheck = "1";
-				j2m("#demo_object_13_1").move({clip:"20, 70, 70, 20"}, 1);
+				j2e("#demo_object_13_1").move({clip:"20, 70, 70, 20"}, 1);
 			}
 
 			event.stopPropagation();
@@ -904,14 +869,14 @@
 
 			if(textShadowCheck == "1") {
 				textShadowCheck = "2";
-				j2m("#demo_object_14_1").move({textShadow:"10, 10"}, 0.5);
-				j2m("#demo_object_14_2").move({textShadow:"10, 10, 10"}, 0.5);
-				j2m("#demo_object_14_3").move({textShadow:"10, 10, 10, #8041D9"}, 0.5);
+				j2e("#demo_object_14_1").move({textShadow:"10, 10"}, 0.5);
+				j2e("#demo_object_14_2").move({textShadow:"10, 10, 10"}, 0.5);
+				j2e("#demo_object_14_3").move({textShadow:"10, 10, 10, #8041D9"}, 0.5);
 			} else {
 				textShadowCheck = "1";
-				j2m("#demo_object_14_1").move({textShadow:"0, 0"}, 0.5);
-				j2m("#demo_object_14_2").move({textShadow:"0, 0, 0"}, 0.5);
-				j2m("#demo_object_14_3").move({textShadow:"0, 0, 0, #000000"}, 0.5);
+				j2e("#demo_object_14_1").move({textShadow:"0, 0"}, 0.5);
+				j2e("#demo_object_14_2").move({textShadow:"0, 0, 0"}, 0.5);
+				j2e("#demo_object_14_3").move({textShadow:"0, 0, 0, #000000"}, 0.5);
 			}
 
 			event.stopPropagation();
@@ -923,10 +888,10 @@
 
 			if(perspectiveOriginCheck == "1") {
 				perspectiveOriginCheck = "2";
-				j2m("#perspectiveBox_15").move({perspectiveOrigin:"10, 10"}, 0.5);
+				j2e("#perspectiveBox_15").move({perspectiveOrigin:"10, 10"}, 0.5);
 			} else {
 				perspectiveOriginCheck = "1";
-				j2m("#perspectiveBox_15").move({perspectiveOrigin:"125, 125"}, 0.5);
+				j2e("#perspectiveBox_15").move({perspectiveOrigin:"125, 125"}, 0.5);
 			}
 
 			event.stopPropagation();
@@ -938,16 +903,16 @@
 
 			if(transformOriginCheck == "1") {
 				transformOriginCheck = "2";
-				j2m("#demo_object_16_1").move({transformOrigin:"10, 10"}, 0.5);
-				j2m("#demo_object_16_2").move({transformOrigin:"10, 10"}, 0.5);
-				j2m("#demo_object_16_3").move({transformOrigin:"10, 10"}, 0.5);
-				j2m("#demo_object_16_4").move({transformOrigin:"10, 10"}, 0.5);
+				j2e("#demo_object_16_1").move({transformOrigin:"10, 10"}, 0.5);
+				j2e("#demo_object_16_2").move({transformOrigin:"10, 10"}, 0.5);
+				j2e("#demo_object_16_3").move({transformOrigin:"10, 10"}, 0.5);
+				j2e("#demo_object_16_4").move({transformOrigin:"10, 10"}, 0.5);
 			} else {
 				transformOriginCheck = "1";
-				j2m("#demo_object_16_1").move({transformOrigin:"60, 60"}, 0.5);
-				j2m("#demo_object_16_2").move({transformOrigin:"60, 60"}, 0.5);
-				j2m("#demo_object_16_3").move({transformOrigin:"60, 60"}, 0.5);
-				j2m("#demo_object_16_4").move({transformOrigin:"60, 60"}, 0.5);
+				j2e("#demo_object_16_1").move({transformOrigin:"60, 60"}, 0.5);
+				j2e("#demo_object_16_2").move({transformOrigin:"60, 60"}, 0.5);
+				j2e("#demo_object_16_3").move({transformOrigin:"60, 60"}, 0.5);
+				j2e("#demo_object_16_4").move({transformOrigin:"60, 60"}, 0.5);
 			}
 
 			event.stopPropagation();
@@ -959,16 +924,16 @@
 
 			if(translateCheck == "1") {
 				translateCheck = "2";
-				j2m("#demo_object_17_1").move({translateX:"10"}, 1);
-				j2m("#demo_object_17_2").move({translateY:"10"}, 1);
-				j2m("#demo_object_17_3").move({translate:"10, 10"}, 1);
-				j2m("#demo_object_17_4").move({translate3d:"10, 10, 10"}, 1);
+				j2e("#demo_object_17_1").move({translateX:"10"}, 1);
+				j2e("#demo_object_17_2").move({translateY:"10"}, 1);
+				j2e("#demo_object_17_3").move({translate:"10, 10"}, 1);
+				j2e("#demo_object_17_4").move({translate3d:"10, 10, 10"}, 1);
 			} else {
 				translateCheck = "1";
-				j2m("#demo_object_17_1").move({translateX:"0"}, 1);
-				j2m("#demo_object_17_2").move({translateY:"0"}, 1);
-				j2m("#demo_object_17_3").move({translate:"0, 0"}, 1);
-				j2m("#demo_object_17_4").move({translate3d:"0, 0, 0"}, 1);
+				j2e("#demo_object_17_1").move({translateX:"0"}, 1);
+				j2e("#demo_object_17_2").move({translateY:"0"}, 1);
+				j2e("#demo_object_17_3").move({translate:"0, 0"}, 1);
+				j2e("#demo_object_17_4").move({translate3d:"0, 0, 0"}, 1);
 			}
 
 			event.stopPropagation();
@@ -980,14 +945,14 @@
 
 			if(skewCheck == "1") {
 				skewCheck = "2";
-				j2m("#demo_object_18_1").move({skewX:"10"}, 1);
-				j2m("#demo_object_18_2").move({skewY:"10"}, 1);
-				j2m("#demo_object_18_3").move({skew:"10, 10"}, 1);
+				j2e("#demo_object_18_1").move({skewX:"10"}, 1);
+				j2e("#demo_object_18_2").move({skewY:"10"}, 1);
+				j2e("#demo_object_18_3").move({skew:"10, 10"}, 1);
 			} else {
 				skewCheck = "1";
-				j2m("#demo_object_18_1").move({skewX:"0"}, 1);
-				j2m("#demo_object_18_2").move({skewY:"0"}, 1);
-				j2m("#demo_object_18_3").move({skew:"0, 0"}, 1);
+				j2e("#demo_object_18_1").move({skewX:"0"}, 1);
+				j2e("#demo_object_18_2").move({skewY:"0"}, 1);
+				j2e("#demo_object_18_3").move({skew:"0, 0"}, 1);
 			}
 
 			event.stopPropagation();
@@ -1000,20 +965,20 @@
 	function demoObjectWidth() {
 		if(widthCheck == "1") {
 			widthCheck = "2";
-			j2m("#demo_object_3").move({width:800}, 1);
+			j2e("#demo_object_3").move({width:800}, 1);
 		} else {
 			widthCheck = "1";
-			j2m("#demo_object_3").move({width:100}, 1);
+			j2e("#demo_object_3").move({width:100}, 1);
 		}
 	}
 	var heightCheck = "1";
 	function demoObjectHeight() {
 		if(heightCheck == "1") {
 			heightCheck = "2";
-			j2m("#demo_object_3").move({height:140}, 1);
+			j2e("#demo_object_3").move({height:140}, 1);
 		} else {
 			heightCheck = "1";
-			j2m("#demo_object_3").move({height:100}, 1);
+			j2e("#demo_object_3").move({height:100}, 1);
 		}
 	}
 
@@ -1022,10 +987,10 @@
 	function demoObjectOpacity() {
 		if(opacityCheck == "1") {
 			opacityCheck = "2";
-			j2m("#demo_object_4").move({opacity:0}, 1);
+			j2e("#demo_object_4").move({opacity:0}, 1);
 		} else {
 			opacityCheck = "1";
-			j2m("#demo_object_4").move({opacity:1}, 1);
+			j2e("#demo_object_4").move({opacity:1}, 1);
 		}
 	}
 
@@ -1034,54 +999,55 @@
 	function demoObjectBackgroundColor() {
 		if(demoObjectBackgroundColorCheck == "1") {
 			demoObjectBackgroundColorCheck = "2";
-			j2m("#demo_object_5_1").move({backgroundColor:"#FFE400"}, 1);
-			j2m("#demo_object_5_2").move({backgroundColor:"#1DDB16"}, 1);
-			j2m("#demo_object_5_3").move({backgroundColor:"#0100FF"}, 1);
-			j2m("#demo_object_5_4").move({backgroundColor:"#FF5E00"}, 1);
+			j2e("#demo_object_5_1").move({backgroundColor:"#FFE400"}, 1);
+			j2e("#demo_object_5_2").move({backgroundColor:"#1DDB16"}, 1);
+			j2e("#demo_object_5_3").move({backgroundColor:"#0100FF"}, 1);
+			j2e("#demo_object_5_4").move({backgroundColor:"#FF5E00"}, 1);
 		} else {
 			demoObjectBackgroundColorCheck = "1";
-			j2m("#demo_object_5_1").move({backgroundColor:"#D941C5"}, 1);
-			j2m("#demo_object_5_2").move({backgroundColor:"#D941C5"}, 1);
-			j2m("#demo_object_5_3").move({backgroundColor:"#D941C5"}, 1);
-			j2m("#demo_object_5_4").move({backgroundColor:"#D941C5"}, 1);
+			j2e("#demo_object_5_1").move({backgroundColor:"#D941C5"}, 1);
+			j2e("#demo_object_5_2").move({backgroundColor:"#D941C5"}, 1);
+			j2e("#demo_object_5_3").move({backgroundColor:"#D941C5"}, 1);
+			j2e("#demo_object_5_4").move({backgroundColor:"#D941C5"}, 1);
 		}
 	}
 
 
 	function demoObjectStepByStep() {
-		j2m("#demo_object_100").move({opacity:1, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({top:50, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({width:780, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({height:240, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({width:100, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({height:100, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({rotateX:360, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({rotateY:360, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({rotateZ:360, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({left:350, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({scale:"1.5, 1.5", continuity:true}, 0.5);
-		j2m("#demo_object_100").move({backgroundColor:"#FFE400", continuity:true}, 0.5);
-		j2m("#demo_object_100").move({backgroundColor:"#1DDB16", continuity:true}, 0.5);
-		j2m("#demo_object_100").move({left:680, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({rotateX:0, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({top:160, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({rotateY:0, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({left:350, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({scaleX:"1", continuity:true}, 0.5);
-		j2m("#demo_object_100").move({scaleY:"1", continuity:true}, 0.5);
-		// j2m("#demo_object_100").move({scale:"1, 1", continuity:true}, 0.5);
-		// j2m("#demo_object_100").move({rotateZ:0, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({rotate:0, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({left:10, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({backgroundColor:"#0100FF", continuity:true}, 0.5);
-		j2m("#demo_object_100").move({backgroundColor:"#FF5E00", continuity:true}, 0.5);
-		j2m("#demo_object_100").move({top:120, continuity:true}, 0.5);
-		j2m("#demo_object_100").move({backgroundColor:"#D941C5", continuity:true}, 0.5);
+		j2e("#demo_object_100").move({opacity:1, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({top:50, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({width:780, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({height:240, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({width:100, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({height:100, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({rotateX:360, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({rotateY:360, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({rotateZ:360, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({left:350, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({scale:"1.5, 1.5", continuity:true}, 0.5);
+		j2e("#demo_object_100").move({backgroundColor:"#FFE400", continuity:true}, 0.5);
+		j2e("#demo_object_100").move({backgroundColor:"#1DDB16", continuity:true}, 0.5);
+		j2e("#demo_object_100").move({left:680, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({rotateX:0, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({top:160, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({rotateY:0, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({left:350, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({scaleX:"1", continuity:true}, 0.5);
+		j2e("#demo_object_100").move({scaleY:"1", continuity:true}, 0.5);
+		// j2e("#demo_object_100").move({scale:"1, 1", continuity:true}, 0.5);
+		// j2e("#demo_object_100").move({rotateZ:0, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({rotate:0, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({left:10, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({backgroundColor:"#0100FF", continuity:true}, 0.5);
+		j2e("#demo_object_100").move({backgroundColor:"#FF5E00", continuity:true}, 0.5);
+		j2e("#demo_object_100").move({top:120, continuity:true}, 0.5);
+		j2e("#demo_object_100").move({backgroundColor:"#D941C5", continuity:true}, 0.5);
+		j2e("#demo_object_100").move({opacity:0, continuity:true}, 0.5);
 
-		// j2m("#demo_object_100").move({translateX:"100", continuity:true}, 0.5);
-		// j2m("#demo_object_100").move({translateX :"0", continuity:true}, 0.5);
+		// j2e("#demo_object_100").move({translateX:"100", continuity:true}, 0.5);
+		// j2e("#demo_object_100").move({translateX :"0", continuity:true}, 0.5);
 
-		// j2m("#demo_object_100").move({opacity:0, continuity:true}, 0.5);
+
 	}
 
 
