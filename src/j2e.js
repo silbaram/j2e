@@ -11,7 +11,9 @@
 		_constantValue = {
 			motionType: "motiontype", //모션 타입
 			continuity: "continuity", //모션 명령을 한번에 하나씩 처리 할지 말지 결정 true : 한번에 한 움직임씩, false : 한번에 모든 움직임
+			animationIterationCount: "animationIterationCount", //모션 반복 횟수 (숫자가 아닌 infinite문자라면 무한반복)
 
+			infinite: "infinite",     //모션 뮤한 반복
 			acceleratedMotion: "A",   //모션 타입 가속운동
 			uniformMotion: "U",       //모션 타입 등속운동
 			tickerStatusS: "S",       //모션 동작 시작 대기 상태
@@ -103,14 +105,13 @@
 					if(j2eObjectArr[renderConfig.targetElement.id] == undefined && j2eObjectArr[renderConfig.targetElement.className] == undefined) {
 						cloneObject.renderConfig = renderConfig;
 
-						if(renderConfig.targetElement.id != undefined) {
+						if(renderConfig.targetElement.id != "" && renderConfig.targetElement.id != undefined) {
 							j2eObjectArr.push(renderConfig.targetElement.id);
 							j2eObjectArr[renderConfig.targetElement.id] = renderConfig;
-						} else if(renderConfig.targetElement.className != undefined) {
+						} else if(renderConfig.targetElement.className != "" && renderConfig.targetElement.className != undefined) {
 							j2eObjectArr.push(renderConfig.targetElement.className);
 							j2eObjectArr[renderConfig.targetElement.className] = renderConfig;
 						}
-
 					} else if(j2eObjectArr[renderConfig.targetElement.id] != undefined) {
 						cloneObject.renderConfig = j2eObjectArr[renderConfig.targetElement.id];
 					} else if(j2eObjectArr[renderConfig.targetElement.className] != undefined) {
@@ -970,7 +971,7 @@
 								}
 								moveOrderInfo.s = {x: parseFloat(translateX), y: parseFloat(translateY), z: parseFloat(translateZ)}
 							} else if(that.renderConfig.moveOrderInfoListMemory[key] != undefined) {
-								moveOrderInfo.s = {x: that.renderConfig.moveOrderInfoListMemory[key].e.x, y: that.renderConfig.moveOrderInfoListMemory[key].e.y}
+								moveOrderInfo.s = {x: that.renderConfig.moveOrderInfoListMemory[key].s.x, y: that.renderConfig.moveOrderInfoListMemory[key].s.y, z: that.renderConfig.moveOrderInfoListMemory[key].s.z}
 							}
 						}
 					}
@@ -2309,6 +2310,13 @@
 				this.renderConfig.continuity = false;
 			}
 
+			//모션 반복 횟수 지정
+			if(s[_constantValue.animationIterationCount] != undefined) {
+				this.renderConfig.animationIterationCount = s[_constantValue.animationIterationCount];
+			} else {
+				this.renderConfig.animationIterationCount = 1;
+			}
+
 			if(this.renderConfig.continuity == false) { //모션 명령을 한번에 수행
 				this.batchCssRenderingManager(s, t, f);
 			} else {
@@ -2470,6 +2478,37 @@
 						} else {
 							e.style[direction] = _j2eCssUtil.getUnit(e.nextMoveRate, e.u, direction);
 						}
+
+						//반복이 있다면 반복
+						var totalEickerEnd = true;
+						if(that.renderConfig.animationIterationCount !== 1) {
+							for (var key in that.renderConfig.arrMoveOrderInfo) {
+								if(that.renderConfig.arrMoveOrderInfo[key].tickerStatus === _constantValue.tickerStatusI ||
+								   that.renderConfig.arrMoveOrderInfo[key].tickerStatus === _constantValue.tickerStatusS) {
+									totalEickerEnd = false;
+									break;
+								}
+							}
+							if(totalEickerEnd) {
+								if(that.renderConfig.animationIterationCount !== "infinite") {
+									that.renderConfig.animationIterationCount = Number(that.renderConfig.animationIterationCount) - 1;
+								}
+
+								for(var i = 0, iLength =  that.renderConfig.arrMoveOrderInfo.length; i < iLength; i++) {
+									that.renderConfig.arrMoveOrderInfo[that.renderConfig.arrMoveOrderInfo[i]].tickerStatus = _constantValue.tickerStatusI;
+									that.renderConfig.arrMoveOrderInfo[that.renderConfig.arrMoveOrderInfo[i]].startTime = _j2eUtil.getTime();
+									that.renderConfig.arrMoveOrderInfo[that.renderConfig.arrMoveOrderInfo[i]].lastUpdate = _j2eUtil.getTime();
+
+									if(that.renderConfig.arrMoveOrderInfo[that.renderConfig.arrMoveOrderInfo[i]].subTickerStatus != undefined) {
+										for(var subTickerStatusKey in that.renderConfig.arrMoveOrderInfo[that.renderConfig.arrMoveOrderInfo[i]].subTickerStatus) {
+											that.renderConfig.arrMoveOrderInfo[that.renderConfig.arrMoveOrderInfo[i]].subTickerStatus[subTickerStatusKey] = _constantValue.tickerStatusI;
+										}
+									}
+
+									that.cssRendering(that.renderConfig.arrMoveOrderInfo[that.renderConfig.arrMoveOrderInfo[i]].moveKey, 0); //2D 런더링(방향, 반복 시작 카운트)
+								}
+							}
+						}
 					}
 				}
 			} else {
@@ -2589,6 +2628,26 @@
 							tempOrderInfoArray[moveKeyTemp] = stepByStepMoveOrderInfoListTemp;
 						}
 						this.renderConfig.moveOrderInfoListMemory = tempOrderInfoArray;
+
+						//반복이 있다면 반복
+						if(this.renderConfig.totalTickerStatus === _constantValue.tickerStatusE && that.renderConfig.animationIterationCount !== 1) {
+							var stepByStepMoveOrderInfoListArrTemp = [];
+							for(var infoListI = 0, infoListE = this.renderConfig.moveOrderInfoListMemory.length; infoListI < infoListE; infoListI++) {
+								stepByStepMoveOrderInfoListArrTemp[infoListI] = this.renderConfig.moveOrderInfoListMemory[this.renderConfig.moveOrderInfoListMemory[infoListI]];
+							}
+							this.renderConfig.stepByStepMoveOrderInfoList = stepByStepMoveOrderInfoListArrTemp;
+
+							if(that.renderConfig.animationIterationCount !== "infinite") {
+								that.renderConfig.animationIterationCount = Number(that.renderConfig.animationIterationCount) - 1;
+							}
+
+							that.renderConfig.moveOrderInfoListMemory = undefined;
+							this.renderConfig.totalTickerStatus = _constantValue.tickerStatusI; //전체 진행중
+							this.renderConfig.stepByStepMoveOrderInfoList[0].tickerStatus = _constantValue.tickerStatusI;
+							this.renderConfig.stepByStepMoveOrderInfoList[0].startTime = _j2eUtil.getTime();
+							this.renderConfig.stepByStepMoveOrderInfoList[0].lastUpdate = _j2eUtil.getTime();
+							this.stepByStepCssRendering(0); //2D 런더링(명령 순서)
+						}
 					}
 				}
 			} else {
