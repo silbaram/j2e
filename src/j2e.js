@@ -2,7 +2,7 @@
 	"use strict";
 
 	function j2eObject() {}
-	var j2eObjectArr = [], j2eKeyframeIndex = [];
+	var j2eObjectArr = [], j2eKeyframeConfig = [];
 
 	var _commonConfig = {
 				cssFix: "",
@@ -25,7 +25,11 @@
 				START_RULE_KEY_NAME: "0%",
 				END_RULE_KEY_NAME: "100%",
 				ABSOLUTE_POSITION_TYPE: "absolute",
-				RELATIVE_POSITION_TYPE: "relative"
+				RELATIVE_POSITION_TYPE: "relative",
+				INCREASE: "+=",
+				DECREASE: "-=",
+				J2E_ANIMATE_ID_NAME: "j2eAnimateIdNo_",
+				J2E_ANIMATE_ID_KEY: "j2eid"
 			};
 
 
@@ -33,7 +37,7 @@
 		_j2e = {
 			selector: function(e) {
 
-				if(e !== document) {
+				if(e !== document && e !== window) {
 					var renderConfig = {};
 					var cloneObject = new j2eObject;
 
@@ -53,38 +57,43 @@
 						}
 					}
 
-					if(j2eObjectArr[renderConfig.targetElement] !== renderConfig.targetElement || j2eObjectArr[renderConfig.targetElement] === undefined) {
+					//고유 아이디 부여
+					if(renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY) === null) {
+						renderConfig.targetElement.setAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY, J2E_CONSTANT.J2E_ANIMATE_ID_NAME + j2eObjectArr.length);
+					}
+
+					if(j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] === undefined) {
 						cloneObject.renderConfig = renderConfig;
-						j2eObjectArr.push(renderConfig.targetElement);
-						j2eObjectArr[renderConfig.targetElement] = renderConfig;
+						j2eObjectArr.push(renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY));
+						j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] = renderConfig;
 					} else {
-						cloneObject.renderConfig = j2eObjectArr[renderConfig.targetElement];
+						cloneObject.renderConfig = j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)];
 					}
 
 					return cloneObject;
 				} else {
+					console.error("document, window 객체는 사용할 수 없습니다.");
 					return e;
 				}
 			},
 			addRole: function(s) {
+				var j2eCheckKeyframeConfig = {};
 				var keyframes = '@' + _commonConfig.cssFix + "keyframes " + s.name + " { ";
-				keyframes += _j2eCssUtil.createRole(s.role);
+				keyframes += _j2eCssUtil.createRole(s.role, j2eCheckKeyframeConfig);
 				keyframes += "}";
 
-				var j2eKeyframeConfig = {};
-
-				if(j2eKeyframeIndex[s.name] === undefined) {
-					j2eKeyframeIndex.push(s.name);
-					j2eKeyframeIndex[s.name] = j2eKeyframeConfig;
-					j2eKeyframeConfig.index = document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length;
+				if(j2eKeyframeConfig[s.name] === undefined) {
+					j2eKeyframeConfig.push(s.name);
+					j2eKeyframeConfig[s.name] = j2eCheckKeyframeConfig;
+					j2eCheckKeyframeConfig.index = document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length;
 				}
 				document.styleSheets[_commonConfig.styleSheetsIndex].insertRule( keyframes, document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length );
 
 				var stylesheetValue = _j2eCssUtil.getStyleSheet(s.name);
 				if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
-					j2eKeyframeConfig.j2ePositionType = J2E_CONSTANT.RELATIVE_POSITION_TYPE;
+					j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.RELATIVE_POSITION_TYPE;
 				} else {
-					j2eKeyframeConfig.j2ePositionType = J2E_CONSTANT.ABSOLUTE_POSITION_TYPE;
+					j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.ABSOLUTE_POSITION_TYPE;
 				}
 			}
 		};
@@ -96,12 +105,11 @@
 				j2eObject.prototype[n] = c;
 			},
 			init: function() {
-
 				var cssAnimation = false,
-					animationstring = 'animation',
-					keyframeprefix = '',
-					domPrefixes = 'Webkit/Moz/O/ms/Khtml'.split('/'),
-					pfx = '';
+						animationstring = 'animation',
+						keyframeprefix = '',
+						domPrefixes = 'Webkit/Moz/O/ms/Khtml'.split('/'),
+						pfx = '';
 
 				if( document.body.style.animationName ) { cssAnimation = true; }
 
@@ -153,10 +161,12 @@
 
 	var
 		_j2eCssUtil = {
-			createRole: function(s) {
+			createRole: function(s, j2eCheckKeyframeConfig) {
 				var roleText = "";
 				var transformRoleText = " transform: ";
 				var transformRoleUse = false;
+				var increaseAndDecreaseArray = [];
+				var newItem = [];
 
 				for(let key in s) {
 					transformRoleText = " transform: ";
@@ -165,10 +175,25 @@
 					roleText += keyText	+ "{";
 					for(let subKey in s[key]) {
 						//transform 조합
-						if(transformKey[subKey] !== undefined) {
-							transformRoleUse = true;
-							let unit = isNaN(s[key][subKey]) === false ? transformKey[subKey] : "";
-							transformRoleText += " " + subKey + "(" + s[key][subKey] + unit + ")";
+						if(subKey !== "share") {
+							if(transformKey[subKey] !== undefined) {
+								transformRoleUse = true;
+								let textKey = s[key][subKey].replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+								let unit = isNaN(textKey) === false ? transformKey[subKey] : "";
+
+								transformRoleText += " " + subKey + "(" + textKey + unit + ")";
+
+								//증감 유무 체크
+								if(s[key][subKey].indexOf(J2E_CONSTANT.INCREASE) === 0 || s[key][subKey].indexOf(J2E_CONSTANT.DECREASE) === 0) {
+									if(increaseAndDecreaseArray[keyText] === undefined) {
+										increaseAndDecreaseArray.push(keyText);
+									}
+
+									newItem.push(subKey);
+									newItem[subKey] = s[key][subKey];
+									increaseAndDecreaseArray[keyText] = newItem;
+								}
+							}
 						}
 					}
 
@@ -176,22 +201,37 @@
 						roleText += transformRoleText + ";";
 					}
 
+					var bodyCheckStyle = document.body.style;
 					for(let subKey in s[key]) {
 						//css 조합
 						if(subKey !== "share") {
-							if(document.body.style[subKey] !== undefined) {
-								let uuit = "";
-								if(isNaN(s[key][subKey]) === false) {
-									uuit = cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px";
+							if(bodyCheckStyle[subKey] !== undefined) {
+								let unit = "";
+								let textKey = s[key][subKey].replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+								if(isNaN(textKey) === false) {
+									unit = cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px";
 								}
 
-								roleText += " " + _j2eCssUtil.getChangeCssKey(subKey) + ": " + s[key][subKey] + uuit + ";";
+								//증감 유무 체크
+								if(s[key][subKey].indexOf(J2E_CONSTANT.INCREASE) === 0 || s[key][subKey].indexOf(J2E_CONSTANT.DECREASE) === 0) {
+									if(increaseAndDecreaseArray[keyText] === undefined) {
+										increaseAndDecreaseArray.push(keyText);
+									}
+
+									newItem.push(subKey);
+									newItem[subKey] = s[key][subKey];
+									increaseAndDecreaseArray[keyText] = newItem;
+								}
+
+								roleText += " " + _j2eCssUtil.getChangeCssKey(subKey) + ": " + textKey + unit + ";";
 							}
 						}
 					}
 
 					roleText += "} ";
 				}
+
+				j2eCheckKeyframeConfig.increaseAndDecrease = increaseAndDecreaseArray;
 
 				return roleText;
 			},
@@ -206,17 +246,39 @@
 				}
 
 				//상대위치 타입이면 현제 위치를 시작 위치로 변경 해준다.
-				if(j2eKeyframeIndex[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
-					let endRuleStyle =  stylesheetValue.keyframes.findRule(J2E_CONSTANT.END_RULE_KEY_NAME).style;
-					let startRuleStyle =  stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME).style;
+				if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+					let endRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.END_RULE_KEY_NAME).style;
+					let startRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME).style;
 					if(window.getComputedStyle != undefined) {
-						for(let item = 0, itemLenght = stylesheetValue.keyframes.findRule(J2E_CONSTANT.END_RULE_KEY_NAME).style.length; item < itemLenght; item++) {
+						for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
 							startRuleStyle[endRuleStyle[item]] = getComputedStyle(elm, null)[endRuleStyle[item]];
 						}
 					} else {
-						for(let item = 0, itemLenght = stylesheetValue.keyframes.findRule(J2E_CONSTANT.END_RULE_KEY_NAME).style.length; item < itemLenght; item++) {
+						for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
 							//여기로직은 확인 못해봄 TEST요함
 							startRuleStyle[endRuleStyle[item]] = elm.currentStyle[endRuleStyle[item]];
+						}
+					}
+				}
+			},
+			setIncreaseAndDecreasePosition: function(elm, animationName) {
+				var stylesheetValue = _j2eCssUtil.getStyleSheet(animationName);
+
+				for(let i = 0, iLength = j2eKeyframeConfig[animationName].increaseAndDecrease.length; i < iLength; i++) {
+					let key = j2eKeyframeConfig[animationName].increaseAndDecrease[i];
+					let rule = stylesheetValue.keyframes.findRule(j2eKeyframeConfig[animationName].increaseAndDecrease[i]);
+
+					for(let item = 0, itemLenght = rule.style.length; item < itemLenght; item++) {
+						let moveValue = j2eKeyframeConfig[animationName].increaseAndDecrease[key][rule.style[item]];
+
+						if(moveValue !== undefined) {
+							let styleValue = window.getComputedStyle != undefined ? getComputedStyle(elm, null)[rule.style[item]] : elm.currentStyle[rule.style[item]];
+
+							if(moveValue.indexOf(J2E_CONSTANT.INCREASE) === 0) {
+								rule.style[rule.style[item]] = Number(moveValue.replace(J2E_CONSTANT.INCREASE,"")) + Number(styleValue.replace(/[(A-Z)]/gi,"")) + styleValue.replace(/[^(A-Z)]/gi,"");
+							} else if (moveValue.indexOf(J2E_CONSTANT.DECREASE) === 0) {
+								rule.style[rule.style[item]] = Number(moveValue.replace(J2E_CONSTANT.INCREASE,"")) - Number(styleValue.replace(/[(A-Z)]/gi,"")) + styleValue.replace(/[^(A-Z)]/gi,"");
+							}
 						}
 					}
 				}
@@ -235,12 +297,24 @@
 			},
 			getStyleSheet: function(animationName) {
 				var stylesheet = document.styleSheets[_commonConfig.styleSheetsIndex],
-						keyframes = stylesheet.cssRules[j2eKeyframeIndex[animationName].index];
+						keyframes = stylesheet.cssRules[j2eKeyframeConfig[animationName].index],
+						cssRules = keyframes.cssRules;
 
-				return {stylesheet: stylesheet, keyframes: keyframes}
+				return {stylesheet: stylesheet, keyframes: keyframes, cssRules: cssRules}
 			},
-			startAnimate: function(elm, animationName, animationDuration) {
-				elm.style.animation = animationName + " " + animationDuration;
+			startAnimate: function(elm, animationName, animationDuration, that) {
+
+				// elm.style.animation = animationName + " " + animationDuration;
+				//
+				// //증감 연산일 경우 (TEST: 더 나은 방법이 있는지 고민 해볼것)
+				// if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
+				// 	var newone = elm.cloneNode(true);
+				// 	elm.parentNode.replaceChild(newone, elm);
+				// 	that.renderConfig.targetElement = newone;
+				// }
+
+				elm.style.animation='';
+				setTimeout(function () {elm.style.animation = animationName + " " + animationDuration;},10)
 			}
 		};
 
@@ -273,12 +347,19 @@
 
 			var elm = this.renderConfig.targetElement;
 
-			if(j2eKeyframeIndex[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+			// 현재위치 세팅
+			if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
 				_j2eCssUtil.setStartingPositionRule(elm, animationName);
 			}
 
+			//위치 증감 세팅
+			if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
+				_j2eCssUtil.setIncreaseAndDecreasePosition(elm, animationName);
+			}
+
+
 			elm.style.animation = '';
-			_j2eCssUtil.startAnimate(elm, animationName, animationDuration);
+			_j2eCssUtil.startAnimate(elm, animationName, animationDuration, this);
 
 			return this;
 		});
@@ -344,8 +425,8 @@
 
 		_j2eUtil.createFunction("setAnimationPlayState", function(s) {
 
-			if(s !== "running" && s !== "running") {
-				console.error("animationPlayState 설정값이 잘 못 되었습니다. (running, running) 형식만 가능합니다.");
+			if(s !== "paused" && s !== "running") {
+				console.error("animationPlayState 설정값이 잘 못 되었습니다. (paused, running) 형식만 가능합니다.");
 				return;
 			}
 			this.renderConfig.targetElement.style.animationPlayState = s;
