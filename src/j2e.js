@@ -29,7 +29,8 @@
 				INCREASE: "+=",
 				DECREASE: "-=",
 				J2E_ANIMATE_ID_NAME: "j2eAnimateIdNo_",
-				J2E_ANIMATE_ID_KEY: "j2eid"
+				J2E_ANIMATE_ID_KEY: "j2eid",
+				TRANSFORM_NAME: "transform"
 			};
 
 
@@ -64,6 +65,8 @@
 
 					if(j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] === undefined) {
 						cloneObject.renderConfig = renderConfig;
+						cloneObject.renderConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', playState: '', timingFunction: ''};
+
 						j2eObjectArr.push(renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY));
 						j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] = renderConfig;
 					} else {
@@ -179,9 +182,17 @@
 							if(transformKey[subKey] !== undefined) {
 								transformRoleUse = true;
 								let textKey = s[key][subKey].replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
-								let unit = isNaN(textKey) === false ? transformKey[subKey] : "";
 
-								transformRoleText += " " + subKey + "(" + textKey + unit + ")";
+								//transform이 여러 방향(,) 할당될때 처리
+								let textKeyArray = textKey.split(",");
+								transformRoleText += " " + subKey + "(";
+								for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
+									let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? transformKey[subKey] : "";
+									let commaUnit = textKeyArrayIndex == 0 ? "" : " ,";
+
+									transformRoleText += commaUnit + textKeyArray[textKeyArrayIndex] + unit;
+								}
+								transformRoleText += ")";
 
 								//증감 유무 체크
 								if(s[key][subKey].indexOf(J2E_CONSTANT.INCREASE) === 0 || s[key][subKey].indexOf(J2E_CONSTANT.DECREASE) === 0) {
@@ -269,15 +280,52 @@
 					let rule = stylesheetValue.keyframes.findRule(j2eKeyframeConfig[animationName].increaseAndDecrease[i]);
 
 					for(let item = 0, itemLenght = rule.style.length; item < itemLenght; item++) {
-						let moveValue = j2eKeyframeConfig[animationName].increaseAndDecrease[key][rule.style[item]];
+						let styleItemKey = rule.style[item];
+						let moveValue = j2eKeyframeConfig[animationName].increaseAndDecrease[key];
 
-						if(moveValue !== undefined) {
-							let styleValue = window.getComputedStyle != undefined ? getComputedStyle(elm, null)[rule.style[item]] : elm.currentStyle[rule.style[item]];
+						//transform css인 경우
+						if(styleItemKey === J2E_CONSTANT.TRANSFORM_NAME) {
+							let transformNewRoleText = "";
+							let transformValueArray = rule.style[J2E_CONSTANT.TRANSFORM_NAME].split(") ");
+							for(let i = 0, iLength = transformValueArray.length; i < iLength; i++) {
+								let transformNewMoveValue = moveValue[transformValueArray[i].split("(")[0]];
+								if(transformNewMoveValue !== undefined) {
+									let transformOldMoveValue = transformValueArray[i].split("(")[1].replace(")", "").split(", ");
+									let transformNewMoveValueArray = transformNewMoveValue.split(",");
 
-							if(moveValue.indexOf(J2E_CONSTANT.INCREASE) === 0) {
-								rule.style[rule.style[item]] = Number(moveValue.replace(J2E_CONSTANT.INCREASE,"")) + Number(styleValue.replace(/[(A-Z)]/gi,"")) + styleValue.replace(/[^(A-Z)]/gi,"");
-							} else if (moveValue.indexOf(J2E_CONSTANT.DECREASE) === 0) {
-								rule.style[rule.style[item]] = Number(moveValue.replace(J2E_CONSTANT.INCREASE,"")) - Number(styleValue.replace(/[(A-Z)]/gi,"")) + styleValue.replace(/[^(A-Z)]/gi,"");
+									let newRoleSpace = i == 0 ? "" : " ";
+									transformNewRoleText += newRoleSpace + transformValueArray[i].split("(")[0] + "(";
+									for(let index = 0, maxIndex = transformNewMoveValueArray.length; index < maxIndex; index++) {
+										let newMoveValue = transformNewMoveValueArray[index];
+										let oldMoveValue = transformOldMoveValue[index];
+										let commaUnit = index == 0 ? "" : " ,";
+
+										if(transformNewMoveValueArray[index].indexOf(J2E_CONSTANT.INCREASE) === 0) {
+											transformNewRoleText += commaUnit + (Number(newMoveValue.replace(J2E_CONSTANT.INCREASE,"")) + Number(oldMoveValue.replace(/[(A-Z)]/gi,""))) + oldMoveValue.replace(/[^(A-Z)]/gi,"")
+										} else if (transformNewMoveValueArray[index].indexOf(J2E_CONSTANT.DECREASE) === 0) {
+											transformNewRoleText += commaUnit + (Number(oldMoveValue.replace(/[(A-Z)]/gi,"")) - Number(newMoveValue.replace(J2E_CONSTANT.DECREASE,""))) + oldMoveValue.replace(/[^(A-Z)]/gi,"");
+										} else {
+											transformNewRoleText += commaUnit + oldMoveValue;
+										}
+									}
+									transformNewRoleText += ") ";
+								} else {
+									transformNewRoleText += transformValueArray[i];
+								}
+							}
+
+							rule.style[J2E_CONSTANT.TRANSFORM_NAME] = transformNewRoleText;
+
+						} else {
+							let moveValue = j2eKeyframeConfig[animationName].increaseAndDecrease[key][styleItemKey];
+							if(moveValue !== undefined) {
+								let styleValue = window.getComputedStyle != undefined ? getComputedStyle(elm, null)[styleItemKey] : elm.currentStyle[styleItemKey];
+
+								if(moveValue.indexOf(J2E_CONSTANT.INCREASE) === 0) {
+									rule.style[styleItemKey] = (Number(moveValue.replace(J2E_CONSTANT.INCREASE,"")) + Number(styleValue.replace(/[(A-Z)]/gi,""))) + styleValue.replace(/[^(A-Z)]/gi,"");
+								} else if (moveValue.indexOf(J2E_CONSTANT.DECREASE) === 0) {
+									rule.style[styleItemKey] = (Number(styleValue.replace(/[(A-Z)]/gi,"")) - Number(moveValue.replace(J2E_CONSTANT.DECREASE,""))) + styleValue.replace(/[^(A-Z)]/gi,"");
+								}
 							}
 						}
 					}
@@ -302,19 +350,34 @@
 
 				return {stylesheet: stylesheet, keyframes: keyframes, cssRules: cssRules}
 			},
-			startAnimate: function(elm, animationName, animationDuration, that) {
+			startAnimate: function(elm, animationName, that) {
+				var animationOption = that.renderConfig.animationOption;
+				var animationOptionTemp = '';
+				for(let key in animationOption) {
+					if(animationOption[key] !== "") {
+						animationOptionTemp += ' ' + animationOption[key];
+					}
+				}
 
-				// elm.style.animation = animationName + " " + animationDuration;
-				//
-				// //증감 연산일 경우 (TEST: 더 나은 방법이 있는지 고민 해볼것)
-				// if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
-				// 	var newone = elm.cloneNode(true);
-				// 	elm.parentNode.replaceChild(newone, elm);
-				// 	that.renderConfig.targetElement = newone;
-				// }
 
-				elm.style.animation='';
-				setTimeout(function () {elm.style.animation = animationName + " " + animationDuration;},10)
+				//===================================================================
+				//여기를 어떤 로직으로 정리를해야 할지 고민해봐야함
+				//===================================================================
+
+				elm.style.animation = animationName + animationOptionTemp;
+				//증감 연산일 경우 (TEST: 더 나은 방법이 있는지 고민 해볼것)
+				if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
+					var newone = elm.cloneNode(true);
+					elm.parentNode.replaceChild(newone, elm);
+					that.renderConfig.targetElement = newone;
+				}
+
+				// elm.style.animation = '';
+				// setTimeout(function () {elm.style.animation = animationName + animationOptionTemp;},10)
+
+				//===================================================================
+				//여기를 어떤 로직으로 정리를해야 할지 고민해봐야함
+				//===================================================================
 			}
 		};
 
@@ -343,9 +406,8 @@
 
 			var animationSyntax = "";
 			var animationName = funS.name;
-			var animationDuration = funT;
-
 			var elm = this.renderConfig.targetElement;
+			this.renderConfig.animationOption.duration = funT;
 
 			// 현재위치 세팅
 			if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
@@ -357,90 +419,92 @@
 				_j2eCssUtil.setIncreaseAndDecreasePosition(elm, animationName);
 			}
 
-
 			elm.style.animation = '';
-			_j2eCssUtil.startAnimate(elm, animationName, animationDuration, this);
+			_j2eCssUtil.startAnimate(elm, animationName, this);
 
 			return this;
 		});
 
-		_j2eUtil.createFunction("setAnimationDelay", function(t) {
+		_j2eUtil.createFunction("setDelay", function(t) {
 
 			if(isNaN(t)) {
 				console.error("animationDelay 설정 값이 잘 못 되었습니다. 숫자 형식만 가능합니다.");
 				return;
 			}
 
-			this.renderConfig.targetElement.style.animationDelay = t+"s";
+			this.renderConfig.animationOption.delay = t+"s";
 
 			return this;
 		});
 
-		_j2eUtil.createFunction("setAnimationDirection", function(s) {
+		_j2eUtil.createFunction("setDirection", function(s) {
 
 			if("normal" !== s && "reverse" !== s && "alternate" !== s && "alternate-reverse" !== s) {
 				console.error("animationDirection 설정값이  잘 못 되었습니다. (normal, reverse, alternate, alternate-reverse) 형식만 가능합니다.");
 				return;
 			}
 
-			this.renderConfig.targetElement.style.animationDirection = s;
+			this.renderConfig.animationOption.direction = s;
 
 			return this;
 		});
 
-		_j2eUtil.createFunction("setAnimationDuration", function(t) {
+		_j2eUtil.createFunction("setDuration", function(t) {
 
 			if(isNaN(t)) {
 				console.error("animationDuration 설정값이 잘 못 되었습니다. 숫자 형식만 가능합니다.");
 				return;
 			}
 
-			this.renderConfig.targetElement.style.animationDuration = t+"s";
+			this.renderConfig.animationOption.duration = t+"s";
 
 			return this;
 		});
 
-		_j2eUtil.createFunction("setAnimationFillMode", function(s) {
+		_j2eUtil.createFunction("setFillMode", function(s) {
 
 			if("none" !== s && "forwards" !== s && "backwards" !== s && "both" !== s) {
 				console.error("animationFillMode 설정값이  잘 못 되었습니다. (none, forwards, backwards, both) 형식만 가능합니다.");
 				return;
 			}
 
-			this.renderConfig.targetElement.style.animationFillMode = s;
+			this.renderConfig.animationOption.fillMode = s;
 
 			return this;
 		});
 
-		_j2eUtil.createFunction("setAnimationIterationCount", function(s) {
+		_j2eUtil.createFunction("setIterationCount", function(s) {
 
 			if(isNaN(s) && s !== "infinite") {
 				console.error("animationFillMode 설정값이 잘 못 되었습니다. (숫자, infinite) 형식만 가능합니다.");
 				return;
 			}
-			this.renderConfig.targetElement.style.animationIterationCount = s;
+
+			this.renderConfig.animationOption.iterationCount = s;
 
 			return this;
 		});
 
-		_j2eUtil.createFunction("setAnimationPlayState", function(s) {
+		_j2eUtil.createFunction("setPlayState", function(s) {
 
 			if(s !== "paused" && s !== "running") {
 				console.error("animationPlayState 설정값이 잘 못 되었습니다. (paused, running) 형식만 가능합니다.");
 				return;
 			}
-			this.renderConfig.targetElement.style.animationPlayState = s;
+
+			this.renderConfig.animationOption.playState = s;
 
 			return this;
 		});
 
-		_j2eUtil.createFunction("setAnimationTimingFunction", function(s) {
+		_j2eUtil.createFunction("setTimingFunction", function(s) {
 
 			if(s !== "linear" && s !== "ease" && s !== "ease-in" && s !== "ease-out" && s !== "ease-in-out") {
 				console.error("animationTimingFunction 설정값이 잘 못 되었습니다. (linear, ease, ease-in, ease-out, ease-in-out) 형식만 가능합니다.");
 				return;
 			}
-			this.renderConfig.targetElement.style.animationTimingFunction = s;
+
+			this.renderConfig.animationOption.timingFunction = s;
 
 			return this;
 		});
