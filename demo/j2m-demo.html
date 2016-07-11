@@ -10,12 +10,50 @@
 
 	<style>
 		body {
-			background-color: #EAEAEA;
 			overflow-y: scroll;
 		}
+
+		.demo-header {
+			pointer-events: none;
+	    width: 100%;
+	    height: 120px;
+	    position: fixed;
+	    top: 0;
+	    left: 0;
+	    z-index: 21;
+			background-color: #6B8A24;
+			box-shadow: 2px 4px 3px grey;
+		}
+
+		.demo-header_title {
+		    font-weight: 400;
+		    font-size: 35px;
+		    margin: 0 0 0 16px;
+		    line-height: 56px;
+		    color: #FFF;
+		    z-index: 1;
+		    position: relative;
+		    opacity: 1;
+		}
+
+		.demo-bg-container {
+			width:100%;
+			z-index: 22;
+			display:none;
+			top: 0;
+			left: 0;
+			position: absolute;;
+			opacity: 0.6;
+			background-color: #232323;
+		}
+		.demo-container {
+		    margin-top: 140px;
+				z-index: 19;
+		}
+
 		.demo_contain {width:800px; border:0px; position:relative; margin:0 auto;}
-		.demo_object_contain { height:100px; width:800px; background-color:#FFFFFF; border:0.5px solid black; margin:10px; position:relative; padding:10px; box-shadow: 2px 2px 1px grey; cursor:pointer; overflow:hidden;}
-		.demo_title_contain {height:100%;width:100%;border:0px;padding:0px;margin:0px;}
+		.demo_object_contain { height:60px; width:800px; background-color:#FFFFFF; border:0.5px solid black; margin:1px 0px 1px 0px; position:relative; padding:0px; box-shadow: 2px 2px 1px grey; cursor:pointer; overflow:hidden;}
+		.demo_title_contain {height:80px;width:100%;border:0px;padding:4px 0px 0px 10px;margin:0px;}
 		.demo_ball {position:absolute;top:120px;left:10px;}
 		.demo_object_img {height:70px;width:70;}
 
@@ -95,990 +133,339 @@
 	</style>
 </head>
 <body>
-	<div class="demo_contain">
-		<div id="demo_contain_1" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_1" class="demo_title_contain" onmouseover="demoObjectOn('1');" >left, top, right, bottom 이동</h2>
-			<div id="demo_object_1" class="demo_ball">
-				<img src="./img/ball.jpg" class="demo_object_img">
+
+	<div class="demo-header">
+    <h1 class="demo-header_title">j2e 에니매에션 라이브러리 테스트 페이지</h1>
+  </div>
+
+	<div class="demo-bg-container"></div>
+	<div class="demo-container">
+		<div class="demo_contain">
+			<div id="demo_contain_1" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_1" class="demo_title_contain">left, top, right, bottom 이동</h2>
+				<div id="demo_object_1" class="demo_ball">
+					<img src="./img/ball.jpg" class="demo_object_img">
+				</div>
+
+				<input type="button" value="수평" id="leftButton" style="position:absolute;top:270px;">
+				<input type="button" value="수직" id="topButton" style="position:absolute;top:270px;left:60px;">
 			</div>
 
-			<input type="button" value="수평" id="leftButton" style="position:absolute;top:270px;">
-			<input type="button" value="수직" id="topButton" style="position:absolute;top:270px;left:60px;">
-		</div>
 
+			<div id="demo_contain_2" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_2" class="demo_title_contain">margin 조절</h2>
+				<div id="demo_object_2_1"></div>
+				<div id="demo_object_2_2"></div>
+				<div id="demo_object_2_3"></div>
+				<div id="demo_object_2_4"></div>
 
-		<div id="demo_contain_2" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_2" class="demo_title_contain" onmouseover="demoObjectOn('2');" >margin 조절</h2>
-			<div id="demo_object_2_1"></div>
-			<div id="demo_object_2_2"></div>
-			<div id="demo_object_2_3"></div>
-			<div id="demo_object_2_4"></div>
-
-			<input type="button" value="margin 변경" id="marginButton" style="position:absolute;top:270px;">
-		</div>
-
-
-		<div id="demo_contain_3" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_3" class="demo_title_contain" onmouseover="demoObjectOn('3');" >width, height 조절</h2>
-			<div id="demo_object_3"></div>
-
-			<input type="button" value="width" onclick="demoObjectWidth()" style="position:absolute;top:270px;">
-			<input type="button" value="heiught" onclick="demoObjectHeight()" style="position:absolute;top:270px;left:60px;">
-		</div>
-
-
-		<div id="demo_contain_4" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_4" class="demo_title_contain" onmouseover="demoObjectOn('4');" >opacity 조절</h2>
-			<div id="demo_object_4"></div>
-
-			<input type="button" value="opacity" onclick="demoObjectOpacity()" style="position:absolute;top:270px;">
-		</div>
-
-
-		<div id="demo_contain_5" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_5" class="demo_title_contain" onmouseover="demoObjectOn('5');" >backgroundColor 변경</h2>
-			<div id="demo_object_5_1"></div>
-			<div id="demo_object_5_2"></div>
-			<div id="demo_object_5_3"></div>
-			<div id="demo_object_5_4"></div>
-
-			<input type="button" value="backgroundColor" onclick="demoObjectBackgroundColor()" style="position:absolute;top:270px;">
-		</div>
-
-		<div id="demo_contain_5-1" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_5-1" class="demo_title_contain" onmouseover="demoObjectOn('5-1');" >backgroundPosition 변경</h2>
-			<div id="demo_object_5-1_1"></div>
-			<div id="demo_object_5-1_2"></div>
-			<div id="demo_object_5-1_3"></div>
-			<div id="demo_object_5-1_4"></div>
-
-			<input type="button" value="backgroundPosition" id="bgPosition" style="position:absolute;top:270px;">
-		</div>
-
-		<div id="demo_contain_5-2" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_5-1" class="demo_title_contain" onmouseover="demoObjectOn('5-2');" >backgroundSize 변경</h2>
-			<div id="demo_object_5-2_1"></div>
-			<div id="demo_object_5-2_2"></div>
-			<div id="demo_object_5-2_3"></div>
-			<div id="demo_object_5-2_4"></div>
-
-			<input type="button" value="backgroundSize" id="bgSize" style="position:absolute;top:270px;">
-		</div>
-
-
-		<div id="demo_contain_6" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_6" class="demo_title_contain" onmouseover="demoObjectOn('6');" >scale 조절</h2>
-			<div id="demo_object_6"></div>
-
-			<input type="button" value="scale" id="scaleButton" style="position:absolute;top:270px;">
-
-			<div style="position:absolute;top:295px;left:10px;"><input type="radio" value="scale" id="radioScale" name="radioScale" checked>scale</div>
-			<div style="position:absolute;top:295px;left:100px;"><input type="radio" value="scaleX" id="radioScaleX" name="radioScale">scaleX</div>
-			<div style="position:absolute;top:295px;left:190px;"><input type="radio" value="scaleY" id="radioScaleY" name="radioScale">scaleY</div>
-		</div>
-
-
-		<div id="demo_contain_7" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_7" class="demo_title_contain" onmouseover="demoObjectOn('7');" >rotate 이동</h2>
-			<div id="demo_object_7_1">rotate 1</div>
-			<div id="demo_object_7_2">rotate 2</div>
-			<div id="demo_object_7_3">rotate 3</div>
-			<div id="demo_object_7_4">rotate 4</div>
-
-			<input type="button" value="rotate 0" id="rotateButton" style="position:absolute;top:270px;;">
-			<input type="button" value="rotate 90" id="rotateButton1" style="position:absolute;top:270px;left:100px;">
-			<input type="button" value="rotate 180" id="rotateButton2" style="position:absolute;top:270px;left:200px;">
-			<input type="button" value="rotate 270" id="rotateButton3" style="position:absolute;top:270px;left:300px;">
-			<input type="button" value="rotate 360" id="rotateButton4" style="position:absolute;top:270px;left:400px;">
-
-			<div style="position:absolute;top:295px;left:10px;"><input type="radio" value="rotateX" id="radioRotateX" name="radioRotate" checked>rotateX</div>
-			<div style="position:absolute;top:295px;left:100px;"><input type="radio" value="rotateY" id="radioRotateY" name="radioRotate">rotateY</div>
-			<div style="position:absolute;top:295px;left:190px;"><input type="radio" value="rotateZ" id="radioRotateZ" name="radioRotate">rotateZ</div>
-		</div>
-
-
-		<div id="demo_contain_8" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_8" class="demo_title_contain" onmouseover="demoObjectOn('8');" >perspective 조절</h2>
-			<div id="perspectiveBox_1">
-				<div id="demo_object_8_1">rotate 1</div>
-				<div id="demo_object_8_2">rotate 2</div>
-				<div id="demo_object_8_3">rotate 3</div>
-				<div id="demo_object_8_4">rotate 4</div>
+				<input type="button" value="margin 변경" id="marginButton" style="position:absolute;top:270px;">
 			</div>
 
-			<input type="button" value="rotate 0" id="rotatePerspectiveButton1" style="position:absolute;top:270px;;">
-			<input type="button" value="rotate 360" id="rotatePerspectiveButton2" style="position:absolute;top:270px;left:100px;">
 
-			<div style="position:absolute;top:295px;left:10px;"><input type="radio" value="rotatePerspectiveX" id="radioRotatePerspectiveX" name="radioRotatePerspective" checked>rotateX</div>
-			<div style="position:absolute;top:295px;left:100px;"><input type="radio" value="rotatePerspectiveY" id="radioRotatePerspectiveY" name="radioRotatePerspective">rotateY</div>
+			<div id="demo_contain_3" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_3" class="demo_title_contain">width, height 조절</h2>
+				<div id="demo_object_3"></div>
 
-			<div style="position:absolute;top:295px;left:210px;"><input type="radio" value="transformPerspective" id="radioTransformPerspective" name="radioPerspective" checked>transformPerspective</div>
-			<div style="position:absolute;top:295px;left:400px;"><input type="radio" value="perspective" id="radioPerspective" name="radioPerspective">perspective</div>
-		</div>
-
-
-		<div id="demo_contain_9" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_9" class="demo_title_contain" onmouseover="demoObjectOn('9');" >border 넓이 조절</h2>
-			<div id="demo_object_9_1"></div>
-			<div id="demo_object_9_2"></div>
-			<div id="demo_object_9_3"></div>
-			<div id="demo_object_9_4"></div>
-
-			<input type="button" value="border 넓이 변경" id="borderButton" style="position:absolute;top:270px;">
-		</div>
-
-		<div id="demo_contain_9-1" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_9-1" class="demo_title_contain" onmouseover="demoObjectOn('9-1');" >border 색상 변경</h2>
-			<div id="demo_object_9-1_1"></div>
-			<div id="demo_object_9-1_2"></div>
-			<div id="demo_object_9-1_3"></div>
-			<div id="demo_object_9-1_4"></div>
-
-			<input type="button" value="border 색상 변경" id="borderButton-1" style="position:absolute;top:270px;">
-		</div>
-
-		<div id="demo_contain_9-2" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_9-2" class="demo_title_contain" onmouseover="demoObjectOn('9-2');" >border 모서리 변경</h2>
-			<div id="demo_object_9-2_1"></div>
-			<div id="demo_object_9-2_2"></div>
-			<div id="demo_object_9-2_3"></div>
-			<div id="demo_object_9-2_4"></div>
-
-			<input type="button" value="border 모서리 변경" id="borderButton-2" style="position:absolute;top:270px;">
-		</div>
-
-
-		<div id="demo_contain_10" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_10" class="demo_title_contain" onmouseover="demoObjectOn('10');" >boxShadow 조절</h2>
-			<div id="demo_object_10_1"></div>
-			<div id="demo_object_10_2"></div>
-			<div id="demo_object_10_3"></div>
-			<div id="demo_object_10_4"></div>
-
-			<input type="button" value="boxShadow 조절" id="boxShadowButton" style="position:absolute;top:270px;">
-		</div>
-
-		<div id="demo_contain_11" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_11" class="demo_title_contain" onmouseover="demoObjectOn('11');" >color 변경</h2>
-			<div id="demo_object_11_1"><h2 id="demo_object_11_5">텍스트 색상 변경</h2></div>
-			<div id="demo_object_11_2"></div>
-
-			<input type="button" value="color 변경" id="colorButton" style="position:absolute;top:270px;">
-		</div>
-
-		<div id="demo_contain_12" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_12" class="demo_title_contain" onmouseover="demoObjectOn('12');" >fontSize 조절</h2>
-			<!-- <div id="demo_object_12_1"><h2 id="demo_object_12_2">텍스트 크기 변경</h2></div> -->
-			<div id="demo_object_12_1">텍스트 크기 변경</div>
-
-			<input type="button" value="fontSize 조절" id="fontSizeButton" style="position:absolute;top:270px;">
-		</div>
-
-		<div id="demo_contain_13" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_13" class="demo_title_contain" onmouseover="demoObjectOn('13');" >Clip 조절</h2>
-			<div id="demo_object_13_1">Clip 크기 변경</div>
-			<div id="demo_object_13_2">Clip 크기 변경</div>
-			<div id="demo_object_13_3">Clip 크기 변경</div>
-			<div id="demo_object_13_4">Clip 크기 변경</div>
-
-			<input type="button" value="Clip 조절" id="clipButton" style="position:absolute;top:270px;">
-		</div>
-
-		<div id="demo_contain_14" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_14" class="demo_title_contain" onmouseover="demoObjectOn('14');" >textShadow 조절</h2>
-			<div id="demo_object_14_1">textShadow 조절</div>
-			<div id="demo_object_14_2">textShadow 조절</div>
-			<div id="demo_object_14_3">textShadow 조절</div>
-
-			<input type="button" value="textShadow 조절" id="textShadowButton" style="position:absolute;top:270px;">
-		</div>
-
-		<div id="demo_contain_15" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_15" class="demo_title_contain" onmouseover="demoObjectOn('15');" >perspectiveOrigin 조절</h2>
-			<div id="perspectiveBox_15">
-				<div id="demo_object_15_1">perspectiveOrigin 조절</div>
-				<div id="demo_object_15_2">perspectiveOrigin 조절</div>
-				<div id="demo_object_15_3">perspectiveOrigin 조절</div>
-				<div id="demo_object_15_4">perspectiveOrigin 조절</div>
+				<input type="button" value="width" onclick="demoObjectWidth()" style="position:absolute;top:270px;">
+				<input type="button" value="heiught" onclick="demoObjectHeight()" style="position:absolute;top:270px;left:60px;">
 			</div>
 
-			<input type="button" value="perspectiveOrigin 조절" id="perspectiveOriginButton" style="position:absolute;top:270px;">
-		</div>
 
-		<div id="demo_contain_16" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_16" class="demo_title_contain" onmouseover="demoObjectOn('16');" >transformOrigin 조절</h2>
-			<div id="perspectiveBox_16">
-				<div id="demo_object_16_1">transformOrigin 조절</div>
-				<div id="demo_object_16_2">transformOrigin 조절</div>
-				<div id="demo_object_16_3">transformOrigin 조절</div>
-				<div id="demo_object_16_4">transformOrigin 조절</div>
+			<div id="demo_contain_4" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_4" class="demo_title_contain">opacity 조절</h2>
+				<div id="demo_object_4"></div>
+
+				<input type="button" value="opacity" onclick="demoObjectOpacity()" style="position:absolute;top:270px;">
 			</div>
 
-			<input type="button" value="perspectiveOrigin 조절" id="transformOriginButton" style="position:absolute;top:270px;">
-		</div>
 
-		<div id="demo_contain_17" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_17" class="demo_title_contain" onmouseover="demoObjectOn('17');" >translate 이동</h2>
-			<div id="demo_object_17_1">translate X</div>
-			<div id="demo_object_17_2">translate Y</div>
-			<div id="demo_object_17_3">translate Z</div>
-			<div id="demo_object_17_4">translate3d</div>
+			<div id="demo_contain_5" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_5" class="demo_title_contain">backgroundColor 변경</h2>
+				<div id="demo_object_5_1"></div>
+				<div id="demo_object_5_2"></div>
+				<div id="demo_object_5_3"></div>
+				<div id="demo_object_5_4"></div>
 
-			<input type="button" value="translate 조절" id="translateButton" style="position:absolute;top:270px;">
-		</div>
+				<input type="button" value="backgroundColor" onclick="demoObjectBackgroundColor()" style="position:absolute;top:270px;">
+			</div>
 
-		<div id="demo_contain_18" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_18" class="demo_title_contain" onmouseover="demoObjectOn('18');" >skew 조절</h2>
-			<div id="demo_object_18_1">skew X</div>
-			<div id="demo_object_18_2">skew Y</div>
-			<div id="demo_object_18_3">skew</div>
+			<div id="demo_contain_5-1" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_5-1" class="demo_title_contain">backgroundPosition 변경</h2>
+				<div id="demo_object_5-1_1"></div>
+				<div id="demo_object_5-1_2"></div>
+				<div id="demo_object_5-1_3"></div>
+				<div id="demo_object_5-1_4"></div>
 
-			<input type="button" value="skew 조절" id="skewButton" style="position:absolute;top:270px;">
-		</div>
+				<input type="button" value="backgroundPosition" id="bgPosition" style="position:absolute;top:270px;">
+			</div>
 
-		<div id="demo_contain_100" class="demo_object_contain" onmouseout="demoObjectOff(this);" onclick="demoObjectClick(this)">
-			<h2 id="demo_contain_text_100" class="demo_title_contain" onmouseover="demoObjectOn('100');" >순차 이동</h2>
-			<div id="demo_object_100"></div>
+			<div id="demo_contain_5-2" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_5-1" class="demo_title_contain">backgroundSize 변경</h2>
+				<div id="demo_object_5-2_1"></div>
+				<div id="demo_object_5-2_2"></div>
+				<div id="demo_object_5-2_3"></div>
+				<div id="demo_object_5-2_4"></div>
 
-			<input type="button" value="StopByStep" onclick="demoObjectStepByStep()" style="position:absolute;top:270px;">
-		</div>
+				<input type="button" value="backgroundSize" id="bgSize" style="position:absolute;top:270px;">
+			</div>
 
+
+			<div id="demo_contain_6" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_6" class="demo_title_contain">scale 조절</h2>
+				<div id="demo_object_6"></div>
+
+				<input type="button" value="scale" id="scaleButton" style="position:absolute;top:270px;">
+
+				<div style="position:absolute;top:295px;left:10px;"><input type="radio" value="scale" id="radioScale" name="radioScale" checked>scale</div>
+				<div style="position:absolute;top:295px;left:100px;"><input type="radio" value="scaleX" id="radioScaleX" name="radioScale">scaleX</div>
+				<div style="position:absolute;top:295px;left:190px;"><input type="radio" value="scaleY" id="radioScaleY" name="radioScale">scaleY</div>
+			</div>
+
+
+			<div id="demo_contain_7" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_7" class="demo_title_contain">rotate 이동</h2>
+				<div id="demo_object_7_1">rotate 1</div>
+				<div id="demo_object_7_2">rotate 2</div>
+				<div id="demo_object_7_3">rotate 3</div>
+				<div id="demo_object_7_4">rotate 4</div>
+
+				<input type="button" value="rotate 0" id="rotateButton" style="position:absolute;top:270px;;">
+				<input type="button" value="rotate 90" id="rotateButton1" style="position:absolute;top:270px;left:100px;">
+				<input type="button" value="rotate 180" id="rotateButton2" style="position:absolute;top:270px;left:200px;">
+				<input type="button" value="rotate 270" id="rotateButton3" style="position:absolute;top:270px;left:300px;">
+				<input type="button" value="rotate 360" id="rotateButton4" style="position:absolute;top:270px;left:400px;">
+
+				<div style="position:absolute;top:295px;left:10px;"><input type="radio" value="rotateX" id="radioRotateX" name="radioRotate" checked>rotateX</div>
+				<div style="position:absolute;top:295px;left:100px;"><input type="radio" value="rotateY" id="radioRotateY" name="radioRotate">rotateY</div>
+				<div style="position:absolute;top:295px;left:190px;"><input type="radio" value="rotateZ" id="radioRotateZ" name="radioRotate">rotateZ</div>
+			</div>
+
+
+			<div id="demo_contain_8" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_8" class="demo_title_contain">perspective 조절</h2>
+				<div id="perspectiveBox_1">
+					<div id="demo_object_8_1">rotate 1</div>
+					<div id="demo_object_8_2">rotate 2</div>
+					<div id="demo_object_8_3">rotate 3</div>
+					<div id="demo_object_8_4">rotate 4</div>
+				</div>
+
+				<input type="button" value="rotate 0" id="rotatePerspectiveButton1" style="position:absolute;top:270px;;">
+				<input type="button" value="rotate 360" id="rotatePerspectiveButton2" style="position:absolute;top:270px;left:100px;">
+
+				<div style="position:absolute;top:295px;left:10px;"><input type="radio" value="rotatePerspectiveX" id="radioRotatePerspectiveX" name="radioRotatePerspective" checked>rotateX</div>
+				<div style="position:absolute;top:295px;left:100px;"><input type="radio" value="rotatePerspectiveY" id="radioRotatePerspectiveY" name="radioRotatePerspective">rotateY</div>
+
+				<div style="position:absolute;top:295px;left:210px;"><input type="radio" value="transformPerspective" id="radioTransformPerspective" name="radioPerspective" checked>transformPerspective</div>
+				<div style="position:absolute;top:295px;left:400px;"><input type="radio" value="perspective" id="radioPerspective" name="radioPerspective">perspective</div>
+			</div>
+
+
+			<div id="demo_contain_9" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_9" class="demo_title_contain">border 넓이 조절</h2>
+				<div id="demo_object_9_1"></div>
+				<div id="demo_object_9_2"></div>
+				<div id="demo_object_9_3"></div>
+				<div id="demo_object_9_4"></div>
+
+				<input type="button" value="border 넓이 변경" id="borderButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_9-1" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_9-1" class="demo_title_contain">border 색상 변경</h2>
+				<div id="demo_object_9-1_1"></div>
+				<div id="demo_object_9-1_2"></div>
+				<div id="demo_object_9-1_3"></div>
+				<div id="demo_object_9-1_4"></div>
+
+				<input type="button" value="border 색상 변경" id="borderButton-1" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_9-2" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_9-2" class="demo_title_contain">border 모서리 변경</h2>
+				<div id="demo_object_9-2_1"></div>
+				<div id="demo_object_9-2_2"></div>
+				<div id="demo_object_9-2_3"></div>
+				<div id="demo_object_9-2_4"></div>
+
+				<input type="button" value="border 모서리 변경" id="borderButton-2" style="position:absolute;top:270px;">
+			</div>
+
+
+			<div id="demo_contain_10" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_10" class="demo_title_contain">boxShadow 조절</h2>
+				<div id="demo_object_10_1"></div>
+				<div id="demo_object_10_2"></div>
+				<div id="demo_object_10_3"></div>
+				<div id="demo_object_10_4"></div>
+
+				<input type="button" value="boxShadow 조절" id="boxShadowButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_11" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_11" class="demo_title_contain">color 변경</h2>
+				<div id="demo_object_11_1"><h2 id="demo_object_11_5">텍스트 색상 변경</h2></div>
+				<div id="demo_object_11_2"></div>
+
+				<input type="button" value="color 변경" id="colorButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_12" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_12" class="demo_title_contain">fontSize 조절</h2>
+				<!-- <div id="demo_object_12_1"><h2 id="demo_object_12_2">텍스트 크기 변경</h2></div> -->
+				<div id="demo_object_12_1">텍스트 크기 변경</div>
+
+				<input type="button" value="fontSize 조절" id="fontSizeButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_13" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_13" class="demo_title_contain">Clip 조절</h2>
+				<div id="demo_object_13_1">Clip 크기 변경</div>
+				<div id="demo_object_13_2">Clip 크기 변경</div>
+				<div id="demo_object_13_3">Clip 크기 변경</div>
+				<div id="demo_object_13_4">Clip 크기 변경</div>
+
+				<input type="button" value="Clip 조절" id="clipButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_14" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_14" class="demo_title_contain">textShadow 조절</h2>
+				<div id="demo_object_14_1">textShadow 조절</div>
+				<div id="demo_object_14_2">textShadow 조절</div>
+				<div id="demo_object_14_3">textShadow 조절</div>
+
+				<input type="button" value="textShadow 조절" id="textShadowButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_15" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_15" class="demo_title_contain">perspectiveOrigin 조절</h2>
+				<div id="perspectiveBox_15">
+					<div id="demo_object_15_1">perspectiveOrigin 조절</div>
+					<div id="demo_object_15_2">perspectiveOrigin 조절</div>
+					<div id="demo_object_15_3">perspectiveOrigin 조절</div>
+					<div id="demo_object_15_4">perspectiveOrigin 조절</div>
+				</div>
+
+				<input type="button" value="perspectiveOrigin 조절" id="perspectiveOriginButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_16" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_16" class="demo_title_contain">transformOrigin 조절</h2>
+				<div id="perspectiveBox_16">
+					<div id="demo_object_16_1">transformOrigin 조절</div>
+					<div id="demo_object_16_2">transformOrigin 조절</div>
+					<div id="demo_object_16_3">transformOrigin 조절</div>
+					<div id="demo_object_16_4">transformOrigin 조절</div>
+				</div>
+
+				<input type="button" value="perspectiveOrigin 조절" id="transformOriginButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_17" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_17" class="demo_title_contain">translate 이동</h2>
+				<div id="demo_object_17_1">translate X</div>
+				<div id="demo_object_17_2">translate Y</div>
+				<div id="demo_object_17_3">translate Z</div>
+				<div id="demo_object_17_4">translate3d</div>
+
+				<input type="button" value="translate 조절" id="translateButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_18" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_18" class="demo_title_contain">skew 조절</h2>
+				<div id="demo_object_18_1">skew X</div>
+				<div id="demo_object_18_2">skew Y</div>
+				<div id="demo_object_18_3">skew</div>
+
+				<input type="button" value="skew 조절" id="skewButton" style="position:absolute;top:270px;">
+			</div>
+
+			<div id="demo_contain_100" class="demo_object_contain" onclick="demoObjectClick(this)">
+				<h2 id="demo_contain_text_100" class="demo_title_contain">순차 이동</h2>
+				<div id="demo_object_100"></div>
+
+				<input type="button" value="StopByStep" onclick="demoObjectStepByStep()" style="position:absolute;top:270px;">
+			</div>
+	</section>
 </body>
 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
 <script src="../src/j2e.js"></script>
 <script type="text/javascript">
+	j2e.addRole( { name:"demo_object_contain_on_role", role:[{share: "to", height:"500", marginTop:"25", marginBottom:"30", scale:"1.1"}] } );
+	j2e.addRole( { name:"demo_object_contain_off_role", role:[{share: "to", height:"60", marginTop:"1", marginBottom:"1"}] } );
+	j2e.addRole( { name:"demo_contain_on_titleColor_role", role:[{share: "to", backgroundColor:"#6B8A24"}] } );
+	j2e.addRole( { name:"demo_contain_off_titleColor_role", role:[{share: "to", backgroundColor:"#FFFFFF"}] } );
 
-	function demoObjectOn(e) {
-		j2e("#demo_contain_" + e).move({margin:"30, 10, 40, 10"}, 0.4);
-		j2e("#demo_contain_" + e).move({scale:"1.1, 1.2"}, 0.4);
-	}
+	j2e.addRole( { name:"demo-header_top_role", role:[{share: "to", height:"120"}] } );
+	j2e.addRole( { name:"demo-header_bottom_role", role:[{share: "to", height:"60"}] } );
+	j2e.addRole( { name:"demo-header_top_txt_role", role:[{share: "to", fontSize: "35"}] } );
+	j2e.addRole( { name:"demo-header_bottom_txt_role", role:[{share: "to", fontSize: "15"}] } );
 
-	function demoObjectOff(e) {
-		addEvent(e, 'mouseleave', function() {
-			j2e(e).move({margin:"10", scale:"1, 1"}, 0.4);
-			j2e(e).move({height:100}, 0.5);
+	j2e.addRole( { name:"demo-ex_left_role", role:[{share: "to", left: "700"}] } );
+	j2e.addRole( { name:"demo-ex_top_role", role:[{share: "to", top: "250"}] } );
+
+	var scrollChgChk = "";
+	$(document).ready(function(){
+		if($(document).scrollTop() >= 80) {
+			scrollChgChk = "D";
+		} else {
+			scrollChgChk = "T";
+		}
+
+		$(".demo-bg-container").css("height", $(document).height()+355);
+		$(".demo-bg-container").click(function(){
+			if(onObject !== "") {
+				$(".demo-bg-container").css("display", "none");
+
+				j2e(onObject).setFillMode("forwards").animate({name:"demo_object_contain_off_role"}, 0.3);
+				j2e("#demo_contain_text_" + $(onObject).attr("id").substr(13, 4)).setFillMode("forwards").animate({name:"demo_contain_off_titleColor_role"}, 0.5);
+
+				$(onObject).css("z-index", 19);
+				onObject = "";
+			}
 		});
-	}
 
+
+		$(window).scroll(function(){
+
+			if($(document).scrollTop() >= 80) {
+				if(scrollChgChk == "T") {
+					scrollChgChk = "D";
+					j2e(".demo-header").setFillMode("forwards").animate({name:"demo-header_bottom_role"}, 0.3);
+					j2e(".demo-header_title").setFillMode("forwards").animate({name:"demo-header_bottom_txt_role"}, 0.3);
+				}
+			} else {
+				if(scrollChgChk == "D") {
+					scrollChgChk = "T";
+					j2e(".demo-header").setFillMode("forwards").animate({name:"demo-header_top_role"}, 0.3);
+					j2e(".demo-header_title").setFillMode("forwards").animate({name:"demo-header_top_txt_role"}, 0.3);
+				}
+			}
+		});
+
+
+
+		$("#leftButton").click(function(){
+			j2e("#demo_object_1").setFillMode("forwards").animate({name:"demo-ex_left_role"}, 2);
+		});
+		$("#topButton").click(function(){
+			j2e("#demo_object_1").setFillMode("forwards").animate({name:"demo-ex_top_role"}, 2);
+		});
+	});
+
+	var onObject = "";
 	function demoObjectClick(e) {
-		j2e(e).move({height:300}, 0.5);
-	}
 
-	window.onload =function(){
-		//left 이동
-		var leftCheck = "1";
-		var topCheck = "1";
-		document.getElementById("leftButton").onclick = function(event){
-			if(leftCheck == "1") {
-				leftCheck = "2";
-				j2e("#demo_object_1").move({left:720}, 1);
-			} else {
-				leftCheck = "1";
-				j2e("#demo_object_1").move({left:10}, 1);
-			}
-			event.stopPropagation();
-		}
-
-		//top 이동
-		document.getElementById("topButton").onclick = function(event) {
-			if(topCheck == "1") {
-				topCheck = "2";
-				j2e("#demo_object_1").move({top:200}, 1);
-			} else {
-				topCheck = "1";
-				j2e("#demo_object_1").move({top:70}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-
-
-		var scaleCheck = "1";
-		var scaleXCheck = "1";
-		var scaleYCheck = "1";
-		document.getElementById("scaleButton").onclick = function(event) {
-			var num_temp = document.all.radioScale.length;
-			var scaleType = "";
-			for (i = 0; i < num_temp;i++) {
-				if (document.all.radioScale[i].checked == true) {
-					scaleType = document.all.radioScale[i].value;
-		   		break;
-				}
-			}
-
-			if(scaleType == "scale") {
-				if(scaleCheck == "1") {
-					scaleCheck = "2";
-					j2e("#demo_object_6").move({scale:"6.5, 1.8"}, 1);
-				} else {
-					scaleCheck = "1";
-					j2e("#demo_object_6").move({scale:"1, 1"}, 1);
-				}
-			} else if (scaleType == "scaleX") {
-				if(scaleXCheck == "1") {
-					scaleXCheck = "2";
-					j2e("#demo_object_6").move({scaleX:"6.5"}, 1);
-				} else {
-					scaleXCheck = "1";
-					j2e("#demo_object_6").move({scaleX:"1"}, 1);
-				}
-			} else if (scaleType == "scaleY") {
-				if(scaleYCheck == "1") {
-					scaleYCheck = "2";
-					j2e("#demo_object_6").move({scaleY:"1.8"}, 1);
-				} else {
-					scaleYCheck = "1";
-					j2e("#demo_object_6").move({scaleY:"1"}, 1);
-				}
-			}
-
-			event.stopPropagation();
-		}
-
-
-		//backgroundPosition 이동
-		var bgPositionCheck = "1";
-		document.getElementById("bgPosition").onclick = function(event) {
-			if(bgPositionCheck == "1") {
-				bgPositionCheck = "2";
-				j2e("#demo_object_5-1_1").move({backgroundPosition:"90px"}, 1);
-				j2e("#demo_object_5-1_2").move({backgroundPosition:"90, 20"}, 1);
-				j2e("#demo_object_5-1_3").move({backgroundPosition:"50, 40"}, 1);
-				j2e("#demo_object_5-1_4").move({backgroundPosition:"20, 90"}, 1);
-			} else {
-				bgPositionCheck = "1";
-				j2e("#demo_object_5-1_1").move({backgroundPosition:"0"}, 1);
-				j2e("#demo_object_5-1_2").move({backgroundPosition:"0"}, 1);
-				j2e("#demo_object_5-1_3").move({backgroundPosition:"0"}, 1);
-				j2e("#demo_object_5-1_4").move({backgroundPosition:"0"}, 1);
-			}
-
-		}
-
-		//backgroundSize 변경
-		var bgPositionSize = "1";
-		document.getElementById("bgSize").onclick = function(event) {
-			if(bgPositionSize == "1") {
-				bgPositionSize = "2";
-				j2e("#demo_object_5-2_1").move({backgroundSize:"90px"}, 1);
-				j2e("#demo_object_5-2_2").move({backgroundSize:"90, 20"}, 1);
-				j2e("#demo_object_5-2_3").move({backgroundSize:"50, 40"}, 1);
-				j2e("#demo_object_5-2_4").move({backgroundSize:"20, 90"}, 1);
-			} else {
-				bgPositionSize = "1";
-				j2e("#demo_object_5-2_1").move({backgroundSize:"14"}, 1);
-				j2e("#demo_object_5-2_2").move({backgroundSize:"14, 14"}, 1);
-				j2e("#demo_object_5-2_3").move({backgroundSize:"14, 14"}, 1);
-				j2e("#demo_object_5-2_4").move({backgroundSize:"14, 14px"}, 1);
-			}
-
-		}
-
-
-		//rotate 이동
-		document.getElementById("rotateButton").onclick = function(event) {
-			var num_temp = document.all.radioRotate.length;
-			var rotateType = "";
-			for (i = 0; i < num_temp;i++) {
-				if (document.all.radioRotate[i].checked == true) {
-					rotateType = document.all.radioRotate[i].value;
-		   		break;
-				}
-			}
-
-			if(rotateType == "rotateX") {
-				j2e("#demo_object_7_1").move({rotateX:0}, 1);
-				j2e("#demo_object_7_2").move({rotateX:0}, 1);
-				j2e("#demo_object_7_3").move({rotateX:0}, 1);
-				j2e("#demo_object_7_4").move({rotateX:0}, 1);
-			} else if(rotateType == "rotateY") {
-				j2e("#demo_object_7_1").move({rotateY:0}, 1);
-				j2e("#demo_object_7_2").move({rotateY:0}, 1);
-				j2e("#demo_object_7_3").move({rotateY:0}, 1);
-				j2e("#demo_object_7_4").move({rotateY:0}, 1);
-			} else if(rotateType == "rotateZ") {
-				j2e("#demo_object_7_1").move({rotateZ:0}, 1);
-				j2e("#demo_object_7_2").move({rotateZ:0}, 1);
-				j2e("#demo_object_7_3").move({rotateZ:0}, 1);
-				j2e("#demo_object_7_4").move({rotateZ:0}, 1);
-			}
-
-			event.stopPropagation();
-		}
-		document.getElementById("rotateButton1").onclick = function(event) {
-			var num_temp = document.all.radioRotate.length;
-			var rotateType = "";
-			for (i = 0; i < num_temp;i++) {
-				if (document.all.radioRotate[i].checked == true) {
-					rotateType = document.all.radioRotate[i].value;
-		   		break;
-				}
-			}
-
-			if(rotateType == "rotateX") {
-				j2e("#demo_object_7_1").move({rotateX:90}, 1);
-				j2e("#demo_object_7_2").move({rotateX:90}, 1);
-				j2e("#demo_object_7_3").move({rotateX:90}, 1);
-				j2e("#demo_object_7_4").move({rotateX:90}, 1);
-			} else if(rotateType == "rotateY") {
-				j2e("#demo_object_7_1").move({rotateY:90}, 1);
-				j2e("#demo_object_7_2").move({rotateY:90}, 1);
-				j2e("#demo_object_7_3").move({rotateY:90}, 1);
-				j2e("#demo_object_7_4").move({rotateY:90}, 1);
-			} else if(rotateType == "rotateZ") {
-				j2e("#demo_object_7_1").move({rotateZ:90}, 1);
-				j2e("#demo_object_7_2").move({rotateZ:90}, 1);
-				j2e("#demo_object_7_3").move({rotateZ:90}, 1);
-				j2e("#demo_object_7_4").move({rotateZ:90}, 1);
-			}
-
-			event.stopPropagation();
-		}
-		document.getElementById("rotateButton2").onclick = function(event) {
-			var num_temp = document.all.radioRotate.length;
-			var rotateType = "";
-			for (i = 0; i < num_temp;i++) {
-				if (document.all.radioRotate[i].checked == true) {
-					rotateType = document.all.radioRotate[i].value;
-		   		break;
-				}
-			}
-
-			if(rotateType == "rotateX") {
-				j2e("#demo_object_7_1").move({rotateX:180}, 1);
-				j2e("#demo_object_7_2").move({rotateX:180}, 1);
-				j2e("#demo_object_7_3").move({rotateX:180}, 1);
-				j2e("#demo_object_7_4").move({rotateX:180}, 1);
-			} else if(rotateType == "rotateY") {
-				j2e("#demo_object_7_1").move({rotateY:180}, 1);
-				j2e("#demo_object_7_2").move({rotateY:180}, 1);
-				j2e("#demo_object_7_3").move({rotateY:180}, 1);
-				j2e("#demo_object_7_4").move({rotateY:180}, 1);
-			} else if(rotateType == "rotateZ") {
-				j2e("#demo_object_7_1").move({rotateZ:180}, 1);
-				j2e("#demo_object_7_2").move({rotateZ:180}, 1);
-				j2e("#demo_object_7_3").move({rotateZ:180}, 1);
-				j2e("#demo_object_7_4").move({rotateZ:180}, 1);
-			}
-
-			event.stopPropagation();
-		}
-		document.getElementById("rotateButton3").onclick = function(event) {
-			var num_temp = document.all.radioRotate.length;
-			var rotateType = "";
-			for (i = 0; i < num_temp;i++) {
-				if (document.all.radioRotate[i].checked == true) {
-					rotateType = document.all.radioRotate[i].value;
-		   		break;
-				}
-			}
-
-			if(rotateType == "rotateX") {
-				j2e("#demo_object_7_1").move({rotateX:270}, 1);
-				j2e("#demo_object_7_2").move({rotateX:270}, 1);
-				j2e("#demo_object_7_3").move({rotateX:270}, 1);
-				j2e("#demo_object_7_4").move({rotateX:270}, 1);
-			} else if(rotateType == "rotateY") {
-				j2e("#demo_object_7_1").move({rotateY:270}, 1);
-				j2e("#demo_object_7_2").move({rotateY:270}, 1);
-				j2e("#demo_object_7_3").move({rotateY:270}, 1);
-				j2e("#demo_object_7_4").move({rotateY:270}, 1);
-			} else if(rotateType == "rotateZ") {
-				j2e("#demo_object_7_1").move({rotateZ:270}, 1);
-				j2e("#demo_object_7_2").move({rotateZ:270}, 1);
-				j2e("#demo_object_7_3").move({rotateZ:270}, 1);
-				j2e("#demo_object_7_4").move({rotateZ:270}, 1);
-			}
-
-			event.stopPropagation();
-		}
-		document.getElementById("rotateButton4").onclick = function(event) {
-			var num_temp = document.all.radioRotate.length;
-			var rotateType = "";
-			for (i = 0; i < num_temp;i++) {
-				if (document.all.radioRotate[i].checked == true) {
-					rotateType = document.all.radioRotate[i].value;
-		   		break;
-				}
-			}
-
-			if(rotateType == "rotateX") {
-				j2e("#demo_object_7_1").move({rotateX:360}, 1);
-				j2e("#demo_object_7_2").move({rotateX:360}, 1);
-				j2e("#demo_object_7_3").move({rotateX:360}, 1);
-				j2e("#demo_object_7_4").move({rotateX:360}, 1);
-			} else if(rotateType == "rotateY") {
-				j2e("#demo_object_7_1").move({rotateY:360}, 1);
-				j2e("#demo_object_7_2").move({rotateY:360}, 1);
-				j2e("#demo_object_7_3").move({rotateY:360}, 1);
-				j2e("#demo_object_7_4").move({rotateY:360}, 1);
-			} else if(rotateType == "rotateZ") {
-				j2e("#demo_object_7_1").move({rotateZ:360}, 1);
-				j2e("#demo_object_7_2").move({rotateZ:360}, 1);
-				j2e("#demo_object_7_3").move({rotateZ:360}, 1);
-				j2e("#demo_object_7_4").move({rotateZ:360}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-
-
-		document.getElementById("rotatePerspectiveButton1").onclick = function(event) {
-			var num_temp = document.all.radioRotatePerspective.length;
-			var rotateType = "";
-			for (i = 0; i < num_temp;i++) {
-				if (document.all.radioRotatePerspective[i].checked == true) {
-					rotateType = document.all.radioRotatePerspective[i].value;
-		   		break;
-				}
-			}
-
-			var perspective_num_temp = document.all.radioPerspective.length;
-			var perspectiveType = "";
-			for (i = 0; i < perspective_num_temp;i++) {
-				if (document.all.radioPerspective[i].checked == true) {
-					perspectiveType = document.all.radioPerspective[i].value;
-		   		break;
-				}
-			}
-
-			// j2e("#perspectiveBox_1").move({perspective:100}, 2);
-			// j2e("#demo_object_8_1").move({transformPerspective:600}, 1);
-			if(perspectiveType == "transformPerspective") {
-				j2e("#demo_object_8_1").setPosition({transformPerspective:100});
-				j2e("#demo_object_8_2").setPosition({transformPerspective:100});
-				j2e("#demo_object_8_3").setPosition({transformPerspective:100});
-				j2e("#demo_object_8_4").setPosition({transformPerspective:100});
-			} else {
-				j2e("#perspectiveBox_1").setPosition({perspective:0});
-			}
-
-			if(rotateType == "rotatePerspectiveX") {
-				j2e("#demo_object_8_1").move({rotateX:0}, 1);
-				j2e("#demo_object_8_2").move({rotateX:0}, 1);
-				j2e("#demo_object_8_3").move({rotateX:0}, 1);
-				j2e("#demo_object_8_4").move({rotateX:0}, 1);
-			} else if(rotateType == "rotatePerspectiveY") {
-				j2e("#demo_object_8_1").move({rotateY:0}, 1);
-				j2e("#demo_object_8_2").move({rotateY:0}, 1);
-				j2e("#demo_object_8_3").move({rotateY:0}, 1);
-				j2e("#demo_object_8_4").move({rotateY:0}, 1);
-			}
-
-			event.stopPropagation();
-		}
-		document.getElementById("rotatePerspectiveButton2").onclick = function(event) {
-			var num_temp = document.all.radioRotatePerspective.length;
-			var rotateType = "";
-			for (i = 0; i < num_temp;i++) {
-				if (document.all.radioRotatePerspective[i].checked == true) {
-					rotateType = document.all.radioRotatePerspective[i].value;
-		   		break;
-				}
-			}
-
-			var perspective_num_temp = document.all.radioPerspective.length;
-			var perspectiveType = "";
-			for (i = 0; i < perspective_num_temp;i++) {
-				if (document.all.radioPerspective[i].checked == true) {
-					perspectiveType = document.all.radioPerspective[i].value;
-		   		break;
-				}
-			}
-
-			// j2e("#perspectiveBox_1").move({perspective:600}, 2);
-			// j2e("#demo_object_8_1").move({transformPerspective:100}, 1);
-			if(perspectiveType == "transformPerspective") {
-				j2e("#demo_object_8_1").setPosition({transformPerspective:600});
-				j2e("#demo_object_8_2").setPosition({transformPerspective:600});
-				j2e("#demo_object_8_3").setPosition({transformPerspective:600});
-				j2e("#demo_object_8_4").setPosition({transformPerspective:600});
-			} else {
-				j2e("#perspectiveBox_1").setPosition({perspective:600});
-			}
-
-			if(rotateType == "rotatePerspectiveX") {
-				j2e("#demo_object_8_1").move({rotateX:360}, 1);
-				j2e("#demo_object_8_2").move({rotateX:360}, 1);
-				j2e("#demo_object_8_3").move({rotateX:360}, 1);
-				j2e("#demo_object_8_4").move({rotateX:360}, 1);
-			} else if(rotateType == "rotatePerspectiveY") {
-				j2e("#demo_object_8_1").move({rotateY:360}, 1);
-				j2e("#demo_object_8_2").move({rotateY:360}, 1);
-				j2e("#demo_object_8_3").move({rotateY:360}, 1);
-				j2e("#demo_object_8_4").move({rotateY:360}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var marginCheck = "1";
-		document.getElementById("marginButton").onclick = function(event) {
-
-			if(marginCheck == "1") {
-				marginCheck = "2";
-				j2e("#demo_object_2_1").move({margin:"0, 0, 0, 100"}, 1);
-				j2e("#demo_object_2_2").move({margin:"0, 0, 0, 160"}, 1);
-				j2e("#demo_object_2_3").move({margin:"0, 0, 0, 220"}, 1);
-				j2e("#demo_object_2_4").move({margin:"0, 0, 0, 280"}, 1);
-			} else {
-				marginCheck = "1";
-				j2e("#demo_object_2_1").move({margin:"0"}, 1);
-				j2e("#demo_object_2_2").move({margin:"0"}, 1);
-				j2e("#demo_object_2_3").move({margin:"0"}, 1);
-				j2e("#demo_object_2_4").move({margin:"0"}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var borderCheck = "1";
-		document.getElementById("borderButton").onclick = function(event) {
-
-			if(borderCheck == "1") {
-				borderCheck = "2";
-				j2e("#demo_object_9_1").move({borderTopWidth:"60"}, 1);
-				j2e("#demo_object_9_2").move({borderRightWidth:"60"}, 1);
-				j2e("#demo_object_9_3").move({borderBottomWidth:"60"}, 1);
-				j2e("#demo_object_9_4").move({borderLeftWidth:"60"}, 1);
-			} else {
-				borderCheck = "1";
-				j2e("#demo_object_9_1").move({borderTopWidth:"0"}, 1);
-				j2e("#demo_object_9_2").move({borderRightWidth:"0"}, 1);
-				j2e("#demo_object_9_3").move({borderBottomWidth:"0"}, 1);
-				j2e("#demo_object_9_4").move({borderLeftWidth:"0"}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-		var borderCheck_1 = "1";
-		document.getElementById("borderButton-1").onclick = function(event) {
-
-			if(borderCheck_1 == "1") {
-				borderCheck_1 = "2";
-				j2e("#demo_object_9-1_1").move({borderTopColor:"#0054FF"}, 1);
-				j2e("#demo_object_9-1_2").move({borderRightColor:"#FFE400"}, 1);
-				j2e("#demo_object_9-1_3").move({borderBottomColor:"#00D8FF"}, 1);
-				j2e("#demo_object_9-1_4").move({borderLeftColor:"#ABF200"}, 1);
-			} else {
-				borderCheck_1 = "1";
-				j2e("#demo_object_9-1_1").move({borderTopColor:"#FF0000"}, 1);
-				j2e("#demo_object_9-1_2").move({borderRightColor:"#FF0000"}, 1);
-				j2e("#demo_object_9-1_3").move({borderBottomColor:"#FF0000"}, 1);
-				j2e("#demo_object_9-1_4").move({borderLeftColor:"#FF0000"}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-		var borderCheck_2 = "1";
-		document.getElementById("borderButton-2").onclick = function(event) {
-
-			if(borderCheck_2 == "1") {
-				borderCheck_2 = "2";
-				j2e("#demo_object_9-2_1").move({borderTopLeftRadius:"60"}, 1);
-				j2e("#demo_object_9-2_2").move({borderTopRightRadius:"60"}, 1);
-				j2e("#demo_object_9-2_3").move({borderBottomRightRadius:"60"}, 1);
-				j2e("#demo_object_9-2_4").move({borderBottomLeftRadius:"60"}, 1);
-			} else {
-				borderCheck_2 = "1";
-				j2e("#demo_object_9-2_1").move({borderTopLeftRadius:"0"}, 1);
-				j2e("#demo_object_9-2_2").move({borderTopRightRadius:"0"}, 1);
-				j2e("#demo_object_9-2_3").move({borderBottomRightRadius:"0"}, 1);
-				j2e("#demo_object_9-2_4").move({borderBottomLeftRadius:"0"}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var boxShadowCheck = "1";
-		document.getElementById("boxShadowButton").onclick = function(event) {
-
-			if(boxShadowCheck == "1") {
-				boxShadowCheck = "2";
-				j2e("#demo_object_10_1").move({boxShadow:"10, 10"}, 0.5);
-				j2e("#demo_object_10_2").move({boxShadow:"10, 10, 10"}, 0.5);
-				j2e("#demo_object_10_3").move({boxShadow:"10, 10, 10, 10"}, 0.5);
-				j2e("#demo_object_10_4").move({boxShadow:"10, 10, 10, 10, #8041D9"}, 0.5);
-			} else {
-				boxShadowCheck = "1";
-				j2e("#demo_object_10_1").move({boxShadow:"0, 0"}, 0.5);
-				j2e("#demo_object_10_2").move({boxShadow:"0, 0, 0"}, 0.5);
-				j2e("#demo_object_10_3").move({boxShadow:"0, 0, 0, 0"}, 0.5);
-				j2e("#demo_object_10_4").move({boxShadow:"0, 0, 0, 0, #000000"}, 0.5);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var colorCheck = "1";
-		document.getElementById("colorButton").onclick = function(event) {
-
-			if(colorCheck == "1") {
-				colorCheck = "2";
-				j2e("#demo_object_11_5").move({color:"#8041D9"}, 0.5);
-				j2e("#demo_object_11_2").move({color:"#0100FF"}, 0.5);
-			} else {
-				colorCheck = "1";
-				j2e("#demo_object_11_5").move({color:"#000000"}, 0.5);
-				j2e("#demo_object_11_2").move({color:"#000000"}, 0.5);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var clipCheck = "1";
-		document.getElementById("fontSizeButton").onclick = function(event) {
-
-			if(clipCheck == "1") {
-				clipCheck = "2";
-				j2e("#demo_object_12_1").move({fontSize:20}, 1);
-			} else {
-				clipCheck = "1";
-				j2e("#demo_object_12_1").move({fontSize:10}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var fontSizeCheck = "1";
-		document.getElementById("clipButton").onclick = function(event) {
-
-			if(fontSizeCheck == "1") {
-				fontSizeCheck = "2";
-				j2e("#demo_object_13_1").move({clip:"0, 50, 50, 0"}, 1);
-			} else {
-				fontSizeCheck = "1";
-				j2e("#demo_object_13_1").move({clip:"20, 70, 70, 20"}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-		var textShadowCheck = "1";
-		document.getElementById("textShadowButton").onclick = function(event) {
-
-			if(textShadowCheck == "1") {
-				textShadowCheck = "2";
-				j2e("#demo_object_14_1").move({textShadow:"10, 10"}, 0.5);
-				j2e("#demo_object_14_2").move({textShadow:"10, 10, 10"}, 0.5);
-				j2e("#demo_object_14_3").move({textShadow:"10, 10, 10, #8041D9"}, 0.5);
-			} else {
-				textShadowCheck = "1";
-				j2e("#demo_object_14_1").move({textShadow:"0, 0"}, 0.5);
-				j2e("#demo_object_14_2").move({textShadow:"0, 0, 0"}, 0.5);
-				j2e("#demo_object_14_3").move({textShadow:"0, 0, 0, #000000"}, 0.5);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var perspectiveOriginCheck = "1";
-		document.getElementById("perspectiveOriginButton").onclick = function(event) {
-
-			if(perspectiveOriginCheck == "1") {
-				perspectiveOriginCheck = "2";
-				j2e("#perspectiveBox_15").move({perspectiveOrigin:"10, 10"}, 0.5);
-			} else {
-				perspectiveOriginCheck = "1";
-				j2e("#perspectiveBox_15").move({perspectiveOrigin:"125, 125"}, 0.5);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var transformOriginCheck = "1";
-		document.getElementById("transformOriginButton").onclick = function(event) {
-
-			if(transformOriginCheck == "1") {
-				transformOriginCheck = "2";
-				j2e("#demo_object_16_1").move({transformOrigin:"10, 10"}, 0.5);
-				j2e("#demo_object_16_2").move({transformOrigin:"10, 10"}, 0.5);
-				j2e("#demo_object_16_3").move({transformOrigin:"10, 10"}, 0.5);
-				j2e("#demo_object_16_4").move({transformOrigin:"10, 10"}, 0.5);
-			} else {
-				transformOriginCheck = "1";
-				j2e("#demo_object_16_1").move({transformOrigin:"60, 60"}, 0.5);
-				j2e("#demo_object_16_2").move({transformOrigin:"60, 60"}, 0.5);
-				j2e("#demo_object_16_3").move({transformOrigin:"60, 60"}, 0.5);
-				j2e("#demo_object_16_4").move({transformOrigin:"60, 60"}, 0.5);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var translateCheck = "1";
-		document.getElementById("translateButton").onclick = function(event) {
-
-			if(translateCheck == "1") {
-				translateCheck = "2";
-				j2e("#demo_object_17_1").move({translateX:"10"}, 1);
-				j2e("#demo_object_17_2").move({translateY:"10"}, 1);
-				j2e("#demo_object_17_3").move({translate:"10, 10"}, 1);
-				j2e("#demo_object_17_4").move({translate3d:"10, 10, 10"}, 1);
-			} else {
-				translateCheck = "1";
-				j2e("#demo_object_17_1").move({translateX:"0"}, 1);
-				j2e("#demo_object_17_2").move({translateY:"0"}, 1);
-				j2e("#demo_object_17_3").move({translate:"0, 0"}, 1);
-				j2e("#demo_object_17_4").move({translate3d:"0, 0, 0"}, 1);
-			}
-
-			event.stopPropagation();
-		}
-
-
-		var skewCheck = "1";
-		document.getElementById("skewButton").onclick = function(event) {
-
-			if(skewCheck == "1") {
-				skewCheck = "2";
-				j2e("#demo_object_18_1").move({skewX:"10"}, 1);
-				j2e("#demo_object_18_2").move({skewY:"10"}, 1);
-				j2e("#demo_object_18_3").move({skew:"10, 10"}, 1);
-			} else {
-				skewCheck = "1";
-				j2e("#demo_object_18_1").move({skewX:"0"}, 1);
-				j2e("#demo_object_18_2").move({skewY:"0"}, 1);
-				j2e("#demo_object_18_3").move({skew:"0, 0"}, 1);
-			}
-
-			event.stopPropagation();
+		if($(e).css("height") == "60px") {
+			onObject = e;
+			$(".demo-bg-container").css("display", "block");
+			$(e).css("z-index", 23);
+			j2e(e).setFillMode("forwards").animate({name:"demo_object_contain_on_role"}, 0.5);
+			j2e("#demo_contain_text_"+$(onObject).attr("id").substr(13, 4)).setFillMode("forwards").animate({name:"demo_contain_on_titleColor_role"}, 1);
 		}
 	}
 
-
-
-	var widthCheck = "1";
-	function demoObjectWidth() {
-		if(widthCheck == "1") {
-			widthCheck = "2";
-			j2e("#demo_object_3").move({width:800}, 1);
-		} else {
-			widthCheck = "1";
-			j2e("#demo_object_3").move({width:100}, 1);
-		}
-	}
-	var heightCheck = "1";
-	function demoObjectHeight() {
-		if(heightCheck == "1") {
-			heightCheck = "2";
-			j2e("#demo_object_3").move({height:140}, 1);
-		} else {
-			heightCheck = "1";
-			j2e("#demo_object_3").move({height:100}, 1);
-		}
-	}
-
-
-	var opacityCheck = "1";
-	function demoObjectOpacity() {
-		if(opacityCheck == "1") {
-			opacityCheck = "2";
-			j2e("#demo_object_4").move({opacity:0}, 1);
-		} else {
-			opacityCheck = "1";
-			j2e("#demo_object_4").move({opacity:1}, 1);
-		}
-	}
-
-
-	var demoObjectBackgroundColorCheck = "1";
-	function demoObjectBackgroundColor() {
-		if(demoObjectBackgroundColorCheck == "1") {
-			demoObjectBackgroundColorCheck = "2";
-			j2e("#demo_object_5_1").move({backgroundColor:"#FFE400"}, 1);
-			j2e("#demo_object_5_2").move({backgroundColor:"#1DDB16"}, 1);
-			j2e("#demo_object_5_3").move({backgroundColor:"#0100FF"}, 1);
-			j2e("#demo_object_5_4").move({backgroundColor:"#FF5E00"}, 1);
-		} else {
-			demoObjectBackgroundColorCheck = "1";
-			j2e("#demo_object_5_1").move({backgroundColor:"#D941C5"}, 1);
-			j2e("#demo_object_5_2").move({backgroundColor:"#D941C5"}, 1);
-			j2e("#demo_object_5_3").move({backgroundColor:"#D941C5"}, 1);
-			j2e("#demo_object_5_4").move({backgroundColor:"#D941C5"}, 1);
-		}
-	}
-
-
-	function demoObjectStepByStep() {
-		j2e("#demo_object_100").move({opacity:1, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({top:50, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({width:780, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({height:240, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({width:100, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({height:100, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({rotateX:360, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({rotateY:360, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({rotateZ:360, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({left:350, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({scale:"1.5, 1.5", continuity:true}, 0.5);
-		j2e("#demo_object_100").move({backgroundColor:"#FFE400", continuity:true}, 0.5);
-		j2e("#demo_object_100").move({backgroundColor:"#1DDB16", continuity:true}, 0.5);
-		j2e("#demo_object_100").move({left:680, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({rotateX:0, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({top:160, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({rotateY:0, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({left:350, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({scaleX:"1", continuity:true}, 0.5);
-		j2e("#demo_object_100").move({scaleY:"1", continuity:true}, 0.5);
-		// j2e("#demo_object_100").move({scale:"1, 1", continuity:true}, 0.5);
-		// j2e("#demo_object_100").move({rotateZ:0, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({rotate:0, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({left:10, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({backgroundColor:"#0100FF", continuity:true}, 0.5);
-		j2e("#demo_object_100").move({backgroundColor:"#FF5E00", continuity:true}, 0.5);
-		j2e("#demo_object_100").move({top:120, continuity:true}, 0.5);
-		j2e("#demo_object_100").move({backgroundColor:"#D941C5", continuity:true}, 0.5);
-		j2e("#demo_object_100").move({opacity:0, continuity:true}, 0.5);
-
-		// j2e("#demo_object_100").move({translateX:"100", continuity:true}, 0.5);
-		// j2e("#demo_object_100").move({translateX :"0", continuity:true}, 0.5);
-
-
-	}
-
-
-
-
-	function addEvent(element, type, callback) {
-	    var eventListener = function(element, event) {
-	        element.addEventListener(event, function(e) {
-	            var obj = e.relatedTarget;
-	            while (obj != element) {
-	                if (!obj) return callback.apply(this);
-	                obj = obj.parentNode;
-	            }
-	            return false;
-	        }, false);
-	    };
-
-	    if (element.addEventListener) {
-	        switch(type) {
-	            case 'mouseleave': eventListener(element, 'mouseout');
-	                break;
-	            case 'mouseenter': eventListener(element, 'mouseover');
-	                break;
-	            default : element.addEventListener(type, callback, false);
-	                break;
-	        }
-	    } else if (element.attachEvent) {
-	        element.attachEvent('on' + type, function() {
-	            callback.apply(element);
-	        });
-	    }
-	}
 </script>
 </html>
