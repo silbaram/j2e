@@ -82,7 +82,7 @@
 			addRole: function(s) {
 				var j2eCheckKeyframeConfig = {};
 				var keyframes = '@' + _commonConfig.cssFix + "keyframes " + s.name + " { ";
-				keyframes += _j2eCssUtil.createRole(s.role, j2eCheckKeyframeConfig);
+				keyframes += _j2eKeyFrameUtil.createRole(s.role, j2eCheckKeyframeConfig);
 				keyframes += "}";
 
 				if(j2eKeyframeConfig[s.name] === undefined) {
@@ -92,7 +92,7 @@
 				}
 				document.styleSheets[_commonConfig.styleSheetsIndex].insertRule( keyframes, document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length );
 
-				var stylesheetValue = _j2eCssUtil.getStyleSheet(s.name);
+				var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(s.name);
 				if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
 					j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.RELATIVE_POSITION_TYPE;
 				} else {
@@ -163,7 +163,7 @@
 
 
 	var
-		_j2eCssUtil = {
+		_j2eKeyFrameUtil = {
 			createRole: function(s, j2eCheckKeyframeConfig) {
 				var roleText = "";
 				var transformRoleText = " transform: ";
@@ -181,7 +181,8 @@
 						if(subKey !== "share") {
 							if(transformKey[subKey] !== undefined) {
 								transformRoleUse = true;
-								let textKey = s[key][subKey].replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+								let originTextKey = s[key][subKey];
+								let textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 
 								//transform이 여러 방향(,) 할당될때 처리
 								let textKeyArray = textKey.split(",");
@@ -195,13 +196,13 @@
 								transformRoleText += ")";
 
 								//증감 유무 체크
-								if(s[key][subKey].indexOf(J2E_CONSTANT.INCREASE) === 0 || s[key][subKey].indexOf(J2E_CONSTANT.DECREASE) === 0) {
+								if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0 || originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
 									if(increaseAndDecreaseArray[keyText] === undefined) {
 										increaseAndDecreaseArray.push(keyText);
 									}
 
 									newItem.push(subKey);
-									newItem[subKey] = s[key][subKey];
+									newItem[subKey] = originTextKey;
 									increaseAndDecreaseArray[keyText] = newItem;
 								}
 							}
@@ -212,29 +213,30 @@
 						roleText += transformRoleText + ";";
 					}
 
-					var bodyCheckStyle = document.body.style;
+					var checkStyle = document.body.style;
 					for(let subKey in s[key]) {
 						//css 조합
 						if(subKey !== "share") {
-							if(bodyCheckStyle[subKey] !== undefined) {
+							if(checkStyle[subKey] !== undefined) {
 								let unit = "";
-								let textKey = s[key][subKey].replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+								let originTextKey = s[key][subKey];
+								let textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 								if(isNaN(textKey) === false) {
 									unit = cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px";
 								}
 
 								//증감 유무 체크
-								if(s[key][subKey].indexOf(J2E_CONSTANT.INCREASE) === 0 || s[key][subKey].indexOf(J2E_CONSTANT.DECREASE) === 0) {
+								if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0 || originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
 									if(increaseAndDecreaseArray[keyText] === undefined) {
 										increaseAndDecreaseArray.push(keyText);
 									}
 
 									newItem.push(subKey);
-									newItem[subKey] = s[key][subKey];
+									newItem[subKey] = originTextKey;
 									increaseAndDecreaseArray[keyText] = newItem;
 								}
 
-								roleText += " " + _j2eCssUtil.getChangeCssKey(subKey) + ": " + textKey + unit + ";";
+								roleText += " " + _j2eKeyFrameUtil.getChangeCssKey(subKey) + ": " + textKey + unit + ";";
 							}
 						}
 					}
@@ -246,8 +248,8 @@
 
 				return roleText;
 			},
-			setStartingPositionRule: function(elm, animationName) {
-				var stylesheetValue = _j2eCssUtil.getStyleSheet(animationName);
+			setStartingPosition: function(elm, animationName) {
+				var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
 
 				if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
 					stylesheetValue.keyframes.appendRule(J2E_CONSTANT.START_RULE_KEY_NAME+" {}");
@@ -260,20 +262,14 @@
 				if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
 					let endRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.END_RULE_KEY_NAME).style;
 					let startRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME).style;
-					if(window.getComputedStyle != undefined) {
-						for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
-							startRuleStyle[endRuleStyle[item]] = getComputedStyle(elm, null)[endRuleStyle[item]];
-						}
-					} else {
-						for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
-							//여기로직은 확인 못해봄 TEST요함
-							startRuleStyle[endRuleStyle[item]] = elm.currentStyle[endRuleStyle[item]];
-						}
+
+					for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
+						startRuleStyle[endRuleStyle[item]] = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[endRuleStyle[item]] : elm.currentStyle[endRuleStyle[item]];
 					}
 				}
 			},
 			setIncreaseAndDecreasePosition: function(elm, animationName) {
-				var stylesheetValue = _j2eCssUtil.getStyleSheet(animationName);
+				var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
 
 				for(let i = 0, iLength = j2eKeyframeConfig[animationName].increaseAndDecrease.length; i < iLength; i++) {
 					let key = j2eKeyframeConfig[animationName].increaseAndDecrease[i];
@@ -294,7 +290,8 @@
 									let transformNewMoveValueArray = transformNewMoveValue.split(",");
 
 									let newRoleSpace = i == 0 ? "" : " ";
-									transformNewRoleText += newRoleSpace + transformValueArray[i].split("(")[0] + "(";
+
+
 									for(let index = 0, maxIndex = transformNewMoveValueArray.length; index < maxIndex; index++) {
 										let newMoveValue = transformNewMoveValueArray[index];
 										let oldMoveValue = transformOldMoveValue[index];
@@ -319,7 +316,7 @@
 						} else {
 							let moveValue = j2eKeyframeConfig[animationName].increaseAndDecrease[key][styleItemKey];
 							if(moveValue !== undefined) {
-								let styleValue = window.getComputedStyle != undefined ? getComputedStyle(elm, null)[styleItemKey] : elm.currentStyle[styleItemKey];
+								let styleValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[styleItemKey] : elm.currentStyle[styleItemKey];
 
 								if(moveValue.indexOf(J2E_CONSTANT.INCREASE) === 0) {
 									rule.style[styleItemKey] = (Number(moveValue.replace(J2E_CONSTANT.INCREASE,"")) + Number(styleValue.replace(/[(A-Z)]/gi,""))) + styleValue.replace(/[^(A-Z)]/gi,"");
@@ -359,68 +356,262 @@
 					}
 				}
 
+				if(animationOption.duration === "") {
+					console.error("시건 설정이 빠져있습니다.");
+					console.error("j2e(selector).setFillMode().setDuration().animate(); 와 같은 형식으로 animaite 함수가 마지막에 위치 하도록 하셔야 합니다.");
+					return;
+				}
 
 				//===================================================================
 				//여기를 어떤 로직으로 정리를해야 할지 고민해봐야함
 				//===================================================================
 
-				elm.style.animation = animationName + animationOptionTemp;
-				//증감 연산일 경우 (TEST: 더 나은 방법이 있는지 고민 해볼것)
+				//증감 연산일 경우 (주의 : 더 나은 방법이 있는지 고민 해볼것)
 				if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
+					elm.style.animation = animationName + animationOptionTemp;
+
+					//버그 : 여기가 작동할때 자식 element에 동시에 애니메이션을 줄때 자식 element가 초기화 되는 문제가 있음
 					var newone = elm.cloneNode(true);
 					elm.parentNode.replaceChild(newone, elm);
 					that.renderConfig.targetElement = newone;
+
+					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationStart", function(e){
+						// console.log("11111111111111");
+					});
+
+					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationIteration", function(e){
+						// console.log("22222222222222");
+					});
+
+					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationEnd", function(e){
+						// console.log("33333333333333");
+					});
+				} else {
+					// elm.style.animation = "";
+					// elm.style.animation = animationName + animationOptionTemp;
+					setTimeout(function () {elm.style.animation = animationName + animationOptionTemp;}, 10);
+
+					//이벤트를 한번만 실행하게 해야하는 문제점이 있음
+					_j2eKeyFrameUtil.prefixedEventListener(elm, "AnimationStart", function(e){
+						// console.log("11111111111111");
+					});
+
+					_j2eKeyFrameUtil.prefixedEventListener(elm, "AnimationIteration", function(e){
+						// console.log("22222222222222");
+					});
+
+					_j2eKeyFrameUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
+						// console.log("33333333333333");
+					});
 				}
-
-				// elm.style.animation = '';
-				// setTimeout(function () {elm.style.animation = animationName + animationOptionTemp;},10)
-
 				//===================================================================
 				//여기를 어떤 로직으로 정리를해야 할지 고민해봐야함
 				//===================================================================
+			},
+			prefixedEventListener: function(element, type, callback) {
+				var pfx = ["webkit", "moz", "MS", "o", ""];
+			  for (var p = 0; p < pfx.length; p++) {
+			  	if (!pfx[p]) {
+						type = type.toLowerCase();
+					}
+					element.addEventListener(pfx[p]+type, callback, false);
+			  }
 			}
 		};
 
 
-		_j2eUtil.createFunction("animate", function(s, t) {
-			var funS = typeof(s) === "object" ? s : typeof(t) === "object" ? t : null;
-			var funT = typeof(s) === "number" ? s+"s" : typeof(t) === "number" ? t+"s" : null;
+
+		var
+			_j2eTransitionUtil = {
+				createRole: function(role, that) {
+					var animationOption = that.renderConfig.animationOption;
+					var transitionRoleTemp = "";
+					var transformRoleUse = false;
+					var checkStyle = document.body.style;
+
+					for(let i = 0, iMaxLength = role.length; i < iMaxLength; i++) {
+
+						let transitionTime = "";
+						if(role[i].duration === undefined) {
+							transitionTime = animationOption.duration;
+						} else {
+							transitionTime = role[i].duration + "s";
+						}
+
+						for(let subKey in role[i]) {
+							if(subKey !== "duration") {
+								if (checkStyle[subKey] !== undefined) {
+									transitionRoleTemp += subKey + " " + transitionTime + ", ";
+								} else if(transformKey[subKey] !== undefined && transformRoleUse === false) {
+									transformRoleUse = true;
+									transitionRoleTemp += J2E_CONSTANT.TRANSFORM_NAME + " " + transitionTime + ", ";
+								}
+							}
+						}
+					}
+
+					return transitionRoleTemp.substring(0, transitionRoleTemp.lastIndexOf(', '));
+				},
+				setFinishPosition: function(role, that) {
+					var elm = that.renderConfig.targetElement;
+					var transitionRoleTemp = "";
+					var transformRoleText = "";
+					var checkStyle = document.body.style;
+
+					for(let i = 0, maxLength = role.length; i < maxLength; i++) {
+
+						for(let subKey in role[i]) {
+							//transform 조합
+							if(subKey !== "duration") {
+								if(transformKey[subKey] !== undefined) {
+
+									let originTextKey = role[i][subKey];
+									let textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+
+									//transform이 여러 방향(,) 할당될때 처리
+									if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) !== 0 && originTextKey.indexOf(J2E_CONSTANT.DECREASE) !== 0) {
+										let textKeyArray = textKey.split(",");
+										transformRoleText += " " + subKey + "(";
+										for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
+											let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? transformKey[subKey] : "";
+											let commaUnit = textKeyArrayIndex == 0 ? "" : " ,";
+
+											transformRoleText += commaUnit + textKeyArray[textKeyArrayIndex] + unit;
+										}
+										transformRoleText += ")";
+									//증감 유무 체크
+									} else if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0 || originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
+										let styleValue = elm.style[J2E_CONSTANT.TRANSFORM_NAME];
+										if(styleValue !== "") {
+
+											let transformValueArray = styleValue.split(") ");
+
+											for(let i = 0, iLength = transformValueArray.length; i < iLength; i++) {
+												let transformValueArrayValue = transformValueArray[i];
+												if(transformValueArrayValue.indexOf(subKey) > -1) {
+													let transformOldMoveValue = transformValueArrayValue.split("(")[1].replace(")", "").split(", ");
+													let transformNewMoveValueArray = originTextKey.split(",");
+
+													transformRoleText += subKey + "(";
+													for(let index = 0, maxIndex = transformNewMoveValueArray.length; index < maxIndex; index++) {
+														let newMoveValue = transformNewMoveValueArray[index];
+														let oldMoveValue = transformOldMoveValue[index];
+														let commaUnit = index == 0 ? "" : " ,";
+
+														if(transformNewMoveValueArray[index].indexOf(J2E_CONSTANT.INCREASE) === 0) {
+															transformRoleText += commaUnit + (Number(newMoveValue.replace(J2E_CONSTANT.INCREASE,"")) + Number(oldMoveValue.replace(/[(A-Z)]/gi,""))) + oldMoveValue.replace(/[^(A-Z)]/gi,"")
+														} else if (transformNewMoveValueArray[index].indexOf(J2E_CONSTANT.DECREASE) === 0) {
+															transformRoleText += commaUnit + (Number(oldMoveValue.replace(/[(A-Z)]/gi,"")) - Number(newMoveValue.replace(J2E_CONSTANT.DECREASE,""))) + oldMoveValue.replace(/[^(A-Z)]/gi,"");
+														} else {
+															transformRoleText += commaUnit + oldMoveValue;
+														}
+													}
+													transformRoleText += ") ";
+												}
+											}
+										} else {
+											//초기 값을 없을땐 그냥 이동
+											let textKeyArray = textKey.split(",");
+											transformRoleText += " " + subKey + "(";
+											for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
+												let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? transformKey[subKey] : "";
+												let commaUnit = textKeyArrayIndex == 0 ? "" : " ,";
+
+												transformRoleText += commaUnit + textKeyArray[textKeyArrayIndex] + unit;
+											}
+											transformRoleText += ")";
+										}
+									}
+								}
+							}
+						}
+
+						elm.style[J2E_CONSTANT.TRANSFORM_NAME] = transformRoleText;
+
+
+						//css 조합
+						for(let subKey in role[i]) {
+							if(subKey !== "duration") {
+
+								if(checkStyle[subKey] !== undefined) {
+									transitionRoleTemp = transitionRoleTemp + subKey + " ";
+
+									let unit = "";
+									let originTextKey = role[i][subKey];
+									let textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+
+									if(isNaN(textKey) === false) {
+										unit = cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px";
+									}
+
+									//증감 유무 체크
+									if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0 || originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
+										let styleValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[subKey] : elm.currentStyle[subKey];
+
+										if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0) {
+											textKey = (Number(textKey.replace(J2E_CONSTANT.INCREASE,"")) + Number(styleValue.replace(/[(A-Z)]/gi,"")));
+										} else if (originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
+											textKey = (Number(styleValue.replace(/[(A-Z)]/gi,"")) - Number(textKey.replace(J2E_CONSTANT.INCREASE,"")));
+										}
+									}
+
+									elm.style[subKey] = textKey + unit;
+								}
+							}
+						}
+					}
+				},
+				startAnimate: function(elm, role, that) {
+					elm.style.transition = _j2eTransitionUtil.createRole(role, that);
+					_j2eTransitionUtil.setFinishPosition(role, that);
+				}
+		};
+
+
+
+		_j2eUtil.createFunction("animate", function(s) {
+			var funS = s;
 
 			if(funS === null) {
 				console.error("animate 설정이 잘 못 되었습니다.");
 				return;
 			}
-			if(funT === null) {
-				console.error("시간 설정이 잘 못 되었습니다.");
-				return;
-			}
-			if(funS.name === undefined) {
-				console.error("role을 지정하지 않았습니다.");
-				return;
-			}
 
-			//룰 추가
-			if(funS.role !== undefined) {
-				_j2e.addRole(funS);
-			}
-
-			var animationSyntax = "";
-			var animationName = funS.name;
 			var elm = this.renderConfig.targetElement;
-			this.renderConfig.animationOption.duration = funT;
 
-			// 현재위치 세팅
-			if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
-				_j2eCssUtil.setStartingPositionRule(elm, animationName);
+			//keyFrame 방식
+			if(funS.name !== undefined) {
+				//룰 추가
+				if(funS.role !== undefined) {
+					_j2e.addRole(funS);
+				}
+
+				var animationName = funS.name;
+
+				// 현재위치 세팅
+				if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+					_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
+				}
+
+				//위치 증감 세팅
+				if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
+					_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
+				}
+
+				elm.style.animation = '';
+				_j2eKeyFrameUtil.startAnimate(elm, animationName, this);
+
+			//transition 방식
+			} else if(funS.name === undefined) {
+
+				if(funS.role === undefined) {
+					console.error("role 설정이 안되엇습니다.");
+					return;
+				}
+
+				//transition에서 사용할 구문 작성
+				_j2eTransitionUtil.startAnimate(elm, funS.role, this);
 			}
-
-			//위치 증감 세팅
-			if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
-				_j2eCssUtil.setIncreaseAndDecreasePosition(elm, animationName);
-			}
-
-			elm.style.animation = '';
-			_j2eCssUtil.startAnimate(elm, animationName, this);
 
 			return this;
 		});
