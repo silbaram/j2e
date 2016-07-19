@@ -92,6 +92,7 @@
 					j2eKeyframeConfig.push(s.name);
 					j2eKeyframeConfig[s.name] = j2eCheckKeyframeConfig;
 					j2eCheckKeyframeConfig.index = document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length;
+					j2eCheckKeyframeConfig.synchronization = {useElement:"", status:false}
 				}
 				document.styleSheets[_commonConfig.styleSheetsIndex].insertRule( keyframes, document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length );
 
@@ -402,6 +403,13 @@
 
 					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationEnd", function(e){
 						that.renderConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_END;
+
+						//여러 element가 하나의 keyframe의 rule에 데이터 변경에 대한 접근을 할 수 없도록 하는 부분 해제
+						if(elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY) === j2eKeyframeConfig[animationName].synchronization.useElement) {
+							j2eKeyframeConfig[animationName].synchronization.status = false;
+							j2eKeyframeConfig[animationName].synchronization.useElement = "";
+						}
+
 					});
 				} else {
 					setTimeout(function () {elm.style.animation = animationName + animationOptionTemp;}, 10);
@@ -606,14 +614,19 @@
 
 					this.renderConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
 
-					// 현재위치 세팅
-					if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
-						_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
-					}
+					if(j2eKeyframeConfig[animationName].synchronization.status === false) {
+						j2eKeyframeConfig[animationName].synchronization.status = true;
+						j2eKeyframeConfig[animationName].synchronization.useElement = elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY);
 
-					//위치 증감 세팅
-					if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
-						_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
+						// 현재위치 세팅
+						if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+							_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
+						}
+
+						//위치 증감 세팅
+						if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
+							_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
+						}
 					}
 
 					elm.style.animation = '';
