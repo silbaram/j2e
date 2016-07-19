@@ -30,8 +30,11 @@
 				DECREASE: "-=",
 				J2E_ANIMATE_ID_NAME: "j2eAnimateIdNo_",
 				J2E_ANIMATE_ID_KEY: "j2eid",
-				TRANSFORM_NAME: "transform"
+				TRANSFORM_NAME: "transform",
+				ANIMATION_START: "start",
+				ANIMATION_END: "end"
 			};
+
 
 
 	var
@@ -107,7 +110,7 @@
 			createFunction: function(n, c) {
 				j2eObject.prototype[n] = c;
 			},
-			init: function() {
+			init: (function() {
 				var cssAnimation = false,
 						animationstring = 'animation',
 						keyframeprefix = '',
@@ -158,7 +161,7 @@
 						}
 					}
 				}
-			}
+			}())
 		};
 
 
@@ -283,6 +286,7 @@
 						if(styleItemKey === J2E_CONSTANT.TRANSFORM_NAME) {
 							let transformNewRoleText = "";
 							let transformValueArray = rule.style[J2E_CONSTANT.TRANSFORM_NAME].split(") ");
+
 							for(let i = 0, iLength = transformValueArray.length; i < iLength; i++) {
 								let transformNewMoveValue = moveValue[transformValueArray[i].split("(")[0]];
 								if(transformNewMoveValue !== undefined) {
@@ -291,7 +295,7 @@
 
 									let newRoleSpace = i == 0 ? "" : " ";
 
-
+									transformNewRoleText += transformValueArray[i].split("(")[0].replace(")", "").split(", ")[0] + "(";
 									for(let index = 0, maxIndex = transformNewMoveValueArray.length; index < maxIndex; index++) {
 										let newMoveValue = transformNewMoveValueArray[index];
 										let oldMoveValue = transformOldMoveValue[index];
@@ -358,7 +362,7 @@
 
 				if(animationOption.duration === "") {
 					console.error("시건 설정이 빠져있습니다.");
-					console.error("j2e(selector).setFillMode().setDuration().animate(); 와 같은 형식으로 animaite 함수가 마지막에 위치 하도록 하셔야 합니다.");
+					console.error("j2e(selector).setDuration().animate(); 와 같은 형식으로 animaite 함수가 마지막에 위치 하도록 하셔야 합니다.");
 					return;
 				}
 
@@ -367,41 +371,50 @@
 				//===================================================================
 
 				//증감 연산일 경우 (주의 : 더 나은 방법이 있는지 고민 해볼것)
-				if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
+				if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
 					elm.style.animation = animationName + animationOptionTemp;
 
-					//버그 : 여기가 작동할때 자식 element에 동시에 애니메이션을 줄때 자식 element가 초기화 되는 문제가 있음
+					//버그 : 애니메이션을 줄때 자식을 먼저 하고 부모를 하면 문제가 없지만 순서가 바뀌면 버그 발생(성능 이슈도 있어 보임)
 					var newone = elm.cloneNode(true);
 					elm.parentNode.replaceChild(newone, elm);
 					that.renderConfig.targetElement = newone;
 
+					var oldElement = [];
+					var newElement = [];
+					var children = elm.childNodes;
+					for(let i = 0, j = 0, Ilength = children.length; i < Ilength; i++) {
+						if (children[i].nodeType === 1) {
+							oldElement[j] = children[i];
+							newElement[j] = newone.childNodes[i];
+							j++;
+						}
+					}
+
+					for(let i = 0, Ilength = oldElement.length; i < Ilength; i++) {
+						newone.replaceChild(oldElement[i], newElement[i]);
+					}
+
 					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationStart", function(e){
-						// console.log("11111111111111");
 					});
 
 					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationIteration", function(e){
-						// console.log("22222222222222");
 					});
 
 					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationEnd", function(e){
-						// console.log("33333333333333");
+						that.renderConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_END;
 					});
 				} else {
-					// elm.style.animation = "";
-					// elm.style.animation = animationName + animationOptionTemp;
 					setTimeout(function () {elm.style.animation = animationName + animationOptionTemp;}, 10);
+					// elm.style.animation = animationName + animationOptionTemp;
 
-					//이벤트를 한번만 실행하게 해야하는 문제점이 있음
+					//버그 : 이벤트를 한번만 실행하게 해야하는 문제점이 있음
 					_j2eKeyFrameUtil.prefixedEventListener(elm, "AnimationStart", function(e){
-						// console.log("11111111111111");
 					});
 
 					_j2eKeyFrameUtil.prefixedEventListener(elm, "AnimationIteration", function(e){
-						// console.log("22222222222222");
 					});
 
 					_j2eKeyFrameUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
-						// console.log("33333333333333");
 					});
 				}
 				//===================================================================
@@ -574,7 +587,7 @@
 
 			if(funS === null) {
 				console.error("animate 설정이 잘 못 되었습니다.");
-				return;
+				return this;
 			}
 
 			var elm = this.renderConfig.targetElement;
@@ -586,27 +599,36 @@
 					_j2e.addRole(funS);
 				}
 
-				var animationName = funS.name;
+				let animationName = funS.name;
 
-				// 현재위치 세팅
-				if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
-					_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
+				if((j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0 || j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) &&
+				   (this.renderConfig.elemantAnimationStatus === J2E_CONSTANT.ANIMATION_END || this.renderConfig.elemantAnimationStatus === undefined)) {
+
+					this.renderConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
+
+					// 현재위치 세팅
+					if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+						_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
+					}
+
+					//위치 증감 세팅
+					if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
+						_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
+					}
+
+					elm.style.animation = '';
+					_j2eKeyFrameUtil.startAnimate(elm, animationName, this);
+				} else if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.ABSOLUTE_POSITION_TYPE) {
+					elm.style.animation = '';
+					_j2eKeyFrameUtil.startAnimate(elm, animationName, this);
 				}
-
-				//위치 증감 세팅
-				if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
-					_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
-				}
-
-				elm.style.animation = '';
-				_j2eKeyFrameUtil.startAnimate(elm, animationName, this);
 
 			//transition 방식
 			} else if(funS.name === undefined) {
 
 				if(funS.role === undefined) {
 					console.error("role 설정이 안되엇습니다.");
-					return;
+					return this;
 				}
 
 				//transition에서 사용할 구문 작성
@@ -620,7 +642,7 @@
 
 			if(isNaN(t)) {
 				console.error("animationDelay 설정 값이 잘 못 되었습니다. 숫자 형식만 가능합니다.");
-				return;
+				return this;
 			}
 
 			this.renderConfig.animationOption.delay = t+"s";
@@ -632,7 +654,7 @@
 
 			if("normal" !== s && "reverse" !== s && "alternate" !== s && "alternate-reverse" !== s) {
 				console.error("animationDirection 설정값이  잘 못 되었습니다. (normal, reverse, alternate, alternate-reverse) 형식만 가능합니다.");
-				return;
+				return this;
 			}
 
 			this.renderConfig.animationOption.direction = s;
@@ -644,7 +666,7 @@
 
 			if(isNaN(t)) {
 				console.error("animationDuration 설정값이 잘 못 되었습니다. 숫자 형식만 가능합니다.");
-				return;
+				return this;
 			}
 
 			this.renderConfig.animationOption.duration = t+"s";
@@ -656,7 +678,7 @@
 
 			if("none" !== s && "forwards" !== s && "backwards" !== s && "both" !== s) {
 				console.error("animationFillMode 설정값이  잘 못 되었습니다. (none, forwards, backwards, both) 형식만 가능합니다.");
-				return;
+				return this;
 			}
 
 			this.renderConfig.animationOption.fillMode = s;
@@ -668,7 +690,7 @@
 
 			if(isNaN(s) && s !== "infinite") {
 				console.error("animationFillMode 설정값이 잘 못 되었습니다. (숫자, infinite) 형식만 가능합니다.");
-				return;
+				return this;
 			}
 
 			this.renderConfig.animationOption.iterationCount = s;
@@ -680,7 +702,7 @@
 
 			if(s !== "paused" && s !== "running") {
 				console.error("animationPlayState 설정값이 잘 못 되었습니다. (paused, running) 형식만 가능합니다.");
-				return;
+				return this;
 			}
 
 			this.renderConfig.animationOption.playState = s;
@@ -692,7 +714,7 @@
 
 			if(s !== "linear" && s !== "ease" && s !== "ease-in" && s !== "ease-out" && s !== "ease-in-out") {
 				console.error("animationTimingFunction 설정값이 잘 못 되었습니다. (linear, ease, ease-in, ease-out, ease-in-out) 형식만 가능합니다.");
-				return;
+				return this;
 			}
 
 			this.renderConfig.animationOption.timingFunction = s;
@@ -704,6 +726,4 @@
 		window.j2e = _j2e.selector;
 		window.j2e.addRole = _j2e.addRole;
 
-		_j2eUtil.init();
-
-})(window, document);
+}(window, document));
