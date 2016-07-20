@@ -42,11 +42,11 @@
 			selector: function(e) {
 
 				if(e !== document && e !== window) {
-					var renderConfig = {};
+					var elementConfig = {};
 					var cloneObject = new j2eObject;
 
 					if(typeof e == "object") {
-						renderConfig.targetElement = e;
+						elementConfig.targetElement = e;
 					} else {
 						let c = "";
 						if(e !== null) {
@@ -54,26 +54,27 @@
 						};
 
 						if(c === ".") {
-							renderConfig.targetElement = document.getElementsByClassName(e.substr(1, e.length))[0];
+							elementConfig.targetElement = document.getElementsByClassName(e.substr(1, e.length))[0];
 						}
 						else if(c === "#") {
-							renderConfig.targetElement = document.getElementById(e.substr(1, e.length));
+							elementConfig.targetElement = document.getElementById(e.substr(1, e.length));
 						}
 					}
 
 					//고유 아이디 부여
-					if(renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY) === null) {
-						renderConfig.targetElement.setAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY, J2E_CONSTANT.J2E_ANIMATE_ID_NAME + j2eObjectArr.length);
+					if(elementConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY) === null) {
+						elementConfig.targetElement.setAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY, J2E_CONSTANT.J2E_ANIMATE_ID_NAME + j2eObjectArr.length);
 					}
 
-					if(j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] === undefined) {
-						cloneObject.renderConfig = renderConfig;
-						cloneObject.renderConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', playState: '', timingFunction: '', willChange:false};
+					if(j2eObjectArr[elementConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] === undefined) {
+						cloneObject.elementConfig = elementConfig;
+						cloneObject.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', playState: '', timingFunction: '', willChange:false};
+						cloneObject.elementConfig.animationEvent = {transition: false, keyframe: false};
 
-						j2eObjectArr.push(renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY));
-						j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] = renderConfig;
+						j2eObjectArr.push(elementConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY));
+						j2eObjectArr[elementConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] = elementConfig;
 					} else {
-						cloneObject.renderConfig = j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)];
+						cloneObject.elementConfig = j2eObjectArr[elementConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)];
 					}
 
 					return cloneObject;
@@ -169,6 +170,7 @@
 			  	if (!pfx[p]) {
 						type = type.toLowerCase();
 					}
+
 					element.addEventListener(pfx[p]+type, callback, false);
 			  }
 			}
@@ -362,7 +364,7 @@
 				return {stylesheet: stylesheet, keyframes: keyframes, cssRules: cssRules}
 			},
 			startAnimate: function(elm, animationName, that) {
-				var animationOption = that.renderConfig.animationOption;
+				var animationOption = that.elementConfig.animationOption;
 				var animationOptionTemp = '';
 				for(let key in animationOption) {
 					if(animationOption[key] !== "" && key !== "willChange") {
@@ -387,7 +389,7 @@
 					//버그 : 애니메이션을 줄때 자식을 먼저 하고 부모를 하면 문제가 없지만 순서가 바뀌면 버그 발생(성능 이슈도 있어 보임)
 					var newone = elm.cloneNode(true);
 					elm.parentNode.replaceChild(newone, elm);
-					that.renderConfig.targetElement = newone;
+					that.elementConfig.targetElement = newone;
 
 					var oldElement = [];
 					var newElement = [];
@@ -411,15 +413,15 @@
 					});
 
 					_j2eUtil.prefixedEventListener(newone, "AnimationEnd", function(e){
-						that.renderConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_END;
+						that.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_END;
 
-						//여러 element가 하나의 keyframe의 rule에 데이터 변경에 대한 접근을 할 수 없도록 하는 부분 해제
+						//여러 element가 하나의 keyframe의 rule에 데이터 변경에 대한 접근을 할 수 있도록 속성 변경
 						if(elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY) === j2eKeyframeConfig[animationName].synchronization.useElement) {
 							j2eKeyframeConfig[animationName].synchronization.status = false;
 							j2eKeyframeConfig[animationName].synchronization.useElement = "";
 						}
 
-						if(that.renderConfig.animationOption.willChange === true) {
+						if(that.elementConfig.animationOption.willChange === true) {
 							elm.style.willChange = 'auto';
 						}
 					});
@@ -427,18 +429,21 @@
 					setTimeout(function () {elm.style.animation = animationName + animationOptionTemp;}, 10);
 					// elm.style.animation = animationName + animationOptionTemp;
 
-					//버그 : 이벤트를 한번만 실행하게 해야하는 문제점이 있음
-					_j2eUtil.prefixedEventListener(elm, "AnimationStart", function(e){
-					});
+					if(that.elementConfig.animationEvent.keyframe === false) {
+						that.elementConfig.animationEvent.keyframe = true;
 
-					_j2eUtil.prefixedEventListener(elm, "AnimationIteration", function(e){
-					});
+						_j2eUtil.prefixedEventListener(elm, "AnimationStart", function(e){
+						});
 
-					_j2eUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
-						if(that.renderConfig.animationOption.willChange === true) {
-							elm.style.willChange = 'auto';
-						}
-					});
+						_j2eUtil.prefixedEventListener(elm, "AnimationIteration", function(e){
+						});
+
+						_j2eUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
+							if(that.elementConfig.animationOption.willChange === true) {
+								elm.style.willChange = 'auto';
+							}
+						});
+					}
 				}
 				//===================================================================
 				//여기를 어떤 로직으로 정리를해야 할지 고민해봐야함
@@ -451,7 +456,7 @@
 		var
 			_j2eTransitionUtil = {
 				createRole: function(role, that) {
-					var animationOption = that.renderConfig.animationOption;
+					var animationOption = that.elementConfig.animationOption;
 					var transitionRoleTemp = "";
 					var transformRoleUse = false;
 					var checkStyle = document.body.style;
@@ -480,7 +485,7 @@
 					return transitionRoleTemp.substring(0, transitionRoleTemp.lastIndexOf(', '));
 				},
 				setFinishPosition: function(role, that) {
-					var elm = that.renderConfig.targetElement;
+					var elm = that.elementConfig.targetElement;
 					var transitionRoleTemp = "";
 					var transformRoleText = "";
 					var checkStyle = document.body.style;
@@ -592,15 +597,15 @@
 					elm.style.transition = _j2eTransitionUtil.createRole(role, that);
 					_j2eTransitionUtil.setFinishPosition(role, that);
 
-					//버그 : 이벤트를 한번만 실행하게 해야하는 문제점이 있음
-					_j2eUtil.prefixedEventListener(elm, "TransitionStart", function(e){
-					});
+					if(that.elementConfig.animationEvent.transition === false) {
+						that.elementConfig.animationEvent.transition = true;
 
-					_j2eUtil.prefixedEventListener(elm, "TransitionEnd", function(e){
-						if(that.renderConfig.animationOption.willChange === true) {
-							elm.style.willChange = 'auto';
-						}
-					});
+						_j2eUtil.prefixedEventListener(elm, "TransitionEnd", function(e){
+							if(that.elementConfig.animationOption.willChange === true) {
+								elm.style.willChange = 'auto';
+							}
+						});
+					}
 				}
 		};
 
@@ -613,7 +618,7 @@
 				return this;
 			}
 
-			var elm = this.renderConfig.targetElement;
+			var elm = this.elementConfig.targetElement;
 
 			//keyFrame 방식
 			if(funS.name !== undefined) {
@@ -625,7 +630,7 @@
 				let animationName = funS.name;
 				let willChangeValue = "";
 
-				if(this.renderConfig.animationOption.willChange === true) {
+				if(this.elementConfig.animationOption.willChange === true) {
 					let stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
 					for(let i = 0, iMax = stylesheetValue.cssRules.length; i < iMax; i++) {
 						let cssRulesValue = stylesheetValue.cssRules[i];
@@ -639,13 +644,13 @@
 
 				let j2eKeyframeConfigValue = j2eKeyframeConfig[animationName];
 				if((j2eKeyframeConfigValue.increaseAndDecrease.length > 0 || j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) &&
-				   (this.renderConfig.elemantAnimationStatus === J2E_CONSTANT.ANIMATION_END || this.renderConfig.elemantAnimationStatus === undefined)) {
+				   (this.elementConfig.elemantAnimationStatus === J2E_CONSTANT.ANIMATION_END || this.elementConfig.elemantAnimationStatus === undefined)) {
 
-					if(this.renderConfig.animationOption.willChange === true) {
+					if(this.elementConfig.animationOption.willChange === true) {
 						elm.style.willChange = willChangeValue;
 					}
 
-					this.renderConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
+					this.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
 
 					if(j2eKeyframeConfigValue.synchronization.status === false) {
 						j2eKeyframeConfigValue.synchronization.status = true;
@@ -665,7 +670,7 @@
 					elm.style.animation = '';
 					_j2eKeyFrameUtil.startAnimate(elm, animationName, this);
 				} else if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.ABSOLUTE_POSITION_TYPE) {
-					if(this.renderConfig.animationOption.willChange === true) {
+					if(this.elementConfig.animationOption.willChange === true) {
 						elm.style.willChange = willChangeValue;
 					}
 
@@ -682,7 +687,7 @@
 				}
 
 				let willChangeValue = "";
-				if(this.renderConfig.animationOption.willChange === true) {
+				if(this.elementConfig.animationOption.willChange === true) {
 					for(let i = 0, iMax = funS.role.length; i < iMax; i++) {
 						for(let key in funS.role[i]) {
 							if(key !== "duration") {
@@ -708,7 +713,7 @@
 				return this;
 			}
 
-			this.renderConfig.animationOption.delay = t+"s";
+			this.elementConfig.animationOption.delay = t+"s";
 
 			return this;
 		});
@@ -720,7 +725,7 @@
 				return this;
 			}
 
-			this.renderConfig.animationOption.direction = s;
+			this.elementConfig.animationOption.direction = s;
 
 			return this;
 		});
@@ -732,7 +737,7 @@
 				return this;
 			}
 
-			this.renderConfig.animationOption.duration = t+"s";
+			this.elementConfig.animationOption.duration = t+"s";
 
 			return this;
 		});
@@ -744,7 +749,7 @@
 				return this;
 			}
 
-			this.renderConfig.animationOption.fillMode = s;
+			this.elementConfig.animationOption.fillMode = s;
 
 			return this;
 		});
@@ -756,7 +761,7 @@
 				return this;
 			}
 
-			this.renderConfig.animationOption.iterationCount = s;
+			this.elementConfig.animationOption.iterationCount = s;
 
 			return this;
 		});
@@ -768,7 +773,7 @@
 				return this;
 			}
 
-			this.renderConfig.animationOption.playState = s;
+			this.elementConfig.animationOption.playState = s;
 
 			return this;
 		});
@@ -780,7 +785,7 @@
 				return this;
 			}
 
-			this.renderConfig.animationOption.timingFunction = s;
+			this.elementConfig.animationOption.timingFunction = s;
 
 			return this;
 		});
@@ -792,7 +797,7 @@
 				return this;
 			}
 
-			this.renderConfig.animationOption.willChange = f;
+			this.elementConfig.animationOption.willChange = f;
 
 			return this;
 		});
