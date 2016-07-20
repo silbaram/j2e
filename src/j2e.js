@@ -68,7 +68,7 @@
 
 					if(j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] === undefined) {
 						cloneObject.renderConfig = renderConfig;
-						cloneObject.renderConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', playState: '', timingFunction: ''};
+						cloneObject.renderConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', playState: '', timingFunction: '', willChange:false};
 
 						j2eObjectArr.push(renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY));
 						j2eObjectArr[renderConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] = renderConfig;
@@ -162,7 +162,16 @@
 						}
 					}
 				}
-			}())
+			}()),
+			prefixedEventListener: function(element, type, callback) {
+				var pfx = ["webkit", "moz", "MS", "o", ""];
+			  for (var p = 0; p < pfx.length; p++) {
+			  	if (!pfx[p]) {
+						type = type.toLowerCase();
+					}
+					element.addEventListener(pfx[p]+type, callback, false);
+			  }
+			}
 		};
 
 
@@ -356,7 +365,7 @@
 				var animationOption = that.renderConfig.animationOption;
 				var animationOptionTemp = '';
 				for(let key in animationOption) {
-					if(animationOption[key] !== "") {
+					if(animationOption[key] !== "" && key !== "willChange") {
 						animationOptionTemp += ' ' + animationOption[key];
 					}
 				}
@@ -395,13 +404,13 @@
 						newone.replaceChild(oldElement[i], newElement[i]);
 					}
 
-					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationStart", function(e){
+					_j2eUtil.prefixedEventListener(newone, "AnimationStart", function(e){
 					});
 
-					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationIteration", function(e){
+					_j2eUtil.prefixedEventListener(newone, "AnimationIteration", function(e){
 					});
 
-					_j2eKeyFrameUtil.prefixedEventListener(newone, "AnimationEnd", function(e){
+					_j2eUtil.prefixedEventListener(newone, "AnimationEnd", function(e){
 						that.renderConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_END;
 
 						//여러 element가 하나의 keyframe의 rule에 데이터 변경에 대한 접근을 할 수 없도록 하는 부분 해제
@@ -410,33 +419,30 @@
 							j2eKeyframeConfig[animationName].synchronization.useElement = "";
 						}
 
+						if(that.renderConfig.animationOption.willChange === true) {
+							elm.style.willChange = 'auto';
+						}
 					});
 				} else {
 					setTimeout(function () {elm.style.animation = animationName + animationOptionTemp;}, 10);
 					// elm.style.animation = animationName + animationOptionTemp;
 
 					//버그 : 이벤트를 한번만 실행하게 해야하는 문제점이 있음
-					_j2eKeyFrameUtil.prefixedEventListener(elm, "AnimationStart", function(e){
+					_j2eUtil.prefixedEventListener(elm, "AnimationStart", function(e){
 					});
 
-					_j2eKeyFrameUtil.prefixedEventListener(elm, "AnimationIteration", function(e){
+					_j2eUtil.prefixedEventListener(elm, "AnimationIteration", function(e){
 					});
 
-					_j2eKeyFrameUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
+					_j2eUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
+						if(that.renderConfig.animationOption.willChange === true) {
+							elm.style.willChange = 'auto';
+						}
 					});
 				}
 				//===================================================================
 				//여기를 어떤 로직으로 정리를해야 할지 고민해봐야함
 				//===================================================================
-			},
-			prefixedEventListener: function(element, type, callback) {
-				var pfx = ["webkit", "moz", "MS", "o", ""];
-			  for (var p = 0; p < pfx.length; p++) {
-			  	if (!pfx[p]) {
-						type = type.toLowerCase();
-					}
-					element.addEventListener(pfx[p]+type, callback, false);
-			  }
 			}
 		};
 
@@ -585,6 +591,16 @@
 				startAnimate: function(elm, role, that) {
 					elm.style.transition = _j2eTransitionUtil.createRole(role, that);
 					_j2eTransitionUtil.setFinishPosition(role, that);
+
+					//버그 : 이벤트를 한번만 실행하게 해야하는 문제점이 있음
+					_j2eUtil.prefixedEventListener(elm, "TransitionStart", function(e){
+					});
+
+					_j2eUtil.prefixedEventListener(elm, "TransitionEnd", function(e){
+						if(that.renderConfig.animationOption.willChange === true) {
+							elm.style.willChange = 'auto';
+						}
+					});
 				}
 		};
 
@@ -592,7 +608,6 @@
 
 		_j2eUtil.createFunction("animate", function(s) {
 			var funS = s;
-
 			if(funS === null) {
 				console.error("animate 설정이 잘 못 되었습니다.");
 				return this;
@@ -608,30 +623,52 @@
 				}
 
 				let animationName = funS.name;
+				let willChangeValue = "";
 
-				if((j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0 || j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) &&
+				if(this.renderConfig.animationOption.willChange === true) {
+					let stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
+					for(let i = 0, iMax = stylesheetValue.cssRules.length; i < iMax; i++) {
+						let cssRulesValue = stylesheetValue.cssRules[i];
+						if(cssRulesValue.keyText !== J2E_CONSTANT.START_RULE_KEY_NAME) {
+							for(let j = 0, jMax = cssRulesValue.style.length; j < jMax; j++) {
+								willChangeValue += willChangeValue.indexOf(cssRulesValue.style[j]) === -1 ? willChangeValue === "" ? cssRulesValue.style[j] : ", " + cssRulesValue.style[j] : "";
+							}
+						}
+					}
+				}
+
+				let j2eKeyframeConfigValue = j2eKeyframeConfig[animationName];
+				if((j2eKeyframeConfigValue.increaseAndDecrease.length > 0 || j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) &&
 				   (this.renderConfig.elemantAnimationStatus === J2E_CONSTANT.ANIMATION_END || this.renderConfig.elemantAnimationStatus === undefined)) {
+
+					if(this.renderConfig.animationOption.willChange === true) {
+						elm.style.willChange = willChangeValue;
+					}
 
 					this.renderConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
 
-					if(j2eKeyframeConfig[animationName].synchronization.status === false) {
-						j2eKeyframeConfig[animationName].synchronization.status = true;
-						j2eKeyframeConfig[animationName].synchronization.useElement = elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY);
+					if(j2eKeyframeConfigValue.synchronization.status === false) {
+						j2eKeyframeConfigValue.synchronization.status = true;
+						j2eKeyframeConfigValue.synchronization.useElement = elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY);
 
 						// 현재위치 세팅
-						if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+						if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
 							_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
 						}
 
 						//위치 증감 세팅
-						if(j2eKeyframeConfig[animationName].increaseAndDecrease.length > 0) {
+						if(j2eKeyframeConfigValue.increaseAndDecrease.length > 0) {
 							_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
 						}
 					}
 
 					elm.style.animation = '';
 					_j2eKeyFrameUtil.startAnimate(elm, animationName, this);
-				} else if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.ABSOLUTE_POSITION_TYPE) {
+				} else if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.ABSOLUTE_POSITION_TYPE) {
+					if(this.renderConfig.animationOption.willChange === true) {
+						elm.style.willChange = willChangeValue;
+					}
+
 					elm.style.animation = '';
 					_j2eKeyFrameUtil.startAnimate(elm, animationName, this);
 				}
@@ -642,6 +679,19 @@
 				if(funS.role === undefined) {
 					console.error("role 설정이 안되엇습니다.");
 					return this;
+				}
+
+				let willChangeValue = "";
+				if(this.renderConfig.animationOption.willChange === true) {
+					for(let i = 0, iMax = funS.role.length; i < iMax; i++) {
+						for(let key in funS.role[i]) {
+							if(key !== "duration") {
+								let addKey = transformKey[key] !== undefined ? J2E_CONSTANT.TRANSFORM_NAME : key;
+								willChangeValue += willChangeValue.indexOf(addKey) === -1 ? willChangeValue === "" ? addKey : ", " + addKey : "";
+							}
+						}
+					}
+					elm.style.willChange = willChangeValue;
 				}
 
 				//transition에서 사용할 구문 작성
@@ -731,6 +781,18 @@
 			}
 
 			this.renderConfig.animationOption.timingFunction = s;
+
+			return this;
+		});
+
+		_j2eUtil.createFunction("setWillChange", function(f) {
+
+			if(f !== true && f !== false) {
+				console.error("willChange 설정값이 잘 못 되었습니다. (true, false) 형식만 가능합니다.");
+				return this;
+			}
+
+			this.renderConfig.animationOption.willChange = f;
 
 			return this;
 		});
