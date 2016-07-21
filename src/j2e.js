@@ -264,22 +264,23 @@
 				return roleText;
 			},
 			setStartingPosition: function(elm, animationName) {
-				var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
-
-				if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
-					stylesheetValue.keyframes.appendRule(J2E_CONSTANT.START_RULE_KEY_NAME+" {}");
-				} else {
-					stylesheetValue.keyframes.deleteRule(J2E_CONSTANT.START_RULE_KEY_NAME);
-					stylesheetValue.keyframes.appendRule(J2E_CONSTANT.START_RULE_KEY_NAME+" {}");
-				}
-
 				//상대위치 타입이면 현제 위치를 시작 위치로 변경 해준다.
 				if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+					let stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
+
+					if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
+						stylesheetValue.keyframes.appendRule(J2E_CONSTANT.START_RULE_KEY_NAME+" {}");
+					} else {
+						stylesheetValue.keyframes.deleteRule(J2E_CONSTANT.START_RULE_KEY_NAME);
+						stylesheetValue.keyframes.appendRule(J2E_CONSTANT.START_RULE_KEY_NAME+" {}");
+					}
+
 					let endRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.END_RULE_KEY_NAME).style;
 					let startRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME).style;
 
 					for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
 						startRuleStyle[endRuleStyle[item]] = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[endRuleStyle[item]] : elm.currentStyle[endRuleStyle[item]];
+						elm.style[endRuleStyle[item]] = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[endRuleStyle[item]] : elm.currentStyle[endRuleStyle[item]];
 					}
 				}
 			},
@@ -363,7 +364,94 @@
 
 				return {stylesheet: stylesheet, keyframes: keyframes, cssRules: cssRules}
 			},
-			startAnimate: function(elm, animationName, that) {
+			setStartAnimateInfo: function(that, funS) {
+				let animationName = funS.name;
+				let j2eKeyframeConfigValue = j2eKeyframeConfig[animationName];
+				if(j2eKeyframeConfigValue === undefined) {
+					console.error("없는 keyframe name 입니다.");
+					return that;
+				}
+
+				//룰 추가
+				if(funS.role !== undefined) {
+					_j2e.addRole(funS);
+				}
+
+				let elm = that.elementConfig.targetElement;
+				let willChangeValue = "";
+				let willChangeCheckValue = that.elementConfig.animationOption.willChange;
+				if(willChangeCheckValue === true) {
+					let stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
+					for(let i = 0, iMax = stylesheetValue.cssRules.length; i < iMax; i++) {
+						let cssRulesValue = stylesheetValue.cssRules[i];
+						if(cssRulesValue.keyText !== J2E_CONSTANT.START_RULE_KEY_NAME) {
+							for(let j = 0, jMax = cssRulesValue.style.length; j < jMax; j++) {
+								willChangeValue += willChangeValue.indexOf(cssRulesValue.style[j]) === -1 ? willChangeValue === "" ? cssRulesValue.style[j] : ", " + cssRulesValue.style[j] : "";
+							}
+						}
+					}
+				}
+
+				let animationNameCheck = elm.style["animation-name"];
+				if(animationNameCheck !== "" && animationNameCheck !== animationName) {
+					that.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
+
+					if(willChangeCheckValue === true) {
+						elm.style.willChange = willChangeValue;
+					}
+
+					j2eKeyframeConfigValue.synchronization.status = true;
+					j2eKeyframeConfigValue.synchronization.useElement = elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY);
+
+					// 현재위치 세팅
+					if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+						_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
+					}
+
+					// //위치 증감 세팅
+					if(j2eKeyframeConfigValue.increaseAndDecrease.length > 0) {
+						_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
+					}
+
+					elm.style.animation = '';
+					_j2eKeyFrameUtil.startAnimate(elm, animationName, that, false);
+				} else if((j2eKeyframeConfigValue.increaseAndDecrease.length > 0 || j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) &&
+				          (that.elementConfig.elemantAnimationStatus === J2E_CONSTANT.ANIMATION_END || that.elementConfig.elemantAnimationStatus === undefined)) {
+					that.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
+
+					if(willChangeCheckValue === true) {
+						elm.style.willChange = willChangeValue;
+					}
+
+					if(j2eKeyframeConfigValue.synchronization.status === false) {
+						j2eKeyframeConfigValue.synchronization.status = true;
+						j2eKeyframeConfigValue.synchronization.useElement = elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY);
+
+						// 현재위치 세팅
+						if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+							_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
+						}
+
+						// //위치 증감 세팅
+						if(j2eKeyframeConfigValue.increaseAndDecrease.length > 0) {
+							_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
+						}
+					}
+
+					elm.style.animation = '';
+					_j2eKeyFrameUtil.startAnimate(elm, animationName, that, true);
+				} else if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.ABSOLUTE_POSITION_TYPE) {
+					if(willChangeCheckValue === true) {
+						elm.style.willChange = willChangeValue;
+					}
+
+					elm.style.animation = '';
+					_j2eKeyFrameUtil.startAnimate(elm, animationName, that, true);
+				}
+
+				return that;
+			},
+			startAnimate: function(elm, animationName, that, animateType) {
 				var animationOption = that.elementConfig.animationOption;
 				var animationOptionTemp = '';
 				for(let key in animationOption) {
@@ -378,41 +466,22 @@
 					return;
 				}
 
-				//===================================================================
-				//여기를 어떤 로직으로 정리를해야 할지 고민해봐야함
-				//===================================================================
-
-				//증감 연산일 경우 (주의 : 더 나은 방법이 있는지 고민 해볼것)
-				if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+				if(animateType) {
+					setTimeout(function () {elm.style.animation = animationName + animationOptionTemp;}, 10);
+				} else {
 					elm.style.animation = animationName + animationOptionTemp;
+				}
 
-					//버그 : 애니메이션을 줄때 자식을 먼저 하고 부모를 하면 문제가 없지만 순서가 바뀌면 버그 발생(성능 이슈도 있어 보임)
-					var newone = elm.cloneNode(true);
-					elm.parentNode.replaceChild(newone, elm);
-					that.elementConfig.targetElement = newone;
+				if(that.elementConfig.animationEvent.keyframe === false) {
+					that.elementConfig.animationEvent.keyframe = true;
 
-					var oldElement = [];
-					var newElement = [];
-					var children = elm.childNodes;
-					for(let i = 0, j = 0, Ilength = children.length; i < Ilength; i++) {
-						if (children[i].nodeType === 1) {
-							oldElement[j] = children[i];
-							newElement[j] = newone.childNodes[i];
-							j++;
-						}
-					}
-
-					for(let i = 0, Ilength = oldElement.length; i < Ilength; i++) {
-						newone.replaceChild(oldElement[i], newElement[i]);
-					}
-
-					_j2eUtil.prefixedEventListener(newone, "AnimationStart", function(e){
+					_j2eUtil.prefixedEventListener(elm, "AnimationStart", function(e){
 					});
 
-					_j2eUtil.prefixedEventListener(newone, "AnimationIteration", function(e){
+					_j2eUtil.prefixedEventListener(elm, "AnimationIteration", function(e){
 					});
 
-					_j2eUtil.prefixedEventListener(newone, "AnimationEnd", function(e){
+					_j2eUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
 						that.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_END;
 
 						//여러 element가 하나의 keyframe의 rule에 데이터 변경에 대한 접근을 할 수 있도록 속성 변경
@@ -425,29 +494,7 @@
 							elm.style.willChange = 'auto';
 						}
 					});
-				} else {
-					setTimeout(function () {elm.style.animation = animationName + animationOptionTemp;}, 10);
-					// elm.style.animation = animationName + animationOptionTemp;
-
-					if(that.elementConfig.animationEvent.keyframe === false) {
-						that.elementConfig.animationEvent.keyframe = true;
-
-						_j2eUtil.prefixedEventListener(elm, "AnimationStart", function(e){
-						});
-
-						_j2eUtil.prefixedEventListener(elm, "AnimationIteration", function(e){
-						});
-
-						_j2eUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
-							if(that.elementConfig.animationOption.willChange === true) {
-								elm.style.willChange = 'auto';
-							}
-						});
-					}
 				}
-				//===================================================================
-				//여기를 어떤 로직으로 정리를해야 할지 고민해봐야함
-				//===================================================================
 			}
 		};
 
@@ -593,6 +640,32 @@
 						}
 					}
 				},
+				setStartAnimateInfo: function(that, funS) {
+					let elm = that.elementConfig.targetElement;
+
+					if(funS.role === undefined) {
+						console.error("role 설정이 안되엇습니다.");
+						return that;
+					}
+
+					let willChangeValue = "";
+					if(that.elementConfig.animationOption.willChange === true) {
+						for(let i = 0, iMax = funS.role.length; i < iMax; i++) {
+							for(let key in funS.role[i]) {
+								if(key !== "duration") {
+									let addKey = transformKey[key] !== undefined ? J2E_CONSTANT.TRANSFORM_NAME : key;
+									willChangeValue += willChangeValue.indexOf(addKey) === -1 ? willChangeValue === "" ? addKey : ", " + addKey : "";
+								}
+							}
+						}
+						elm.style.willChange = willChangeValue;
+					}
+
+					//transition에서 사용할 구문 작성
+					_j2eTransitionUtil.startAnimate(elm, funS.role, that);
+
+					return that;
+				},
 				startAnimate: function(elm, role, that) {
 					elm.style.transition = _j2eTransitionUtil.createRole(role, that);
 					_j2eTransitionUtil.setFinishPosition(role, that);
@@ -618,92 +691,16 @@
 				return this;
 			}
 
-			var elm = this.elementConfig.targetElement;
-
+			var returnValue = this;
 			//keyFrame 방식
 			if(funS.name !== undefined) {
-				//룰 추가
-				if(funS.role !== undefined) {
-					_j2e.addRole(funS);
-				}
-
-				let animationName = funS.name;
-				let willChangeValue = "";
-
-				if(this.elementConfig.animationOption.willChange === true) {
-					let stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
-					for(let i = 0, iMax = stylesheetValue.cssRules.length; i < iMax; i++) {
-						let cssRulesValue = stylesheetValue.cssRules[i];
-						if(cssRulesValue.keyText !== J2E_CONSTANT.START_RULE_KEY_NAME) {
-							for(let j = 0, jMax = cssRulesValue.style.length; j < jMax; j++) {
-								willChangeValue += willChangeValue.indexOf(cssRulesValue.style[j]) === -1 ? willChangeValue === "" ? cssRulesValue.style[j] : ", " + cssRulesValue.style[j] : "";
-							}
-						}
-					}
-				}
-
-				let j2eKeyframeConfigValue = j2eKeyframeConfig[animationName];
-				if((j2eKeyframeConfigValue.increaseAndDecrease.length > 0 || j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) &&
-				   (this.elementConfig.elemantAnimationStatus === J2E_CONSTANT.ANIMATION_END || this.elementConfig.elemantAnimationStatus === undefined)) {
-
-					if(this.elementConfig.animationOption.willChange === true) {
-						elm.style.willChange = willChangeValue;
-					}
-
-					this.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
-
-					if(j2eKeyframeConfigValue.synchronization.status === false) {
-						j2eKeyframeConfigValue.synchronization.status = true;
-						j2eKeyframeConfigValue.synchronization.useElement = elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY);
-
-						// 현재위치 세팅
-						if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
-							_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
-						}
-
-						//위치 증감 세팅
-						if(j2eKeyframeConfigValue.increaseAndDecrease.length > 0) {
-							_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
-						}
-					}
-
-					elm.style.animation = '';
-					_j2eKeyFrameUtil.startAnimate(elm, animationName, this);
-				} else if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.ABSOLUTE_POSITION_TYPE) {
-					if(this.elementConfig.animationOption.willChange === true) {
-						elm.style.willChange = willChangeValue;
-					}
-
-					elm.style.animation = '';
-					_j2eKeyFrameUtil.startAnimate(elm, animationName, this);
-				}
-
+				returnValue = _j2eKeyFrameUtil.setStartAnimateInfo(this, funS);
 			//transition 방식
 			} else if(funS.name === undefined) {
-
-				if(funS.role === undefined) {
-					console.error("role 설정이 안되엇습니다.");
-					return this;
-				}
-
-				let willChangeValue = "";
-				if(this.elementConfig.animationOption.willChange === true) {
-					for(let i = 0, iMax = funS.role.length; i < iMax; i++) {
-						for(let key in funS.role[i]) {
-							if(key !== "duration") {
-								let addKey = transformKey[key] !== undefined ? J2E_CONSTANT.TRANSFORM_NAME : key;
-								willChangeValue += willChangeValue.indexOf(addKey) === -1 ? willChangeValue === "" ? addKey : ", " + addKey : "";
-							}
-						}
-					}
-					elm.style.willChange = willChangeValue;
-				}
-
-				//transition에서 사용할 구문 작성
-				_j2eTransitionUtil.startAnimate(elm, funS.role, this);
+				returnValue = _j2eTransitionUtil.setStartAnimateInfo(this, funS);
 			}
 
-			return this;
+			return returnValue;
 		});
 
 		_j2eUtil.createFunction("setDelay", function(t) {
@@ -801,7 +798,6 @@
 
 			return this;
 		});
-
 
 		window.j2e = _j2e.selector;
 		window.j2e.addRole = _j2e.addRole;
