@@ -279,13 +279,15 @@
 					let startRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME).style;
 
 					for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
-						startRuleStyle[endRuleStyle[item]] = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[endRuleStyle[item]] : elm.currentStyle[endRuleStyle[item]];
-						elm.style[endRuleStyle[item]] = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[endRuleStyle[item]] : elm.currentStyle[endRuleStyle[item]];
+						let cssValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[endRuleStyle[item]] : elm.currentStyle[endRuleStyle[item]];
+						startRuleStyle[endRuleStyle[item]] = cssValue;
+						elm.style[endRuleStyle[item]] = cssValue;
 					}
 				}
 			},
 			setIncreaseAndDecreasePosition: function(elm, animationName) {
 				var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
+				var cssValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[J2E_CONSTANT.TRANSFORM_NAME] : elm.currentStyle[J2E_CONSTANT.TRANSFORM_NAME];
 
 				for(let i = 0, iLength = j2eKeyframeConfig[animationName].increaseAndDecrease.length; i < iLength; i++) {
 					let key = j2eKeyframeConfig[animationName].increaseAndDecrease[i];
@@ -315,9 +317,20 @@
 										let commaUnit = index == 0 ? "" : " ,";
 
 										if(transformNewMoveValueArray[index].indexOf(J2E_CONSTANT.INCREASE) === 0) {
-											transformNewRoleText += commaUnit + (Number(newMoveValue.replace(J2E_CONSTANT.INCREASE,"")) + Number(oldMoveValue.replace(/[(A-Z)]/gi,""))) + oldMoveValue.replace(/[^(A-Z)]/gi,"")
+											let numberNewMoveValue = Number(newMoveValue.replace(J2E_CONSTANT.INCREASE,""));
+											let numberOldMoveValue = Number(oldMoveValue.replace(/[(A-Z)]/gi,""));
+											if(cssValue !== "none") {
+												transformNewRoleText += commaUnit + (numberNewMoveValue + numberOldMoveValue) + oldMoveValue.replace(/[^(A-Z)]/gi,"");
+											}
 										} else if (transformNewMoveValueArray[index].indexOf(J2E_CONSTANT.DECREASE) === 0) {
-											transformNewRoleText += commaUnit + (Number(oldMoveValue.replace(/[(A-Z)]/gi,"")) - Number(newMoveValue.replace(J2E_CONSTANT.DECREASE,""))) + oldMoveValue.replace(/[^(A-Z)]/gi,"");
+											let numberNewMoveValue = Number(newMoveValue.replace(J2E_CONSTANT.DECREASE,""));
+											let numberOldMoveValue = Number(oldMoveValue.replace(/[(A-Z)]/gi,""));
+											if(cssValue === "none") {
+												transformNewRoleText += commaUnit + (numberOldMoveValue - (numberOldMoveValue+numberNewMoveValue)) + oldMoveValue.replace(/[^(A-Z)]/gi,"");
+											} else {
+												transformNewRoleText += commaUnit + (numberOldMoveValue - numberNewMoveValue) + oldMoveValue.replace(/[^(A-Z)]/gi,"");
+											}
+
 										} else {
 											transformNewRoleText += commaUnit + oldMoveValue;
 										}
@@ -393,7 +406,23 @@
 				}
 
 				let animationNameCheck = elm.style["animation-name"];
+				let elmAniStatus = that.elementConfig.elemantAnimationStatus;
+				let j2ePositionType = j2eKeyframeConfigValue.j2ePositionType;
+				let iadCount = j2eKeyframeConfigValue.increaseAndDecrease.length;
 				if(animationNameCheck !== "" && animationNameCheck !== animationName) {
+					_j2eKeyFrameUtil.choiceAnimateType(1, that, willChangeCheckValue, willChangeValue, elm, j2ePositionType, iadCount, animationName, j2eKeyframeConfigValue);
+				} else if(iadCount > 0 && (elmAniStatus === J2E_CONSTANT.ANIMATION_END || elmAniStatus === undefined)) {
+					_j2eKeyFrameUtil.choiceAnimateType(2, that, willChangeCheckValue, willChangeValue, elm, j2ePositionType, iadCount, animationName, j2eKeyframeConfigValue);
+				} else if (iadCount === 0 && j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+					_j2eKeyFrameUtil.choiceAnimateType(2, that, willChangeCheckValue, willChangeValue, elm, j2ePositionType, iadCount, animationName, j2eKeyframeConfigValue);
+				} else if(j2ePositionType === J2E_CONSTANT.ABSOLUTE_POSITION_TYPE) {
+					_j2eKeyFrameUtil.choiceAnimateType(3, that, willChangeCheckValue, willChangeValue, elm, j2ePositionType, iadCount, animationName, j2eKeyframeConfigValue);
+				}
+
+				return that;
+			},
+			choiceAnimateType: function(type, that, willChangeCheckValue, willChangeValue, elm, j2ePositionType, iadCount, animationName, j2eKeyframeConfigValue) {
+				if(type === 1) {
 					that.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
 
 					if(willChangeCheckValue === true) {
@@ -404,19 +433,18 @@
 					j2eKeyframeConfigValue.synchronization.useElement = elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY);
 
 					// 현재위치 세팅
-					if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+					if(j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
 						_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
 					}
 
 					// //위치 증감 세팅
-					if(j2eKeyframeConfigValue.increaseAndDecrease.length > 0) {
+					if(iadCount > 0) {
 						_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
 					}
 
 					elm.style.animation = '';
 					_j2eKeyFrameUtil.startAnimate(elm, animationName, that, false);
-				} else if((j2eKeyframeConfigValue.increaseAndDecrease.length > 0 || j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) &&
-				          (that.elementConfig.elemantAnimationStatus === J2E_CONSTANT.ANIMATION_END || that.elementConfig.elemantAnimationStatus === undefined)) {
+				} else if(type === 2) {
 					that.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_START;
 
 					if(willChangeCheckValue === true) {
@@ -428,19 +456,19 @@
 						j2eKeyframeConfigValue.synchronization.useElement = elm.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY);
 
 						// 현재위치 세팅
-						if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
+						if(j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
 							_j2eKeyFrameUtil.setStartingPosition(elm, animationName);
 						}
 
 						// //위치 증감 세팅
-						if(j2eKeyframeConfigValue.increaseAndDecrease.length > 0) {
+						if(iadCount > 0) {
 							_j2eKeyFrameUtil.setIncreaseAndDecreasePosition(elm, animationName);
 						}
 					}
 
 					elm.style.animation = '';
 					_j2eKeyFrameUtil.startAnimate(elm, animationName, that, true);
-				} else if(j2eKeyframeConfigValue.j2ePositionType === J2E_CONSTANT.ABSOLUTE_POSITION_TYPE) {
+				} else if(type === 3) {
 					if(willChangeCheckValue === true) {
 						elm.style.willChange = willChangeValue;
 					}
@@ -449,7 +477,6 @@
 					_j2eKeyFrameUtil.startAnimate(elm, animationName, that, true);
 				}
 
-				return that;
 			},
 			startAnimate: function(elm, animationName, that, animateType) {
 				var animationOption = that.elementConfig.animationOption;
