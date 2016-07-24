@@ -1,10 +1,3 @@
----
-layout: j2e-layout
-title:  "소개"
-categories: j2eLearn
-pageType: j2eLearn
----
-
 > # **j2e 라이브러리 구문 정의**
 
 -----------------------------------
