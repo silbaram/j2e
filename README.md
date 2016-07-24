@@ -1,4 +1,4 @@
-> # **j2e 라이브러리 구문 정의**
+> # **j2e 라이브러리**
 
 -----------------------------------
 
@@ -106,6 +106,7 @@ j2e(element-selecter).setDuration(t).animate({name:”roleName”});
 <br />
 
 > ### **transition Type**
+
   * css3 transition 기반으로 동작
   * 단일 element에 다이나믹 애니메이션 효과에 적합
 
