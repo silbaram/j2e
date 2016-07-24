@@ -86,22 +86,25 @@
 			addRole: function(s) {
 				var j2eCheckKeyframeConfig = {};
 				var keyframes = '@' + _commonConfig.cssFix + "keyframes " + s.name + " { ";
-				keyframes += _j2eKeyFrameUtil.createRole(s.role, j2eCheckKeyframeConfig);
+				var keyframesText = _j2eKeyFrameUtil.createRole(s.role, j2eCheckKeyframeConfig);
+				keyframes += keyframesText;
 				keyframes += "}";
 
-				if(j2eKeyframeConfig[s.name] === undefined) {
-					j2eKeyframeConfig.push(s.name);
-					j2eKeyframeConfig[s.name] = j2eCheckKeyframeConfig;
-					j2eCheckKeyframeConfig.index = document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length;
-					j2eCheckKeyframeConfig.synchronization = {useElement:"", status:false}
-				}
-				document.styleSheets[_commonConfig.styleSheetsIndex].insertRule( keyframes, document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length );
+				if(keyframesText) {
+					if(j2eKeyframeConfig[s.name] === undefined) {
+						j2eKeyframeConfig.push(s.name);
+						j2eKeyframeConfig[s.name] = j2eCheckKeyframeConfig;
+						j2eCheckKeyframeConfig.index = document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length;
+						j2eCheckKeyframeConfig.synchronization = {useElement:"", status:false}
+					}
+					document.styleSheets[_commonConfig.styleSheetsIndex].insertRule( keyframes, document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length );
 
-				var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(s.name);
-				if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
-					j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.RELATIVE_POSITION_TYPE;
-				} else {
-					j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.ABSOLUTE_POSITION_TYPE;
+					var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(s.name);
+					if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
+						j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.RELATIVE_POSITION_TYPE;
+					} else {
+						j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.ABSOLUTE_POSITION_TYPE;
+					}
 				}
 			}
 		};
@@ -187,76 +190,94 @@
 				var newItem = [];
 
 				for(let key in s) {
-					transformRoleText = " transform: ";
-					transformRoleUse = false;
-					let keyText = s[key].share === "from" ? J2E_CONSTANT.START_RULE_KEY_NAME+" " : s[key].share === "to" ? J2E_CONSTANT.END_RULE_KEY_NAME+" " : s[key].share.replace("%", "")+"% ";
-					roleText += keyText	+ "{";
-					for(let subKey in s[key]) {
-						//transform 조합
-						if(subKey !== "share") {
-							if(transformKey[subKey] !== undefined) {
-								transformRoleUse = true;
-								let originTextKey = s[key][subKey];
-								let textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
-
-								//transform이 여러 방향(,) 할당될때 처리
-								let textKeyArray = textKey.split(",");
-								transformRoleText += " " + subKey + "(";
-								for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
-									let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? transformKey[subKey] : "";
-									let commaUnit = textKeyArrayIndex == 0 ? "" : " ,";
-
-									transformRoleText += commaUnit + textKeyArray[textKeyArrayIndex] + unit;
-								}
-								transformRoleText += ")";
-
-								//증감 유무 체크
-								if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0 || originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
-									if(increaseAndDecreaseArray[keyText] === undefined) {
-										increaseAndDecreaseArray.push(keyText);
+					try {
+						transformRoleText = " transform: ";
+						transformRoleUse = false;
+						let keyText = s[key].share === "from" ? J2E_CONSTANT.START_RULE_KEY_NAME+" " : s[key].share === "to" ? J2E_CONSTANT.END_RULE_KEY_NAME+" " : s[key].share.replace === undefined ? s[key].share+"% " : s[key].share.replace("%", "")+"% ";
+						roleText += keyText	+ "{";
+						for(let subKey in s[key]) {
+							//transform 조합
+							if(subKey !== "share") {
+								if(transformKey[subKey] !== undefined) {
+									transformRoleUse = true;
+									let originTextKey = s[key][subKey];
+									if(originTextKey.replace === undefined) {
+										textKey = originTextKey;
+										originTextKey = originTextKey.toString();
+									} else {
+										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
 
-									newItem.push(subKey);
-									newItem[subKey] = originTextKey;
-									increaseAndDecreaseArray[keyText] = newItem;
+									//transform이 여러 방향(,) 할당될때 처리
+									let textKeyArray = textKey.split(",");
+									transformRoleText += " " + subKey + "(";
+									for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
+										let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? transformKey[subKey] : "";
+										let commaUnit = textKeyArrayIndex == 0 ? "" : " ,";
+
+										transformRoleText += commaUnit + textKeyArray[textKeyArrayIndex] + unit;
+									}
+									transformRoleText += ")";
+
+									//증감 유무 체크
+									if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0 || originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
+										if(increaseAndDecreaseArray[keyText] === undefined) {
+											increaseAndDecreaseArray.push(keyText);
+										}
+
+										newItem.push(subKey);
+										newItem[subKey] = originTextKey;
+										increaseAndDecreaseArray[keyText] = newItem;
+									}
 								}
 							}
 						}
-					}
 
-					if(transformRoleUse) {
-						roleText += transformRoleText + ";";
-					}
+						if(transformRoleUse) {
+							roleText += transformRoleText + ";";
+						}
 
-					var checkStyle = document.body.style;
-					for(let subKey in s[key]) {
-						//css 조합
-						if(subKey !== "share") {
-							if(checkStyle[subKey] !== undefined) {
-								let unit = "";
-								let originTextKey = s[key][subKey];
-								let textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
-								if(isNaN(textKey) === false) {
-									unit = cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px";
-								}
-
-								//증감 유무 체크
-								if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0 || originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
-									if(increaseAndDecreaseArray[keyText] === undefined) {
-										increaseAndDecreaseArray.push(keyText);
+						var checkStyle = document.body.style;
+						for(let subKey in s[key]) {
+							//css 조합
+							if(subKey !== "share") {
+								if(checkStyle[subKey] !== undefined) {
+									let unit = "";
+									let originTextKey = s[key][subKey];
+									let textKey = "";
+									if(originTextKey.replace === undefined) {
+										textKey = originTextKey;
+										originTextKey = originTextKey.toString();
+									} else {
+										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
 
-									newItem.push(subKey);
-									newItem[subKey] = originTextKey;
-									increaseAndDecreaseArray[keyText] = newItem;
-								}
+									if(isNaN(textKey) === false) {
+										unit = cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px";
+									}
 
-								roleText += " " + _j2eKeyFrameUtil.getChangeCssKey(subKey) + ": " + textKey + unit + ";";
+									//증감 유무 체크
+									if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0 || originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
+										if(increaseAndDecreaseArray[keyText] === undefined) {
+											increaseAndDecreaseArray.push(keyText);
+										}
+
+										newItem.push(subKey);
+										newItem[subKey] = originTextKey;
+										increaseAndDecreaseArray[keyText] = newItem;
+									}
+
+									roleText += " " + _j2eKeyFrameUtil.getChangeCssKey(subKey) + ": " + textKey + unit + ";";
+								}
 							}
 						}
-					}
 
-					roleText += "} ";
+						roleText += "} ";
+					} catch(e) {
+						console.error(e);
+						console.error("keyframe 생성 중 에러가 발생했습니다.");
+						return false;
+					}
 				}
 
 				j2eCheckKeyframeConfig.increaseAndDecrease = increaseAndDecreaseArray;
@@ -287,7 +308,7 @@
 			},
 			setIncreaseAndDecreasePosition: function(elm, animationName) {
 				var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
-				var cssValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[J2E_CONSTANT.TRANSFORM_NAME] : elm.currentStyle[J2E_CONSTANT.TRANSFORM_NAME];
+				var transformCssValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[J2E_CONSTANT.TRANSFORM_NAME] : elm.currentStyle[J2E_CONSTANT.TRANSFORM_NAME];
 
 				for(let i = 0, iLength = j2eKeyframeConfig[animationName].increaseAndDecrease.length; i < iLength; i++) {
 					let key = j2eKeyframeConfig[animationName].increaseAndDecrease[i];
@@ -319,13 +340,13 @@
 										if(transformNewMoveValueArray[index].indexOf(J2E_CONSTANT.INCREASE) === 0) {
 											let numberNewMoveValue = Number(newMoveValue.replace(J2E_CONSTANT.INCREASE,""));
 											let numberOldMoveValue = Number(oldMoveValue.replace(/[(A-Z)]/gi,""));
-											if(cssValue !== "none") {
+											if(transformCssValue !== "none") {
 												transformNewRoleText += commaUnit + (numberNewMoveValue + numberOldMoveValue) + oldMoveValue.replace(/[^(A-Z)]/gi,"");
 											}
 										} else if (transformNewMoveValueArray[index].indexOf(J2E_CONSTANT.DECREASE) === 0) {
 											let numberNewMoveValue = Number(newMoveValue.replace(J2E_CONSTANT.DECREASE,""));
 											let numberOldMoveValue = Number(oldMoveValue.replace(/[(A-Z)]/gi,""));
-											if(cssValue === "none") {
+											if(transformCssValue === "none") {
 												transformNewRoleText += commaUnit + (numberOldMoveValue - (numberOldMoveValue+numberNewMoveValue)) + oldMoveValue.replace(/[^(A-Z)]/gi,"");
 											} else {
 												transformNewRoleText += commaUnit + (numberOldMoveValue - numberNewMoveValue) + oldMoveValue.replace(/[^(A-Z)]/gi,"");
