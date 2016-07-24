@@ -42,7 +42,7 @@ j2e(element-selecter).setDuration(t).animate({name:”roleName”});
 ```
 
 | 이       름 | 설               명 |
-| ---
+| --- | --- |
 | name | 룰 고유 이름 |
 
 <br />
@@ -54,7 +54,7 @@ j2e(element-selecter).setDuration(t).animate({name:”roleName”});
 ```
 
 | 이       름 | 설               명 |
-| ---
+| --- | --- |
 | name | 룰 고유 이름 (룰이 바로 등록됨) |
 | role | element에 적용되는 모션 규칙 |
 
