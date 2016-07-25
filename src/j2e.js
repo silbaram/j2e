@@ -20,6 +20,9 @@
 				fontWeight: "",opacity: "",order: "",outline: "",outlineColor: "",outlineOffset: "",textDecorationColor: "",
 				textShadow: "",transformOrigin: "", checkStyle: ""
 			},
+			cssInitialValueType = {
+				backgroundSize: "background-size"
+			},
 			J2E_CONSTANT = {
 				STYLESHEET_LOCALNAME: "style",
 				START_RULE_KEY_NAME: "0%",
@@ -182,6 +185,50 @@
 		};
 
 
+	//초기값이 설정이 none, auto로 나올때 기본값 찾기
+	var
+		_j2eCommonCssUtil = {
+			getCssInitialValue(cssName, elm) {
+				if(cssInitialValueType.backgroundSize === cssName) {
+					var backgorundStyle = window.getComputedStyle !== undefined ? getComputedStyle(elm, null) : elm.currentStyle;
+					var startBackgorundTmep = backgorundStyle[cssInitialValueType.backgroundSize].split(" ");
+
+					var backgroundImage = new Image();
+
+					if(startBackgorundTmep.length == 1) {
+						if(startBackgorundTmep[0] == "auto") {
+							backgroundImage.src = backgorundStyle["backgroundImage"].replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+							return {x : backgroundImage.width, y : backgroundImage.height};
+						} else {
+							return  {x : parseFloat(startBackgorundTmep[0].replace(regex, '')), y : "auto"};
+						}
+					} else if(startBackgorundTmep.length == 2) {
+						if(startBackgorundTmep[0] == "auto" && startBackgorundTmep[1] == "auto") {
+							backgroundImage.src = backgorundStyle["backgroundImage"].replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+							return  {x : backgroundImage.width, y : backgroundImage.height};
+						} else if(startBackgorundTmep[0] == "auto" || startBackgorundTmep[1] == "auto") {
+							return  {x : startBackgorundTmep[0] == "auto" ? "auto" : parseFloat(startBackgorundTmep[0].replace(regex, '')), y : startBackgorundTmep[1] == "auto" ? "auto" : parseFloat(startBackgorundTmep[1].replace(regex, ''))};
+						} else {
+							return  {x : parseFloat(startBackgorundTmep[0].replace(regex, '')), y : parseFloat(startBackgorundTmep[1].replace(regex, ''))};
+						}
+					}
+				}
+			},
+			getChangeCssKey: function(w) {
+				var wordChk = /[A-Z]/;
+
+				if(wordChk.test(w)) {
+					for(let i = 0, wordLength = w.length; i < wordLength; i++) {
+						if(wordChk.test(w[i])) {
+							w = w.replace(w.charAt(i), "-"+w.charAt(i).toLowerCase());
+						}
+					}
+				}
+				return w;
+			}
+		};
+
+
 	var
 		_j2eKeyFrameUtil = {
 			createRole: function(s, j2eCheckKeyframeConfig) {
@@ -270,12 +317,12 @@
 											increaseAndDecreaseArray.push(keyText);
 										}
 
-										newItem.push(_j2eKeyFrameUtil.getChangeCssKey(subKey));
-										newItem[_j2eKeyFrameUtil.getChangeCssKey(subKey)] = originTextKey;
+										newItem.push(_j2eCommonCssUtil.getChangeCssKey(subKey));
+										newItem[_j2eCommonCssUtil.getChangeCssKey(subKey)] = originTextKey;
 										increaseAndDecreaseArray[keyText] = newItem;
 									}
 
-									roleText += " " + _j2eKeyFrameUtil.getChangeCssKey(subKey) + ": " + cssRoleText + ";";
+									roleText += " " + _j2eCommonCssUtil.getChangeCssKey(subKey) + ": " + cssRoleText + ";";
 								}
 							}
 						}
@@ -308,9 +355,16 @@
 					let startRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME).style;
 
 					for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
-						let cssValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[endRuleStyle[item]] : elm.currentStyle[endRuleStyle[item]];
-						startRuleStyle[endRuleStyle[item]] = cssValue;
-						elm.style[endRuleStyle[item]] = cssValue;
+						let endRuleStyleKey = endRuleStyle[item];
+						let cssValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[endRuleStyleKey] : elm.currentStyle[endRuleStyleKey];
+
+						if(endRuleStyleKey === cssInitialValueType.backgroundSize && cssValue === "auto") {
+							let backgroundSizeValue = _j2eCommonCssUtil.getCssInitialValue(cssInitialValueType.backgroundSize, elm);
+							cssValue = backgroundSizeValue.x+"px " +backgroundSizeValue.y+"px";
+						}
+
+						startRuleStyle[endRuleStyleKey] = cssValue;
+						elm.style[endRuleStyleKey] = cssValue;
 					}
 				}
 			},
@@ -388,18 +442,6 @@
 						}
 					}
 				}
-			},
-			getChangeCssKey: function(w) {
-				var wordChk = /[A-Z]/;
-
-				if(wordChk.test(w)) {
-					for(let i = 0, wordLength = w.length; i < wordLength; i++) {
-						if(wordChk.test(w[i])) {
-							w = w.replace(w.charAt(i), "-"+w.charAt(i).toLowerCase());
-						}
-					}
-				}
-				return w;
 			},
 			getStyleSheet: function(animationName) {
 				var stylesheet = document.styleSheets[_commonConfig.styleSheetsIndex],
@@ -564,6 +606,7 @@
 					var animationOption = that.elementConfig.animationOption;
 					var transitionRoleTemp = "";
 					var transformRoleUse = false;
+					var elm = that.elementConfig.targetElement;
 
 					for(let i = 0, iMaxLength = role.length; i < iMaxLength; i++) {
 
@@ -576,7 +619,8 @@
 
 						for(let subKey in role[i]) {
 							if(subKey !== "duration") {
-								let subKeyTemp = _j2eKeyFrameUtil.getChangeCssKey(subKey);
+								let subKeyTemp = _j2eCommonCssUtil.getChangeCssKey(subKey);
+
 								if (cssUnitValue.checkStyle[subKeyTemp] !== undefined) {
 									transitionRoleTemp += subKeyTemp + " " + transitionTime + ", ";
 								} else if(transformKey[subKeyTemp] !== undefined && transformRoleUse === false) {
