@@ -519,7 +519,7 @@
 				}
 
 				if(animationOption.duration === "") {
-					console.error("시건 설정이 빠져있습니다.");
+					console.error("시간 설정이 빠져있습니다.");
 					console.error("j2e(selector).setDuration().animate(); 와 같은 형식으로 animaite 함수가 마지막에 위치 하도록 하셔야 합니다.");
 					return;
 				}
@@ -576,9 +576,10 @@
 
 						for(let subKey in role[i]) {
 							if(subKey !== "duration") {
-								if (cssUnitValue.checkStyle[subKey] !== undefined) {
-									transitionRoleTemp += subKey + " " + transitionTime + ", ";
-								} else if(transformKey[subKey] !== undefined && transformRoleUse === false) {
+								let subKeyTemp = _j2eKeyFrameUtil.getChangeCssKey(subKey);
+								if (cssUnitValue.checkStyle[subKeyTemp] !== undefined) {
+									transitionRoleTemp += subKeyTemp + " " + transitionTime + ", ";
+								} else if(transformKey[subKeyTemp] !== undefined && transformRoleUse === false) {
 									transformRoleUse = true;
 									transitionRoleTemp += J2E_CONSTANT.TRANSFORM_NAME + " " + transitionTime + ", ";
 								}
