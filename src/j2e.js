@@ -204,6 +204,7 @@
 								if(transformKey[subKey] !== undefined) {
 									transformRoleUse = true;
 									let originTextKey = s[key][subKey];
+									let textKey = "";
 									if(originTextKey.replace === undefined) {
 										textKey = originTextKey;
 										originTextKey = originTextKey.toString();
