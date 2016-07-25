@@ -18,7 +18,7 @@
 				backgroundColor : "",borderColor: "",borderLeftColor: "",borderRightColor: "",borderTopColor: "",
 				boxShadow: "",columnRule: "",columnRuleColor: "",columns: "",filter: "",flexGrow: "",flexShrink: "",
 				fontWeight: "",opacity: "",order: "",outline: "",outlineColor: "",outlineOffset: "",textDecorationColor: "",
-				textShadow: "",transformOrigin: ""
+				textShadow: "",transformOrigin: "", checkStyle: ""
 			},
 			J2E_CONSTANT = {
 				STYLESHEET_LOCALNAME: "style",
@@ -122,11 +122,13 @@
 						domPrefixes = 'Webkit/Moz/O/ms/Khtml'.split('/'),
 						pfx = '';
 
-				if( document.body.style.animationName ) { cssAnimation = true; }
+				cssUnitValue.checkStyle = document.body.style;
+
+				if( cssUnitValue.checkStyle.animationName ) { cssAnimation = true; }
 
 				if( cssAnimation === false ) {
 				  for( var i = 0, iLength = domPrefixes.length; i < iLength; i++ ) {
-						if( document.body.style[ domPrefixes[i] + 'AnimationName' ] !== undefined ) {
+						if( cssUnitValue.checkStyle[ domPrefixes[i] + 'AnimationName' ] !== undefined ) {
 						  pfx = domPrefixes[ i ];
 						  animationstring = pfx + 'Animation';
 						  keyframeprefix = '-' + pfx.toLowerCase() + '-';
@@ -185,6 +187,7 @@
 			createRole: function(s, j2eCheckKeyframeConfig) {
 				var roleText = "";
 				var transformRoleText = " transform: ";
+				var cssRoleText = "";
 				var transformRoleUse = false;
 				var increaseAndDecreaseArray = [];
 				var newItem = [];
@@ -237,11 +240,12 @@
 							roleText += transformRoleText + ";";
 						}
 
-						var checkStyle = document.body.style;
+						cssRoleText = "";
+
 						for(let subKey in s[key]) {
 							//css 조합
 							if(subKey !== "share") {
-								if(checkStyle[subKey] !== undefined) {
+								if(cssUnitValue.checkStyle[subKey] !== undefined) {
 									let unit = "";
 									let originTextKey = s[key][subKey];
 									let textKey = "";
@@ -252,8 +256,11 @@
 										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
 
-									if(isNaN(textKey) === false) {
-										unit = cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px";
+									let textKeyArray = textKey.split(",");
+									for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
+										let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px" : "";
+										let space = textKeyArrayIndex+1 < textKeyArrayLength ? " " : "";
+										cssRoleText += textKeyArray[textKeyArrayIndex] + unit + space;
 									}
 
 									//증감 유무 체크
@@ -262,12 +269,12 @@
 											increaseAndDecreaseArray.push(keyText);
 										}
 
-										newItem.push(subKey);
-										newItem[subKey] = originTextKey;
+										newItem.push(_j2eKeyFrameUtil.getChangeCssKey(subKey));
+										newItem[_j2eKeyFrameUtil.getChangeCssKey(subKey)] = originTextKey;
 										increaseAndDecreaseArray[keyText] = newItem;
 									}
 
-									roleText += " " + _j2eKeyFrameUtil.getChangeCssKey(subKey) + ": " + textKey + unit + ";";
+									roleText += " " + _j2eKeyFrameUtil.getChangeCssKey(subKey) + ": " + cssRoleText + ";";
 								}
 							}
 						}
@@ -366,9 +373,11 @@
 
 						} else {
 							let moveValue = j2eKeyframeConfig[animationName].increaseAndDecrease[key][styleItemKey];
+
 							if(moveValue !== undefined) {
 								let styleValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[styleItemKey] : elm.currentStyle[styleItemKey];
 
+								// 버그 : === 0으로 하면 여러개의 값이 올경우 처리가 안됨
 								if(moveValue.indexOf(J2E_CONSTANT.INCREASE) === 0) {
 									rule.style[styleItemKey] = (Number(moveValue.replace(J2E_CONSTANT.INCREASE,"")) + Number(styleValue.replace(/[(A-Z)]/gi,""))) + styleValue.replace(/[^(A-Z)]/gi,"");
 								} else if (moveValue.indexOf(J2E_CONSTANT.DECREASE) === 0) {
@@ -554,7 +563,6 @@
 					var animationOption = that.elementConfig.animationOption;
 					var transitionRoleTemp = "";
 					var transformRoleUse = false;
-					var checkStyle = document.body.style;
 
 					for(let i = 0, iMaxLength = role.length; i < iMaxLength; i++) {
 
@@ -567,7 +575,7 @@
 
 						for(let subKey in role[i]) {
 							if(subKey !== "duration") {
-								if (checkStyle[subKey] !== undefined) {
+								if (cssUnitValue.checkStyle[subKey] !== undefined) {
 									transitionRoleTemp += subKey + " " + transitionTime + ", ";
 								} else if(transformKey[subKey] !== undefined && transformRoleUse === false) {
 									transformRoleUse = true;
@@ -583,7 +591,6 @@
 					var elm = that.elementConfig.targetElement;
 					var transitionRoleTemp = "";
 					var transformRoleText = "";
-					var checkStyle = document.body.style;
 
 					for(let i = 0, maxLength = role.length; i < maxLength; i++) {
 
@@ -660,7 +667,7 @@
 						for(let subKey in role[i]) {
 							if(subKey !== "duration") {
 
-								if(checkStyle[subKey] !== undefined) {
+								if(cssUnitValue.checkStyle[subKey] !== undefined) {
 									transitionRoleTemp = transitionRoleTemp + subKey + " ";
 
 									let unit = "";
