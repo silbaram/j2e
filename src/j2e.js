@@ -304,6 +304,9 @@
 										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
 
+									if(textKey.split === undefined) {
+										textKey = textKey.toString();
+									}
 									let textKeyArray = textKey.split(",");
 									for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
 										let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px" : "";
@@ -646,7 +649,13 @@
 								if(transformKey[subKey] !== undefined) {
 
 									let originTextKey = role[i][subKey];
-									let textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+									let textKey = "";
+									if(originTextKey.replace === undefined) {
+										textKey = originTextKey;
+										originTextKey = originTextKey.toString();
+									} else {
+										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+									}
 
 									//transform이 여러 방향(,) 할당될때 처리
 									if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) !== 0 && originTextKey.indexOf(J2E_CONSTANT.DECREASE) !== 0) {
@@ -718,7 +727,13 @@
 
 									let unit = "";
 									let originTextKey = role[i][subKey];
-									let textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+									let textKey = "";
+									if(originTextKey.replace === undefined) {
+										textKey = originTextKey;
+										originTextKey = originTextKey.toString();
+									} else {
+										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
+									}
 
 									if(isNaN(textKey) === false) {
 										unit = cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px";
