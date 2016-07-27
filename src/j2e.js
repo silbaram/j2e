@@ -253,8 +253,8 @@
 									let originTextKey = s[key][subKey];
 									let textKey = "";
 									if(originTextKey.replace === undefined) {
-										textKey = originTextKey;
 										originTextKey = originTextKey.toString();
+										textKey = originTextKey;
 									} else {
 										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
@@ -298,8 +298,8 @@
 									let originTextKey = s[key][subKey];
 									let textKey = "";
 									if(originTextKey.replace === undefined) {
-										textKey = originTextKey;
 										originTextKey = originTextKey.toString();
+										textKey = originTextKey;
 									} else {
 										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
@@ -622,7 +622,12 @@
 
 						for(let subKey in role[i]) {
 							if(subKey !== "duration") {
-								let subKeyTemp = _j2eCommonCssUtil.getChangeCssKey(subKey);
+								let subKeyTemp = "";
+								if(transformKey[subKey] !== undefined) {
+									subKeyTemp = subKey;
+								} else {
+									subKeyTemp = _j2eCommonCssUtil.getChangeCssKey(subKey);
+								}
 
 								if (cssUnitValue.checkStyle[subKeyTemp] !== undefined) {
 									transitionRoleTemp += subKeyTemp + " " + transitionTime + ", ";
@@ -651,8 +656,8 @@
 									let originTextKey = role[i][subKey];
 									let textKey = "";
 									if(originTextKey.replace === undefined) {
-										textKey = originTextKey;
 										originTextKey = originTextKey.toString();
+										textKey = originTextKey;
 									} else {
 										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
@@ -729,8 +734,8 @@
 									let originTextKey = role[i][subKey];
 									let textKey = "";
 									if(originTextKey.replace === undefined) {
-										textKey = originTextKey;
 										originTextKey = originTextKey.toString();
+										textKey = originTextKey;
 									} else {
 										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
