@@ -188,7 +188,7 @@
 	//초기값이 설정이 none, auto로 나올때 기본값 찾기
 	var
 		_j2eCommonCssUtil = {
-			getCssInitialValue(cssName, elm) {
+			getCssInitialValue: function(cssName, elm) {
 				if(cssInitialValueType.backgroundSize === cssName) {
 					var backgorundStyle = window.getComputedStyle !== undefined ? getComputedStyle(elm, null) : elm.currentStyle;
 					var startBackgorundTmep = backgorundStyle[cssInitialValueType.backgroundSize].split(" ");
