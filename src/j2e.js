@@ -11,7 +11,7 @@
 			},
 			transformKey = {
 				translate: "px",translate3d: "px",translateX: "px",translateY: "px",translateZ: "px",scale: "",scale3d: "",
-				scaleX: "",scaleY: "",scaleZ: "",rotate: "deg",rotate3d: "deg",rotateX: "deg",rotateY: "deg",rotateZ: "deg",
+				scaleX: "",scaleY: "",scaleZ: "",rotate: "deg",rotate3d: "",rotateX: "deg",rotateY: "deg",rotateZ: "deg",
 				skew: "deg",skewX: "deg",skewY: "deg",perspective: "px"
 			},
 			cssUnitValue = {
@@ -304,14 +304,13 @@
 										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
 
-									if(textKey.split === undefined) {
-										textKey = textKey.toString();
-									}
-									let textKeyArray = textKey.split(",");
+									let textKeyArray = textKey.split(" ");
 									for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
-										let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px" : "";
-										let space = textKeyArrayIndex+1 < textKeyArrayLength ? " " : "";
-										cssRoleText += textKeyArray[textKeyArrayIndex] + unit + space;
+										if(textKeyArray[textKeyArrayIndex] != "") {
+											let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px" : "";
+											let space = textKeyArrayIndex+1 < textKeyArrayLength ? " " : "";
+											cssRoleText += textKeyArray[textKeyArrayIndex] + unit + space;
+										}
 									}
 
 									//증감 유무 체크
@@ -393,8 +392,6 @@
 								if(transformNewMoveValue !== undefined) {
 									let transformOldMoveValue = transformValueArray[i].split("(")[1].replace(")", "").split(", ");
 									let transformNewMoveValueArray = transformNewMoveValue.split(",");
-
-									let newRoleSpace = i == 0 ? "" : " ";
 
 									transformNewRoleText += transformValueArray[i].split("(")[0].replace(")", "").split(", ")[0] + "(";
 									for(let index = 0, maxIndex = transformNewMoveValueArray.length; index < maxIndex; index++) {
@@ -725,12 +722,16 @@
 
 						//css 조합
 						for(let subKey in role[i]) {
+
 							if(subKey !== "duration") {
+
+								let cssRoleText = "";
+								let unit = "";
 
 								if(cssUnitValue.checkStyle[subKey] !== undefined) {
 									transitionRoleTemp = transitionRoleTemp + subKey + " ";
 
-									let unit = "";
+									// let unit = "";
 									let originTextKey = role[i][subKey];
 									let textKey = "";
 									if(originTextKey.replace === undefined) {
@@ -740,22 +741,38 @@
 										textKey = originTextKey.replace(J2E_CONSTANT.INCREASE, "").replace(J2E_CONSTANT.DECREASE, "");
 									}
 
-									if(isNaN(textKey) === false) {
-										unit = cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px";
-									}
-
-									//증감 유무 체크
+									let increaseDecreaseYn = false;
 									if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0 || originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
-										let styleValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[subKey] : elm.currentStyle[subKey];
+										increaseDecreaseYn = true;
+									}
+									let textKeyArray = textKey.split(" ");
+									if(!increaseDecreaseYn) {
+										for(let i = 0, iMaxLength = textKeyArray.length; i < iMaxLength; i++) {
+											if(textKeyArray[i] != "") {
+												unit = isNaN(textKeyArray[i]) === false ? cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px" : "";
+												let space = i+1 < iMaxLength ? " " : "";
+												cssRoleText += textKeyArray[i] + unit + space;
+											}
+										}
+									} else {
+										//한개의 값을 경우만 증감 처리 한개 이상일 경우엔 어떤값이 어떤건지 찾을 수가 없음
+										if(textKeyArray === 0) {
+											let styleValue = window.getComputedStyle !== undefined ? getComputedStyle(elm, null)[subKey] : elm.currentStyle[subKey];
+											unit = isNaN(textKeyArray[i]) === false ? cssUnitValue[subKey] !== undefined ? cssUnitValue[subKey] : "px" : "";
 
-										if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0) {
-											textKey = (Number(textKey.replace(J2E_CONSTANT.INCREASE,"")) + Number(styleValue.replace(/[(A-Z)]/gi,"")));
-										} else if (originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
-											textKey = (Number(styleValue.replace(/[(A-Z)]/gi,"")) - Number(textKey.replace(J2E_CONSTANT.INCREASE,"")));
+											if(originTextKey.indexOf(J2E_CONSTANT.INCREASE) === 0) {
+												cssRoleText = (Number(textKey.replace(J2E_CONSTANT.INCREASE,"")) + Number(styleValue.replace(/[(A-Z)]/gi,"")));
+											} else if (originTextKey.indexOf(J2E_CONSTANT.DECREASE) === 0) {
+												cssRoleText = (Number(styleValue.replace(/[(A-Z)]/gi,"")) - Number(textKey.replace(J2E_CONSTANT.INCREASE,"")));
+											}
+
+											cssRoleText += cssRoleText + unit
+										} else {
+											console.error("애니메이션 효과를 주기 위한 CSS가 한개 이상일 경우 증감 처리가 안됨");
 										}
 									}
 
-									elm.style[subKey] = textKey + unit;
+									elm.style[subKey] = cssRoleText;
 								}
 							}
 						}
