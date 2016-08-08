@@ -557,17 +557,34 @@
 
 				var animationOption = that.elementConfig.animationOption;
 
-				var animationOptionTemp = '';
-				for(let key in animationOption) {
-					if(animationOption[key] !== "" && key !== "willChange") {
-						animationOptionTemp += ' ' + animationOption[key];
-					}
-				}
+				var animationOptionTemp = "";
+				// for(let key in animationOption) {
+				// 	if(animationOption[key] !== "" && key !== "willChange") {
+				// 		animationOptionTemp += ' ' + animationOption[key];
+				// 	}
+				// }
 
 				if(animationOption.duration === "") {
 					console.error("시간 설정이 빠져있습니다.");
 					console.error("j2e(selector).setDuration().animate(); 와 같은 형식으로 animaite 함수가 마지막에 위치 하도록 하셔야 합니다.");
 					return;
+				}
+
+				animationOptionTemp = animationOptionTemp + ' ' + animationOption.duration;
+				if(animationOption.delay !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.delay;
+				}
+				if(animationOption.direction !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.direction;
+				}
+				if(animationOption.fillMode !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.fillMode;
+				}
+				if(animationOption.iterationCount !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.iterationCount;
+				}
+				if(animationOption.timingFunction !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.timingFunction;
 				}
 
 				if(animateType) {
@@ -600,7 +617,6 @@
 						}
 
 						if(that.elementConfig.animationOption.callBack !== "") {
-console.log(that.elementConfig.animationOption.callBack);
 							that.elementConfig.animationOption.callBack();
 						}
 
