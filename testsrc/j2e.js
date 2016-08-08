@@ -53,6 +53,7 @@
 					} else {
 						let c = "";
 						if(e !== null) {
+							e = e.toString();
 							c = e.substr(0, 1);
 						};
 
@@ -71,7 +72,7 @@
 
 					if(j2eObjectArr[elementConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] === undefined) {
 						cloneObject.elementConfig = elementConfig;
-						cloneObject.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', timingFunction: '', willChange:false};
+						cloneObject.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', timingFunction: '', willChange:false, callBack: ""};
 						cloneObject.elementConfig.animationEvent = {transition: false, keyframe: false};
 
 						j2eObjectArr.push(elementConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY));
@@ -234,7 +235,7 @@
 		_j2eKeyFrameUtil = {
 			createRole: function(s, j2eCheckKeyframeConfig) {
 				var roleText = "";
-				var transformRoleText = " transform: ";
+				var transformRoleText = " " + J2E_CONSTANT.TRANSFORM_NAME + ": ";
 				var cssRoleText = "";
 				var transformRoleUse = false;
 				var increaseAndDecreaseArray = [];
@@ -242,7 +243,7 @@
 
 				for(let key in s) {
 					try {
-						transformRoleText = " transform: ";
+						transformRoleText = " " + J2E_CONSTANT.TRANSFORM_NAME + ": ";
 						transformRoleUse = false;
 						let keyText = s[key].share === "from" ? J2E_CONSTANT.START_RULE_KEY_NAME+" " : s[key].share === "to" ? J2E_CONSTANT.END_RULE_KEY_NAME+" " : s[key].share.replace === undefined ? s[key].share+"% " : s[key].share.replace("%", "")+"% ";
 						roleText += keyText	+ "{";
@@ -585,6 +586,7 @@
 					});
 
 					_j2eUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
+
 						that.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_END;
 
 						//여러 element가 하나의 keyframe의 rule에 데이터 변경에 대한 접근을 할 수 있도록 속성 변경
@@ -597,7 +599,12 @@
 							elm.style.willChange = 'auto';
 						}
 
-						that.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', timingFunction: '', willChange:false};
+						if(that.elementConfig.animationOption.callBack !== "") {
+console.log(that.elementConfig.animationOption.callBack);
+							that.elementConfig.animationOption.callBack();
+						}
+
+						that.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', timingFunction: '', willChange:false, callBack: ""};
 					});
 				}
 			}
@@ -622,6 +629,13 @@
 							transitionTime = role[i].duration + "s";
 						}
 
+						let transitionDelay = "";
+						if(role[i].delay === undefined) {
+							transitionDelay = " " + animationOption.delay;
+						} else {
+							transitionDelay = "";
+						}
+
 						for(let subKey in role[i]) {
 							if(subKey !== "duration") {
 								let subKeyTemp = "";
@@ -632,10 +646,10 @@
 								}
 
 								if (cssUnitValue.checkStyle[subKeyTemp] !== undefined) {
-									transitionRoleTemp += subKeyTemp + " " + transitionTime + ", ";
+									transitionRoleTemp += subKeyTemp + " " + transitionTime + transitionDelay + ", ";
 								} else if(transformKey[subKeyTemp] !== undefined && transformRoleUse === false) {
 									transformRoleUse = true;
-									transitionRoleTemp += J2E_CONSTANT.TRANSFORM_NAME + " " + transitionTime + ", ";
+									transitionRoleTemp += J2E_CONSTANT.TRANSFORM_NAME + " " + transitionTime + transitionDelay + ", ";
 								}
 							}
 						}
@@ -810,7 +824,6 @@
 					return that;
 				},
 				startAnimate: function(elm, role, that) {
-
 					elm.style.transition = _j2eTransitionUtil.createRole(role, that);
 					_j2eTransitionUtil.setFinishPosition(role, that);
 
@@ -822,7 +835,11 @@
 								elm.style.willChange = 'auto';
 							}
 
-							that.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', timingFunction: '', willChange:false};
+							if(that.elementConfig.animationOption.callBack !== "") {
+								that.elementConfig.animationOption.callBack();
+							}
+
+							that.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', timingFunction: '', willChange:false, callBack: ""};
 						});
 					}
 				}
@@ -978,9 +995,10 @@
 				}
 				transformText += ")";
 
-				elmStyle = '';
-				elmStyle = '';
-				elmStyle = transformText;
+				if(this.elementConfig.animationEvent.keyframe) {
+					elmStyle.animation = '';
+				}
+				elmStyle.transform = transformText;
 			} else {
 				let cssRoleText = "";
 				let textKeyArray = v.split(" ");
@@ -992,8 +1010,21 @@
 					}
 				}
 
-				elmStyle[s] = cssRoleText;
+				this.elementConfig.targetElement.style[s] = cssRoleText;
 			}
+
+			return this;
+		});
+
+
+		_j2eUtil.createFunction("setCallBack", function(f) {
+
+			if(f === "" && typeof f !== "object") {
+				console.error("함수 설정이 잘 못 되었습니다.");
+				return this;
+			}
+
+			this.elementConfig.animationOption.callBack = f;
 
 			return this;
 		});
