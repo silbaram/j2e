@@ -53,6 +53,7 @@
 					} else {
 						let c = "";
 						if(e !== null) {
+							e = e.toString();
 							c = e.substr(0, 1);
 						};
 
@@ -71,7 +72,7 @@
 
 					if(j2eObjectArr[elementConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY)] === undefined) {
 						cloneObject.elementConfig = elementConfig;
-						cloneObject.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', playState: '', timingFunction: '', willChange:false};
+						cloneObject.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', timingFunction: '', willChange:false, callBack: ""};
 						cloneObject.elementConfig.animationEvent = {transition: false, keyframe: false};
 
 						j2eObjectArr.push(elementConfig.targetElement.getAttribute(J2E_CONSTANT.J2E_ANIMATE_ID_KEY));
@@ -103,6 +104,7 @@
 					document.styleSheets[_commonConfig.styleSheetsIndex].insertRule( keyframes, document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length );
 
 					var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(s.name);
+
 					if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
 						j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.RELATIVE_POSITION_TYPE;
 					} else {
@@ -233,7 +235,7 @@
 		_j2eKeyFrameUtil = {
 			createRole: function(s, j2eCheckKeyframeConfig) {
 				var roleText = "";
-				var transformRoleText = " transform: ";
+				var transformRoleText = " " + J2E_CONSTANT.TRANSFORM_NAME + ": ";
 				var cssRoleText = "";
 				var transformRoleUse = false;
 				var increaseAndDecreaseArray = [];
@@ -241,7 +243,7 @@
 
 				for(let key in s) {
 					try {
-						transformRoleText = " transform: ";
+						transformRoleText = " " + J2E_CONSTANT.TRANSFORM_NAME + ": ";
 						transformRoleUse = false;
 						let keyText = s[key].share === "from" ? J2E_CONSTANT.START_RULE_KEY_NAME+" " : s[key].share === "to" ? J2E_CONSTANT.END_RULE_KEY_NAME+" " : s[key].share.replace === undefined ? s[key].share+"% " : s[key].share.replace("%", "")+"% ";
 						roleText += keyText	+ "{";
@@ -552,18 +554,37 @@
 
 			},
 			startAnimate: function(elm, animationName, that, animateType) {
+
 				var animationOption = that.elementConfig.animationOption;
-				var animationOptionTemp = '';
-				for(let key in animationOption) {
-					if(animationOption[key] !== "" && key !== "willChange") {
-						animationOptionTemp += ' ' + animationOption[key];
-					}
-				}
+
+				var animationOptionTemp = "";
+				// for(let key in animationOption) {
+				// 	if(animationOption[key] !== "" && key !== "willChange") {
+				// 		animationOptionTemp += ' ' + animationOption[key];
+				// 	}
+				// }
 
 				if(animationOption.duration === "") {
 					console.error("시간 설정이 빠져있습니다.");
 					console.error("j2e(selector).setDuration().animate(); 와 같은 형식으로 animaite 함수가 마지막에 위치 하도록 하셔야 합니다.");
 					return;
+				}
+
+				animationOptionTemp = animationOptionTemp + ' ' + animationOption.duration;
+				if(animationOption.delay !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.delay;
+				}
+				if(animationOption.direction !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.direction;
+				}
+				if(animationOption.fillMode !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.fillMode;
+				}
+				if(animationOption.iterationCount !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.iterationCount;
+				}
+				if(animationOption.timingFunction !== "") {
+					animationOptionTemp = animationOptionTemp + ' ' + animationOption.timingFunction;
 				}
 
 				if(animateType) {
@@ -582,6 +603,7 @@
 					});
 
 					_j2eUtil.prefixedEventListener(elm, "AnimationEnd", function(e){
+
 						that.elementConfig.elemantAnimationStatus = J2E_CONSTANT.ANIMATION_END;
 
 						//여러 element가 하나의 keyframe의 rule에 데이터 변경에 대한 접근을 할 수 있도록 속성 변경
@@ -593,6 +615,12 @@
 						if(that.elementConfig.animationOption.willChange === true) {
 							elm.style.willChange = 'auto';
 						}
+
+						if(that.elementConfig.animationOption.callBack !== "") {
+							that.elementConfig.animationOption.callBack();
+						}
+
+						that.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', timingFunction: '', willChange:false, callBack: ""};
 					});
 				}
 			}
@@ -617,6 +645,13 @@
 							transitionTime = role[i].duration + "s";
 						}
 
+						let transitionDelay = "";
+						if(role[i].delay === undefined) {
+							transitionDelay = " " + animationOption.delay;
+						} else {
+							transitionDelay = "";
+						}
+
 						for(let subKey in role[i]) {
 							if(subKey !== "duration") {
 								let subKeyTemp = "";
@@ -627,10 +662,10 @@
 								}
 
 								if (cssUnitValue.checkStyle[subKeyTemp] !== undefined) {
-									transitionRoleTemp += subKeyTemp + " " + transitionTime + ", ";
+									transitionRoleTemp += subKeyTemp + " " + transitionTime + transitionDelay + ", ";
 								} else if(transformKey[subKeyTemp] !== undefined && transformRoleUse === false) {
 									transformRoleUse = true;
-									transitionRoleTemp += J2E_CONSTANT.TRANSFORM_NAME + " " + transitionTime + ", ";
+									transitionRoleTemp += J2E_CONSTANT.TRANSFORM_NAME + " " + transitionTime + transitionDelay + ", ";
 								}
 							}
 						}
@@ -815,6 +850,12 @@
 							if(that.elementConfig.animationOption.willChange === true) {
 								elm.style.willChange = 'auto';
 							}
+
+							if(that.elementConfig.animationOption.callBack !== "") {
+								that.elementConfig.animationOption.callBack();
+							}
+
+							that.elementConfig.animationOption = {delay: '', direction: '', duration: '', fillMode: '', iterationCount: '', timingFunction: '', willChange:false, callBack: ""};
 						});
 					}
 				}
@@ -908,7 +949,7 @@
 				return this;
 			}
 
-			this.elementConfig.animationOption.playState = s;
+			this.elementConfig.targetElement.style.animationPlayState = s;
 
 			return this;
 		});
@@ -936,6 +977,74 @@
 
 			return this;
 		});
+
+
+		_j2eUtil.createFunction("setCss", function(s, v) {
+
+			if(s === "") {
+				console.error("변경하려는 CSS속성을 지정 하셔야 합니다.");
+				return this;
+			}
+			if(v === "") {
+				console.error("설정값이 잘 못 되었습니다. 설정값을 지정 하셔야 합니다.");
+				return this;
+			}
+
+			var elmStyle = this.elementConfig.targetElement.style;
+
+			//transform 조합
+			if(transformKey[s] !== undefined) {
+				let transformText = "";
+				let textKey = v;
+				if(textKey.replace === undefined) {
+					textKey = textKey.toString();
+				}
+
+				//transform이 여러 방향(,) 할당될때 처리
+				let textKeyArray = textKey.split(",");
+				transformText += " " + s + "(";
+				for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
+					let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? transformKey[s] : "";
+					let commaUnit = textKeyArrayIndex == 0 ? "" : " ,";
+
+					transformText += commaUnit + textKeyArray[textKeyArrayIndex] + unit;
+				}
+				transformText += ")";
+
+				if(this.elementConfig.animationEvent.keyframe) {
+					elmStyle.animation = '';
+				}
+				elmStyle.transform = transformText;
+			} else {
+				let cssRoleText = "";
+				let textKeyArray = v.split(" ");
+				for(let textKeyArrayIndex = 0, textKeyArrayLength = textKeyArray.length; textKeyArrayIndex < textKeyArrayLength; textKeyArrayIndex++) {
+					if(textKeyArray[textKeyArrayIndex] != "") {
+						let unit = isNaN(textKeyArray[textKeyArrayIndex]) === false ? cssUnitValue[s] !== undefined ? cssUnitValue[s] : "px" : "";
+						let space = textKeyArrayIndex+1 < textKeyArrayLength ? " " : "";
+						cssRoleText += textKeyArray[textKeyArrayIndex] + unit + space;
+					}
+				}
+
+				this.elementConfig.targetElement.style[s] = cssRoleText;
+			}
+
+			return this;
+		});
+
+
+		_j2eUtil.createFunction("setCallBack", function(f) {
+
+			if(f === "" && typeof f !== "object") {
+				console.error("함수 설정이 잘 못 되었습니다.");
+				return this;
+			}
+
+			this.elementConfig.animationOption.callBack = f;
+
+			return this;
+		});
+
 
 		window.j2e = _j2e.selector;
 		window.j2e.addRole = _j2e.addRole;
