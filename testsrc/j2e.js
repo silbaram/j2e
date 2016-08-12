@@ -371,13 +371,12 @@
 					if(keyframesRule === null) {
 						stylesheetValue.keyframes.appendRule(J2E_CONSTANT.START_RULE_KEY_NAME+" {}");
 					} else {
-						stylesheetValue.keyframes.deleteRule(endKeyRuleName);
+						stylesheetValue.keyframes.deleteRule(startKeyRuleName);
 						stylesheetValue.keyframes.appendRule(J2E_CONSTANT.START_RULE_KEY_NAME+" {}");
 					}
 
 					let startRuleStyle = stylesheetValue.keyframes.findRule(startKeyRuleName).style;
-					let endKeyRuleValue = stylesheetValue.keyframes.findRule(endKeyRuleName);
-					let endRuleStyle = endKeyRuleValue === null ? "" : endKeyRuleValue.style;
+					let endRuleStyle = stylesheetValue.keyframes.findRule(endKeyRuleName).style;
 
 					for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
 						let endRuleStyleKey = endRuleStyle[item];
