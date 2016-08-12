@@ -26,7 +26,9 @@
 			J2E_CONSTANT = {
 				STYLESHEET_LOCALNAME: "style",
 				START_RULE_KEY_NAME: "0%",
+				START_NO_UNIT_RULE_KEY_NAME: "0",
 				END_RULE_KEY_NAME: "100%",
+				END_NO_UNIT_RULE_KEY_NAME: "1",
 				ABSOLUTE_POSITION_TYPE: "absolute",
 				RELATIVE_POSITION_TYPE: "relative",
 				INCREASE: "+=",
@@ -104,8 +106,14 @@
 					document.styleSheets[_commonConfig.styleSheetsIndex].insertRule( keyframes, document.styleSheets[_commonConfig.styleSheetsIndex].cssRules.length );
 
 					var stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(s.name);
+					var keyframesRule = "";
+					try {
+						keyframesRule = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME);
+					} catch(e) {
+						keyframesRule = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_NO_UNIT_RULE_KEY_NAME);
+					}
 
-					if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
+					if(keyframesRule === null) {
 						j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.RELATIVE_POSITION_TYPE;
 					} else {
 						j2eCheckKeyframeConfig.j2ePositionType = J2E_CONSTANT.ABSOLUTE_POSITION_TYPE;
@@ -347,16 +355,29 @@
 				//상대위치 타입이면 현제 위치를 시작 위치로 변경 해준다.
 				if(j2eKeyframeConfig[animationName].j2ePositionType === J2E_CONSTANT.RELATIVE_POSITION_TYPE) {
 					let stylesheetValue = _j2eKeyFrameUtil.getStyleSheet(animationName);
+					let keyframesRule = "";
+					let startKeyRuleName = "";
+					let endKeyRuleName = "";
+					try {
+						keyframesRule = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME);
+						startKeyRuleName = J2E_CONSTANT.START_RULE_KEY_NAME;
+						endKeyRuleName = J2E_CONSTANT.END_RULE_KEY_NAME;
+					} catch(e) {
+						keyframesRule = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_NO_UNIT_RULE_KEY_NAME);
+						startKeyRuleName = J2E_CONSTANT.START_NO_UNIT_RULE_KEY_NAME;
+						endKeyRuleName = J2E_CONSTANT.END_NO_UNIT_RULE_KEY_NAME;
+					}
 
-					if(stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME) === null) {
+					if(keyframesRule === null) {
 						stylesheetValue.keyframes.appendRule(J2E_CONSTANT.START_RULE_KEY_NAME+" {}");
 					} else {
-						stylesheetValue.keyframes.deleteRule(J2E_CONSTANT.START_RULE_KEY_NAME);
+						stylesheetValue.keyframes.deleteRule(endKeyRuleName);
 						stylesheetValue.keyframes.appendRule(J2E_CONSTANT.START_RULE_KEY_NAME+" {}");
 					}
 
-					let endRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.END_RULE_KEY_NAME).style;
-					let startRuleStyle = stylesheetValue.keyframes.findRule(J2E_CONSTANT.START_RULE_KEY_NAME).style;
+					let startRuleStyle = stylesheetValue.keyframes.findRule(startKeyRuleName).style;
+					let endKeyRuleValue = stylesheetValue.keyframes.findRule(endKeyRuleName);
+					let endRuleStyle = endKeyRuleValue === null ? "" : endKeyRuleValue.style;
 
 					for(let item = 0, itemLenght = endRuleStyle.length; item < itemLenght; item++) {
 						let endRuleStyleKey = endRuleStyle[item];
